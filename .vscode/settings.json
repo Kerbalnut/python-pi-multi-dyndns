@@ -1,5 +1,5 @@
 {
 	"editor.renderWhitespace": "all",
-	"editor.trimAutoWhitespace": true,
+	"editor.trimAutoWhitespace": false,
 	"editor.useTabStops": false
 }
