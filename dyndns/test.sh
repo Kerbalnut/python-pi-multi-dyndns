@@ -1252,7 +1252,17 @@ pickrandommin()
 		printf '%s\n' "$DEM15"
 		printf '%s\n' "$DEM16"
 		
-		sleep 0.3
+		FEED01="              "
+		FEED02="    FEED    "
+		FEED03="              "
+		
+		ME_TXT_01="          "
+		ME_TXT_02="   ME   "
+		ME_TXT_03="          "
+		
+		CHILD01="               "
+		CHILD02="    CHILD    "
+		CHILD03="               "
 		
 		genrandomchar()
 		{
@@ -1281,43 +1291,20 @@ pickrandommin()
 			done
 		}
 		
-		
-		
-		
-		
 		TERMINAL_WIDTH=`tput cols`
-		PADDING=$(($TERMINAL_WIDTH - $DEM_LENGTH))
-		SIDE_PADDING=$(($PADDING / 2))
-		REMAINDER=`echo "var=$PADDING;var%=2;var" | bc`
-		#PADDING=$((($SIDE_PADDING * 2) + $REMAINDER))
-		
-		printf "\n"
-		
-		echo "one line:"
-		genrandomchar $(($TERMINAL_WIDTH - 1))
-		echo "End of line"
-		
-		printf "\n\n"
-		
-		TWO_LINES=$((($TERMINAL_WIDTH * 2) - 1))
-		
-		echo "two line:"
-		genrandomchar $TWO_LINES
-		echo "End of line"
-		
-		printf "\n\n"
-		
-		THREE_LINES=$((($TERMINAL_WIDTH * 3) - 1))
-		
-		echo "three line:"
-		genrandomchar $THREE_LINES
-		echo "End of line"
-		
-		
-		
-		
-		
-		
+		setpadding()
+		{
+			LENGTH=$1
+			#TERMINAL_WIDTH=`tput cols`
+			PADDING=$(($TERMINAL_WIDTH - $LENGTH))
+			SIDE_PADDING=$(($PADDING / 2))
+			REMAINDER=`echo "var=$PADDING;var%=2;var" | bc`
+			#PADDING=$((($SIDE_PADDING * 2) + $REMAINDER))
+			#LEFT_PADDING=$SIDE_PADDING
+			#RIGHT_PADDING=$(($REMAINDER + $SIDE_PADDING))
+			LEFT_PADDING=$(($SIDE_PADDING - 1))
+			RIGHT_PADDING=$((($REMAINDER + $SIDE_PADDING) - 1))
+		}
 		
 		TERMINAL_WIDTH=`tput cols`
 		DEM_PADDING=$(($TERMINAL_WIDTH - $DEM_LENGTH))
@@ -1330,18 +1317,91 @@ pickrandommin()
 		RIGHT_PADDING=$((($REMAINDER + $SIDE_DEM_PADDING) - 1))
 		
 		printf "\n\n"
-		printf "three line:"
-		
+		printf "three lineS:\n"
 		printf "\r"
 		THREE_LINES=$((($TERMINAL_WIDTH * 3) - 1))
 		genrandomchar $THREE_LINES
-		echo "End of line"
 		
-		printf "\n\n\n\r"
-		THREE_LINES=$((($TERMINAL_WIDTH * 3) - 1))
+		# "FEED" text centered, nonsense padding:
+		setpadding ${#FEED01}
+		genrandomchar $LEFT_PADDING
+		printf '%s' "$FEED01"
+		genrandomchar $RIGHT_PADDING
+		
+		setpadding ${#FEED02}
+		genrandomchar $LEFT_PADDING
+		printf '%s' "$FEED02"
+		genrandomchar $RIGHT_PADDING
+		
+		setpadding ${#FEED01}
+		genrandomchar $LEFT_PADDING
+		printf '%s' "$FEED01"
+		genrandomchar $RIGHT_PADDING
+		
+		#TWO_LINES=$((($TERMINAL_WIDTH * 2) - 1))
+		TWO_LINES=$(($TERMINAL_WIDTH * 2))
+		genrandomchar $TWO_LINES
+		printf "\r"
+		
+		setpadding ${#ME_TXT_01}
+		genrandomchar $LEFT_PADDING
+		printf '%s' "$ME_TXT_01"
+		genrandomchar $RIGHT_PADDING
+		
+		setpadding ${#ME_TXT_02}
+		genrandomchar $LEFT_PADDING
+		printf '%s' "$ME_TXT_02"
+		genrandomchar $RIGHT_PADDING
+		
+		setpadding ${#ME_TXT_01}
+		genrandomchar $LEFT_PADDING
+		printf '%s' "$ME_TXT_01"
+		genrandomchar $RIGHT_PADDING
+		
+		#TWO_LINES=$((($TERMINAL_WIDTH * 2) - 1))
+		TWO_LINES=$(($TERMINAL_WIDTH * 2))
+		genrandomchar $TWO_LINES
+		printf "\r"
+		
+		setpadding ${#CHILD01}
+		genrandomchar $LEFT_PADDING
+		printf '%s' "$CHILD01"
+		genrandomchar $RIGHT_PADDING
+		
+		setpadding ${#CHILD02}
+		genrandomchar $LEFT_PADDING
+		printf '%s' "$CHILD02"
+		genrandomchar $RIGHT_PADDING
+		
+		setpadding ${#CHILD01}
+		genrandomchar $LEFT_PADDING
+		printf '%s' "$CHILD01"
+		genrandomchar $RIGHT_PADDING
+		
+		#TWO_LINES=$((($TERMINAL_WIDTH * 2) - 1))
+		TWO_LINES=$(($TERMINAL_WIDTH * 2))
+		genrandomchar $TWO_LINES
+		printf "\r"
+		
+		#FEED01="              "
+		#FEED02="    FEED    "
+		#FEED03="              "
+		#
+		#ME_TXT_01="          "
+		#ME_TXT_02="   ME   "
+		#ME_TXT_03="          "
+		#
+		#CHILD01="               "
+		#CHILD02="    CHILD    "
+		#CHILD03="               "
+		
+		#THREE_LINES=$((($TERMINAL_WIDTH * 3) - 1))
+		THREE_LINES=$(($TERMINAL_WIDTH * 3))
 		genrandomchar $THREE_LINES
+		printf "\r"
 		
-		
+		# Print demon pic, centered, with nonsense padding:
+		setpadding ${#DEM01}
 		genrandomchar $LEFT_PADDING
 		printf '%s' "$DEM01"
 		genrandomchar $RIGHT_PADDING
