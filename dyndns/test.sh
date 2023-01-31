@@ -94,6 +94,7 @@ pickrandommin()
 			SEED_METHOD_TOGGLE=0
 		fi
 	}
+	#/seedrandom function
 	
 	splashstart()
 	{
@@ -146,8 +147,7 @@ pickrandommin()
 			echo "HOW-TO PLAY: Once game starts, press ANY key to pick a value."
 		fi
 	}
-	
-	
+	#/splashstart function
 	
 	splashwinner()
 	{
@@ -182,6 +182,7 @@ pickrandommin()
 			#echo "            CONGRADJULATIONS, YOU'RE A WINRAR!!!             "
 		fi
 	}
+	#/splashwinner function
 	
 	splashproplayer()
 	{
@@ -216,6 +217,7 @@ pickrandommin()
 		read -s -p "Press ENTER key to continue... "
 		printf "\n"
 	}
+	#/splashproplayer function
 	
 	splashtemp()
 	{
@@ -293,17 +295,7 @@ pickrandommin()
 		echo "You picked the number:  00    --  Boy, you sure can pick 'em!"
 		
 	}
-	
-	
-	
-	
-	
-	#RANDOMMIN=$(($RANDOM%60))
-	#INT=10
-	#echo $(($RANDOM%60))
-	#echo $(($RANDOM%$INT))
-	
-	
+	#/splashtemp function
 	
 	commentarypicker()
 	{
@@ -686,9 +678,6 @@ pickrandommin()
 		
 	}
 	#/commentarypicker function
-	
-	
-	
 	
 	countdowntimer()
 	{
@@ -1206,7 +1195,7 @@ pickrandommin()
 		
 		
 	}
-	
+	#/countdowntimer function
 	
 	endofdaystimertest()
 	{
@@ -1319,6 +1308,7 @@ pickrandommin()
 		echo "$PADDING"
 		
 	}
+	#/endofdaystimertest function
 	
 	endofdaystimertest
 	
@@ -1352,6 +1342,7 @@ pickrandommin()
 			echo " - [B] Try Again"
 		fi
 	}
+	#/choiceoptionstext function
 	
 	splashachievementsmenu()
 	{
@@ -1640,6 +1631,7 @@ pickrandommin()
 		done
 		
 	}
+	#/splashachievementsmenu function
 	
 	setdifficulty()
 	{
@@ -1657,6 +1649,8 @@ pickrandommin()
 			DIFFICULTY=5
 		fi
 	}
+	#/setdifficulty function
+	
 	
 	
 	
