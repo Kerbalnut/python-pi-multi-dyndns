@@ -1256,6 +1256,8 @@ pickrandommin()
 		
 		genrandomchar()
 		{
+			CHARS_COUNT=$1
+			
 			# Generate a random character, and print it
 			
 			lowercase_alphabet="abcdefghijklmnopqrsttuvwxyz"
@@ -1269,7 +1271,7 @@ pickrandommin()
 			#echo "$available_chars"
 			
 			i=0
-			while [ $i -lt 300 ]; do
+			while [ $i -le $CHARS_COUNT ]; do
 				((i+=1))
 				#https://stackoverflow.com/questions/32484504/using-random-to-generate-a-random-string-in-bash
 				# ${chars:offset:length} selects the character(s) at position offset, i.e. 0 - length($chars) in our case.
@@ -1284,7 +1286,6 @@ pickrandommin()
 		echo ""
 		tput cols
 		echo ""
-		
 		
 		TERMINAL_WIDTH=`tput cols`
 		
@@ -1306,6 +1307,39 @@ pickrandommin()
 		PADDING=$((($SIDE_PADDING * 2) + $REMAINDER))
 		
 		echo "$PADDING"
+		
+		
+		
+		
+		
+		
+		TERMINAL_WIDTH=`tput cols`
+		PADDING=$(($TERMINAL_WIDTH - $DEM_LENGTH))
+		SIDE_PADDING=$(($PADDING / 2))
+		REMAINDER=`echo "var=$PADDING;var%=2;var" | bc`
+		#PADDING=$((($SIDE_PADDING * 2) + $REMAINDER))
+		
+		printf "\n"
+		
+		echo "one line:"
+		genrandomchar $(($TERMINAL_WIDTH - 1))
+		echo "End of line"
+		
+		printf "\n\n"
+		
+		TWO_LINES=$((($TERMINAL_WIDTH * 2) - 1))
+		
+		echo "two line:"
+		genrandomchar $TWO_LINES
+		echo "End of line"
+		
+		printf "\n\n"
+		
+		THREE_LINES=$((($TERMINAL_WIDTH * 3) - 1))
+		
+		echo "three line:"
+		genrandomchar $THREE_LINES
+		echo "End of line"
 		
 	}
 	#/endofdaystimertest function
@@ -1726,7 +1760,7 @@ pickrandommin()
 	ACHMT_IRONIC="False"
 	
 	
-	countdowntimer 14 $DIFFICULTY
+	#countdowntimer 14 $DIFFICULTY
 	
 	# Main game loop:
 	while [ "$KEEPPLAYING" = "b" ]; do
