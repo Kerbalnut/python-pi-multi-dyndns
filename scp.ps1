@@ -29,7 +29,7 @@ Param (
 	$RemoteUsername = "pi",
 	$RemotePathDL = "/home/pi/dyndns",
 	$RemotePathUL = "/home/pi/",
-	$LocalFolder = "$env:USERPROFILE\Documents\GitHub\Python-DynDNS-NameSilo\"
+	$LocalFolder = "$env:USERPROFILE\Documents\GitHub\python-pi-multi-dyndns\"
 )
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -50,29 +50,32 @@ Write-Host "Store password to remote host securely in a encrypted var for later 
 
 If (!$cred) {$cred = Get-Credential -Message "Storing credentials securely in-memory for later scp file operations" -UserName $RemoteUsername}
 
-#-----------------------------------------------------------------------------------------------------------------------
-
-Write-Host "DOWNLOAD operations using Get-SCPItem:"
-
-# Download all DynDNS folder files
-
+# Download params for later use:
 $LocalPath = "$LocalFolder" + "download"
 #$PathType = "File"
 $PathType = "Directory"
-If (!(Test-Path -Path $LocalPath)) {mkdir $LocalPath}
-Get-SCPItem -ComputerName $RemoteComputer -Credential $cred -Destination $LocalPath -Path $RemotePathDL -Port $Port -PathType $PathType
 
-#-----------------------------------------------------------------------------------------------------------------------
-
-Write-Host "UPLOAD operations using Set-SCPItem"
-
-# Setup parameters for later use:
+# Setup Upload parameters for later use:
 $RemoteParams = @{
 	ComputerName = $RemoteComputer
 	Credential = $cred
 	Port = $Port
 }
 $LocalSubFolder = Join-Path -Path $LocalFolder -ChildPath "dyndns"
+
+#/Parameters setup
+#-----------------------------------------------------------------------------------------------------------------------
+
+Write-Host "DOWNLOAD operations using Get-SCPItem:"
+
+# Download all DynDNS folder files
+
+If (!(Test-Path -Path $LocalPath)) {mkdir $LocalPath}
+Get-SCPItem -ComputerName $RemoteComputer -Credential $cred -Destination $LocalPath -Path $RemotePathDL -Port $Port -PathType $PathType
+
+#-----------------------------------------------------------------------------------------------------------------------
+
+Write-Host "UPLOAD operations using Set-SCPItem"
 
 # Fresh upload of all files:
 
