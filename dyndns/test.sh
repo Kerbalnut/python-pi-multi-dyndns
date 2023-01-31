@@ -1319,6 +1319,16 @@ pickrandommin()
 		
 		
 		
+		TERMINAL_WIDTH=`tput cols`
+		DEM_PADDING=$(($TERMINAL_WIDTH - $DEM_LENGTH))
+		SIDE_DEM_PADDING=$(($DEM_PADDING / 2))
+		REMAINDER=`echo "var=$DEM_PADDING;var%=2;var" | bc`
+		#DEM_PADDING=$((($SIDE_DEM_PADDING * 2) + $REMAINDER))
+		#LEFT_PADDING=$SIDE_DEM_PADDING
+		#RIGHT_PADDING=$(($REMAINDER + $SIDE_DEM_PADDING))
+		LEFT_PADDING=$(($SIDE_DEM_PADDING - 1))
+		RIGHT_PADDING=$((($REMAINDER + $SIDE_DEM_PADDING) - 1))
+		
 		printf "\n\n"
 		printf "three line:"
 		
@@ -1327,10 +1337,65 @@ pickrandommin()
 		genrandomchar $THREE_LINES
 		echo "End of line"
 		
+		printf "\n\n\n\r"
+		THREE_LINES=$((($TERMINAL_WIDTH * 3) - 1))
+		genrandomchar $THREE_LINES
 		
 		
+		genrandomchar $LEFT_PADDING
+		printf '%s' "$DEM01"
+		genrandomchar $RIGHT_PADDING
+		genrandomchar $LEFT_PADDING
+		printf '%s' "$DEM01"
+		genrandomchar $RIGHT_PADDING
+		genrandomchar $LEFT_PADDING
+		printf '%s' "$DEM02"
+		genrandomchar $RIGHT_PADDING
+		genrandomchar $LEFT_PADDING
+		printf '%s' "$DEM03"
+		genrandomchar $RIGHT_PADDING
+		genrandomchar $LEFT_PADDING
+		printf '%s' "$DEM04"
+		genrandomchar $RIGHT_PADDING
+		genrandomchar $LEFT_PADDING
+		printf '%s' "$DEM05"
+		genrandomchar $RIGHT_PADDING
+		genrandomchar $LEFT_PADDING
+		printf '%s' "$DEM06"
+		genrandomchar $RIGHT_PADDING
+		genrandomchar $LEFT_PADDING
+		printf '%s' "$DEM07"
+		genrandomchar $RIGHT_PADDING
+		genrandomchar $LEFT_PADDING
+		printf '%s' "$DEM08"
+		genrandomchar $RIGHT_PADDING
+		genrandomchar $LEFT_PADDING
+		printf '%s' "$DEM09"
+		genrandomchar $RIGHT_PADDING
+		genrandomchar $LEFT_PADDING
+		printf '%s' "$DEM10"
+		genrandomchar $RIGHT_PADDING
+		genrandomchar $LEFT_PADDING
+		printf '%s' "$DEM11"
+		genrandomchar $RIGHT_PADDING
+		genrandomchar $LEFT_PADDING
+		printf '%s' "$DEM12"
+		genrandomchar $RIGHT_PADDING
+		genrandomchar $LEFT_PADDING
+		printf '%s' "$DEM13"
+		genrandomchar $RIGHT_PADDING
+		genrandomchar $LEFT_PADDING
+		printf '%s' "$DEM14"
+		genrandomchar $RIGHT_PADDING
+		genrandomchar $LEFT_PADDING
+		printf '%s' "$DEM15"
+		genrandomchar $RIGHT_PADDING
+		genrandomchar $LEFT_PADDING
+		printf '%s' "$DEM16"
+		genrandomchar $RIGHT_PADDING
 		
 		
+		genrandomchar $THREE_LINES
 		
 		
 		
