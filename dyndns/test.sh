@@ -1281,34 +1281,6 @@ pickrandommin()
 			done
 		}
 		
-		genrandomchar
-		
-		echo ""
-		tput cols
-		echo ""
-		
-		TERMINAL_WIDTH=`tput cols`
-		
-		echo "$TERMINAL_WIDTH"
-		echo "$DEM_LENGTH"
-		
-		PADDING=$(($TERMINAL_WIDTH - $DEM_LENGTH))
-		
-		PADDING=40
-		
-		SIDE_PADDING=$(($PADDING / 2))
-		
-		echo "$PADDING"
-		echo "$SIDE_PADDING"
-		
-		REMAINDER=`echo "var=$PADDING;var%=2;var" | bc`
-		echo $REMAINDER
-		
-		PADDING=$((($SIDE_PADDING * 2) + $REMAINDER))
-		
-		echo "$PADDING"
-		
-		
 		
 		
 		
@@ -1340,6 +1312,29 @@ pickrandommin()
 		echo "three line:"
 		genrandomchar $THREE_LINES
 		echo "End of line"
+		
+		
+		
+		
+		
+		
+		
+		printf "\n\n"
+		printf "three line:"
+		
+		printf "\r"
+		THREE_LINES=$((($TERMINAL_WIDTH * 3) - 1))
+		genrandomchar $THREE_LINES
+		echo "End of line"
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		
 	}
 	#/endofdaystimertest function
