@@ -118,56 +118,25 @@ loadcolors()
 	LIGHT_PURPLE_BKG='\033[105m'
 	TEAL='\033[106m'
 	
+	#echo "Background color tests:"
+	#echo -e "I ${RED}love${NOCOLOR} Linux"
+	#printf "I ${RED}love${NOCOLOR} Linux\n"
+	#printf "I ${RED}love${NOCOLOR} Linux\n"
+	#printf "${RED_BKG}[CRITICAL ERROR]:${NOCOLOR_BKG}\n"
+	#printf "${RED_BKG}${BLACK_FOREG}[CRITICAL ERROR]:${NOCOLOR_FOREG}${NOCOLOR_BKG}\n"
+	#printf "${RED_BKG}${DARKGRAY_FOREG}[CRITICAL ERROR]:${NOCOLOR_FOREG}${NOCOLOR_BKG}\n"
+	#printf "${RED_BKG}${LIGHTGRAY_FOREG}[CRITICAL ERROR]:${NOCOLOR_FOREG}${NOCOLOR_BKG}\n"
+	#printf "${RED_BKG}${WHITE_FOREG}[CRITICAL ERROR]:${NOCOLOR_FOREG}${NOCOLOR_BKG}\n"
+	
+	##compgen -A variable | grep *_BKG
+	##echo (compgen -A variable | grep *_BKG)
+	#echo $(compgen -A variable | grep *_BKG)
+	#echo $((compgen -A variable | grep *_BKG))
+	#echo `compgen -A variable | grep *_BKG`
+	
 }
 
 loadcolors
-
-#echo "Background color tests:"
-#echo -e "I ${RED}love${NOCOLOR} Linux"
-#printf "I ${RED}love${NOCOLOR} Linux\n"
-#printf "I ${RED}love${NOCOLOR} Linux\n"
-#printf "${RED_BKG}[CRITICAL ERROR]:${NOCOLOR_BKG}\n"
-#printf "${RED_BKG}${BLACK_FOREG}[CRITICAL ERROR]:${NOCOLOR_FOREG}${NOCOLOR_BKG}\n"
-#printf "${RED_BKG}${DARKGRAY_FOREG}[CRITICAL ERROR]:${NOCOLOR_FOREG}${NOCOLOR_BKG}\n"
-#printf "${RED_BKG}${LIGHTGRAY_FOREG}[CRITICAL ERROR]:${NOCOLOR_FOREG}${NOCOLOR_BKG}\n"
-#printf "${RED_BKG}${WHITE_FOREG}[CRITICAL ERROR]:${NOCOLOR_FOREG}${NOCOLOR_BKG}\n"
-
-##compgen -A variable | grep *_BKG
-##echo (compgen -A variable | grep *_BKG)
-#echo $(compgen -A variable | grep *_BKG)
-#echo $((compgen -A variable | grep *_BKG))
-#echo `compgen -A variable | grep *_BKG`
-
-# ____    __    _  _  ____  _____  __  __    _  _  __    __    __  __  ____   
-#(  _ \  /__\  ( \( )(  _ \(  _  )(  \/  )  ( \/ )/__\  (  )  (  )(  )( ___)  
-# )   / /(__)\  )  (  )(_) ))(_)(  )    (    \  //(__)\  )(__  )(__)(  )__)   
-#(_)\_)(__)(__)(_)\_)(____/(_____)(_/\/\_)    \/(__)(__)(____)(______)(____)  
-#  ___  ____  _  _  ____  ____    __   ____  _____  ____                      
-# / __)( ___)( \( )( ___)(  _ \  /__\ (_  _)(  _  )(  _ \                     
-#( (_-. )__)  )  (  )__)  )   / /(__)\  )(   )(_)(  )   /                     
-# \___/(____)(_)\_)(____)(_)\_)(__)(__)(__) (_____)(_)\_)                     
-
-#
-#      _____
-#     |.---.|
-#     ||___||
-#     |+  .'|
-#     | _ _ |
-#jgs  |_____/
-#
-
-splasharttest()
-{
-	echo "      _____ "
-	echo "     |.---.|"
-	echo "     ||___||"
-	echo "     |+  .'|"
-	echo "     | _ _ |"
-	echo "jgs  |_____/"
-}
-
-#splasharttest
-#read -p "Press Enter to continue"
 
 pickrandommin()
 {
@@ -2003,9 +1972,6 @@ pickrandommin()
 	}
 	#/setdifficulty function
 	
-	
-	
-	
 	# Testing commentarypicker:
 	#RSEED=0
 	#RSEED_FREQ=60
@@ -2043,7 +2009,6 @@ pickrandommin()
 	#
 	#splashachievementsmenu
 	
-	
 	# Main loop init vars:
 	#echo "Starting main game loop:"
 	SECONDS=0 # This is a bash builtin variable that tracks the number of seconds that have passed since the shell was started.
@@ -2077,10 +2042,6 @@ pickrandommin()
 	ACHMT_55="False"
 	ACHMT_59="False"
 	ACHMT_IRONIC="False"
-	
-	
-	#countdowntimer 14 $DIFFICULTY
-	
 	# Main game loop:
 	while [ "$KEEPPLAYING" = "b" ]; do
 		# Start game:
@@ -2215,14 +2176,7 @@ pickrandommin()
 		#read -p "Press Enter to continue"
 		#unset REPLY
 		
-		
 	done
-	
-	
-	
-	
-	
-	
 	
 }
 
