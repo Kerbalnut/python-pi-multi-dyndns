@@ -34,8 +34,109 @@ loadcolors()
 	
 	# For more info see
 	#https://stackoverflow.com/questions/4842424/list-of-ansi-color-escape-sequences
+	
+	# Background color:
+	
+	#echo -e "\033[38;5;208mpeach\033[0;00m"
+	# Taking apart this command: \033[38;5;208m
+	
+	# The \033 is the escape code. The [38; directs command to the foreground. If you want to change the background color instead, use [48; instead. The 5; is just a piece of the sequence that changes color. And the most important part, 208m, selects the actual color.
+	
+	RED_FOREG='\033[38;0;31m'    #'0;31' is Red's ANSI color code
+	GREEN_FOREG='\033[38;0;32m'  #'0;32' is Green's ANSI color code
+	YELLOW_FOREG='\033[38;1;32m' #'1;32' is Yellow's ANSI color code
+	BLUE_FOREG='\033[38;0;34m'   #'0;34' is Blue's ANSI color code
+	WHITE_FOREG='\033[38;1;37m'  #'1;37' is White's ANSI color code
+	BLACK_FOREG='\033[38;0;30m'  #'0;30' is Black's ANSI color code
+	DARKGRAY_FOREG='\033[38;1;30m'
+	LIGHTGRAY_FOREG='\033[38;0;37m'
+	NOCOLOR_FOREG='\033[38;0m'
+	
+	RED_BKG='\033[48;0;31m'    #'0;31' is Red's ANSI color code
+	GREEN_BKG='\033[48;0;32m'  #'0;32' is Green's ANSI color code
+	YELLOW_BKG='\033[48;1;32m' #'1;32' is Yellow's ANSI color code
+	BLUE_BKG='\033[48;0;34m'   #'0;34' is Blue's ANSI color code
+	WHITE_BKG='\033[48;1;37m'  #'1;37' is White's ANSI color code
+	BLACK_BKG='\033[48;0;30m'  #'0;30' is Black's ANSI color code
+	DARKGRAY_BKG='\033[48;1;30m'
+	LIGHTGRAY_BKG='\033[48;0;37m'
+	NOCOLOR_BKG='\033[48;0m'
+	
+	#https://opensource.com/article/19/9/linux-terminal-colors
+	
+	# Color 		Foreground 	Background
+	# Black 		\033[30m 	\033[40m
+	# Red 			\033[31m 	\033[41m
+	# Green 		\033[32m 	\033[42m
+	# Orange 		\033[33m 	\033[43m
+	# Blue 			\033[34m 	\033[44m
+	# Magenta 		\033[35m 	\033[45m
+	# Cyan 			\033[36m 	\033[46m
+	# Light gray 	\033[37m 	\033[47m
+	# default 		\033[39m 	\033[49m
+	
+	# There are some additional colors available for the background:
+	# Color 		Background
+	# Dark gray 	\033[100m
+	# Light red 	\033[101m
+	# Light green 	\033[102m
+	# Yellow 		\033[103m
+	# Light blue 	\033[104m
+	# Light purple 	\033[105m
+	# Teal 			\033[106m
+	# White 		\033[107m
+	
+	RED_FOREG='\033[31m'
+	GREEN_FOREG='\033[32m'
+	#YELLOW_FOREG='\033[38;1;32m' #'1;32' is Yellow's ANSI color code
+	BLUE_FOREG='\033[34m'
+	#WHITE_FOREG='\033[38;1;37m'  #'1;37' is White's ANSI color code
+	BLACK_FOREG='\033[30m'
+	#DARKGRAY_FOREG='\033[38;1;30m'
+	LIGHTGRAY_FOREG='\033[37m'
+	ORANGE_FOREG='\033[33m'
+	MAGENTA_FOREG='\033[35m'
+	CYAN_FOREG='\033[36m'
+	NOCOLOR_FOREG='\033[39m'
+	
+	RED_BKG='\033[41m'
+	GREEN_BKG='\033[42m'
+	YELLOW_BKG='\033[103m'
+	BLUE_BKG='\033[44m'
+	WHITE_BKG='\033[107m'
+	BLACK_BKG='\033[40m'
+	DARKGRAY_BKG='\033[100m'
+	LIGHTGRAY_BKG='\033[47m'
+	ORANGE_BKG='\033[43m'
+	MAGENTA_BKG='\033[45m'
+	CYAN_BKG='\033[46m'
+	NOCOLOR_BKG='\033[49m'
+	
+	LIGHT_RED_BKG='\033[101m'
+	LIGHT_GREEN_BKG='\033[102m'
+	LIGHT_BLUE_BKG='\033[104m'
+	LIGHT_PURPLE_BKG='\033[105m'
+	TEAL='\033[106m'
+	
 }
 
+loadcolors
+
+#echo "Background color tests:"
+#echo -e "I ${RED}love${NOCOLOR} Linux"
+#printf "I ${RED}love${NOCOLOR} Linux\n"
+#printf "I ${RED}love${NOCOLOR} Linux\n"
+#printf "${RED_BKG}[CRITICAL ERROR]:${NOCOLOR_BKG}\n"
+#printf "${RED_BKG}${BLACK_FOREG}[CRITICAL ERROR]:${NOCOLOR_FOREG}${NOCOLOR_BKG}\n"
+#printf "${RED_BKG}${DARKGRAY_FOREG}[CRITICAL ERROR]:${NOCOLOR_FOREG}${NOCOLOR_BKG}\n"
+#printf "${RED_BKG}${LIGHTGRAY_FOREG}[CRITICAL ERROR]:${NOCOLOR_FOREG}${NOCOLOR_BKG}\n"
+#printf "${RED_BKG}${WHITE_FOREG}[CRITICAL ERROR]:${NOCOLOR_FOREG}${NOCOLOR_BKG}\n"
+
+##compgen -A variable | grep *_BKG
+##echo (compgen -A variable | grep *_BKG)
+#echo $(compgen -A variable | grep *_BKG)
+#echo $((compgen -A variable | grep *_BKG))
+#echo `compgen -A variable | grep *_BKG`
 
 # ____    __    _  _  ____  _____  __  __    _  _  __    __    __  __  ____   
 #(  _ \  /__\  ( \( )(  _ \(  _  )(  \/  )  ( \/ )/__\  (  )  (  )(  )( ___)  
@@ -45,8 +146,6 @@ loadcolors()
 # / __)( ___)( \( )( ___)(  _ \  /__\ (_  _)(  _  )(  _ \                     
 #( (_-. )__)  )  (  )__)  )   / /(__)\  )(   )(_)(  )   /                     
 # \___/(____)(_)\_)(____)(_)\_)(__)(__)(__) (_____)(_)\_)                     
-
-
 
 #
 #      _____
@@ -1411,6 +1510,11 @@ pickrandommin()
 		printf '%s' "$CHILD01"
 		genrandomchar $RIGHT_PADDING "True"
 		
+		#ONE_LINE=$((($TERMINAL_WIDTH * 1) - 1))
+		ONE_LINE=$(($TERMINAL_WIDTH * 1))
+		genrandomchar $ONE_LINE "True"
+		#printf "\r"
+		
 		#TWO_LINES=$((($TERMINAL_WIDTH * 2) - 1))
 		TWO_LINES=$(($TERMINAL_WIDTH * 2))
 		#genrandomchar $TWO_LINES "True"
@@ -1418,7 +1522,7 @@ pickrandommin()
 		
 		#THREE_LINES=$((($TERMINAL_WIDTH * 3) - 1))
 		THREE_LINES=$(($TERMINAL_WIDTH * 3))
-		genrandomchar $THREE_LINES "True"
+		genrandomchar $THREE_LINES "False"
 		#printf "\r"
 		
 		#FOUR_LINES=$((($TERMINAL_WIDTH * 4) - 1))
@@ -1481,31 +1585,116 @@ pickrandommin()
 		printf '%s' "$DEM16"
 		genrandomchar $RIGHT_PADDING "False"
 		
+		#ONE_LINE=$((($TERMINAL_WIDTH * 1) - 1))
+		ONE_LINE=$(($TERMINAL_WIDTH * 1))
+		genrandomchar $ONE_LINE "False"
+		#printf "\r"
+		
 		#TWO_LINES=$((($TERMINAL_WIDTH * 2) - 1))
 		TWO_LINES=$(($TERMINAL_WIDTH * 2))
-		genrandomchar $TWO_LINES "False"
+		#genrandomchar $TWO_LINES "False"
+		#printf "\r"
+		
+		#THREE_LINES=$((($TERMINAL_WIDTH * 3) - 1))
+		THREE_LINES=$(($TERMINAL_WIDTH * 3))
+		#genrandomchar $THREE_LINES "False"
+		#printf "\r"
+		
+		FOUR_LINES=$((($TERMINAL_WIDTH * 4) - 1))
+		#FOUR_LINES=$(($TERMINAL_WIDTH * 4))
+		#genrandomchar $FOUR_LINES "True"
 		#printf "\r"
 		
 		ONE_THIRD_LINE=$(($TERMINAL_WIDTH / 3))
-		FINAL_LINE=$(($TWO_LINES + $ONE_THIRD_LINE))
+		ONE_FOURTH_LINE=$(($TERMINAL_WIDTH / 4))
+		ONE_FIFTH_LINE=$(($TERMINAL_WIDTH / 5))
+		#FINAL_LINE=$(($TWO_LINES + $ONE_THIRD_LINE))
+		#FINAL_LINE=$(($FOUR_LINES + $ONE_FOURTH_LINE))
+		#FINAL_LINE=$(($THREE_LINES + $ONE_FIFTH_LINE))
+		FINAL_LINE=$(($FOUR_LINES + $ONE_FIFTH_LINE))
 		genrandomchar $FINAL_LINE "True"
 		#printf "\r"
 		
 		#echo -e "I ${RED}love${NOCOLOR} Linux"
 		#printf "I ${RED}love${NOCOLOR} Linux\n"
 		
-		echo -e "\033[38;5;208mpeach\033[0;00m"
 		
-		# This will output a pleasing sort of peach colored text.
+		#echo -e "I ${RED}love${NOCOLOR} Linux"
+		#printf "I ${RED}love${NOCOLOR} Linux\n"
+		#printf "I ${RED}love${NOCOLOR} Linux\n"
+		#printf "${RED_BKG}[CRITICAL ERROR]:${NOCOLOR_BKG}\n"
+		#printf "${RED_BKG}${BLACK_FOREG}[CRITICAL ERROR]:${NOCOLOR_FOREG}${NOCOLOR_BKG}\n"
+		#printf "${RED_BKG}${DARKGRAY_FOREG}[CRITICAL ERROR]:${NOCOLOR_FOREG}${NOCOLOR_BKG}\n"
+		#printf "${RED_BKG}${LIGHTGRAY_FOREG}[CRITICAL ERROR]:${NOCOLOR_FOREG}${NOCOLOR_BKG}\n"
 		
-		# Taking apart this command: \033[38;5;208m
+		#printf "${RED_BKG}${WHITE_FOREG}[EMERGENCY_HALT]${NOCOLOR_FOREG}${NOCOLOR_BKG}: corruption detected."
+		#printf "${RED_BKG}${WHITE_FOREG}[EMERGENCY_HALT]${NOCOLOR_FOREG}${NOCOLOR_BKG}"
+		printf "${RED_BKG}${BLACK_FOREG}[EMERGENCY_HALT]${NOCOLOR_FOREG}${NOCOLOR_BKG}"
+		sleep 6
 		
-		# The \033 is the escape code. The [38; directs command to the foreground. If you want to change the background color instead, use [48; instead. The 5; is just a piece of the sequence that changes color. And the most important part, 208m, selects the actual color.
+		OK_STR="${GREEN_BKG}${BLACK_FOREG}OK${NOCOLOR_FOREG}${NOCOLOR_BKG}"
+		WARN_STR="${ORANGE_BKG}${BLACK_FOREG}WARNING${NOCOLOR_FOREG}${NOCOLOR_BKG}"
+		BAD_STR="${RED_BKG}${BLACK_FOREG}HALT${NOCOLOR_FOREG}${NOCOLOR_BKG}"
 		
+		printf "\n\n\n"
+		sleep 3
+		printf "\rRebooting    "
+		sleep 0.6
+		printf "\rRebooting.   "
+		sleep 0.6
+		printf "\rRebooting..  "
+		sleep 0.6
+		printf "\rRebooting... "
+		sleep 0.6
+		printf "\rRebooting    "
+		sleep 0.6
+		printf "\rRebooting.   "
+		sleep 0.6
+		printf "\rRebooting..  "
+		sleep 0.6
+		printf "\rRebooting... "
+		sleep 0.6
+		printf "\rRebooting    "
+		sleep 0.6
+		printf "\rRebooting.   "
+		sleep 0.6
+		printf "\rRebooting..  "
+		sleep 0.3
+		printf "\rRebooting..  \n"
 		
+		#printf "\n[system_base]:"
+		printf "\n[system_OS]: $OK_STR"
+		printf "\n[base_pickrandommin]: $WARN_STR"
+		printf "\n[func_seedrandom]: $OK_STR"
+		#printf "\n[func_splashstart]:"
+		#printf "\n[func_splashwinner]:"
+		#printf "\n[func_splashproplayer]:"
+		printf "\n[func_countdowntimer]: $OK_STR"
+		printf "\n[base_ai_difficulty]: $BAD_STR"
+		printf "\n[func_commentarypicker]: $OK_STR"
+		printf "\n[func_choiceoptionstext]: $OK_STR"
 		
-		sleep 0.5
+		printf "\n"
+		printf "\nError: 0x08 CORE.CORRUPTION_OVERLOAD_DETECTED - Unrecognized neural net mutation sequences detected in base_ai_difficulty(). Halting.\n\n"
+		sleep 4
 		
+		printf "\rRestarting game"
+		sleep 1.3
+		printf "\rRestarting game."
+		sleep 1.3
+		printf "\rRestarting game.."
+		sleep 1.3
+		printf "\rRestarting game..."
+		sleep 1.3
+		printf "\rRestarting game...."
+		sleep 1.3
+		printf "\rRestarting game....."
+		sleep 1.3
+		printf "\rRestarting game......\n\n"
+		sleep 3
+		
+		read -s -p "Press ENTER key to START! "
+		countdowntimer 1 0
 		
 	}
 	#/endofdaystimertest function
@@ -1893,6 +2082,7 @@ pickrandommin()
 	
 	
 	# Main loop init vars:
+	#echo "Starting main game loop:"
 	SECONDS=0 # This is a bash builtin variable that tracks the number of seconds that have passed since the shell was started.
 	KEEPPLAYING='b'
 	LASTPICK=99
