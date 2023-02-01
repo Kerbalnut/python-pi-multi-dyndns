@@ -1127,10 +1127,30 @@ pickrandommin()
 		}
 		endofdaystimer()
 		{
-			echo "Helloworld"
 			
+			#sleep 0.9
+			#printf "\rStarting game in...  5A   "
+			#sleep 0.9
+			#printf "\rStarting game in... F5    "
+			#sleep 0.9
+			#printf "\rStarting game in...0x---2A"
+			#sleep 0.9
 			
-			
+			printf "\rStarting game in...   5   "
+			sleep 0.9
+			printf "\rStarFAng game in...  F5   "
+			sleep 0.9
+			printf "\r6tarFAng0game in.2.  5A  8"
+			sleep 0.9
+			printf "\rD6a0FAng0gam11in.2.1 26  8"
+			sleep 0.9
+			printf "\r26a0FAng0gam11in.246 851A2"
+			sleep 0.9
+			printf "\r861FAA21B742811B2210C98AFE"
+			sleep 0.9
+			#printf "\r+SN3^i..zv5\A4tm'Rh1DqeLHU"
+			printf "\r+SN3^i..zv5\\A4tm'Rh1DqeLHU"
+			sleep 0.5
 			
 			#     (                      )
 			#     |\    _,--------._    / |
@@ -1150,6 +1170,7 @@ pickrandommin()
 			#              `.     ,'            ap
 			
 			DEM01="     (                      )            "
+			DEM_LENGTH=${#DEM01}
 			DEM02="     |\    _,--------._    / |           "
 			DEM03="     | \`.,'            \`. /  |           "
 			DEM04="     \`  '              ,-'   '           "
@@ -1166,27 +1187,339 @@ pickrandommin()
 			DEM15="      -.______  \ . /  ______,-          "
 			DEM16="              \`.     ,'            ap    "
 			
+			#printf '%s\n' "$DEM01"
+			#printf '%s\n' "$DEM02"
+			#printf '%s\n' "$DEM03"
+			#printf '%s\n' "$DEM04"
+			#printf '%s\n' "$DEM05"
+			#printf '%s\n' "$DEM06"
+			#printf '%s\n' "$DEM07"
+			#printf '%s\n' "$DEM08"
+			#printf '%s\n' "$DEM09"
+			#printf '%s\n' "$DEM10"
+			#printf '%s\n' "$DEM11"
+			#printf '%s\n' "$DEM12"
+			#printf '%s\n' "$DEM13"
+			#printf '%s\n' "$DEM14"
+			#printf '%s\n' "$DEM15"
+			#printf '%s\n' "$DEM16"
 			
-			printf '%s\n' "$DEM01"
-			printf '%s\n' "$DEM02"
-			printf '%s\n' "$DEM03"
-			printf '%s\n' "$DEM04"
-			printf '%s\n' "$DEM05"
-			printf '%s\n' "$DEM06"
-			printf '%s\n' "$DEM07"
-			printf '%s\n' "$DEM08"
-			printf '%s\n' "$DEM09"
-			printf '%s\n' "$DEM10"
-			printf '%s\n' "$DEM11"
-			printf '%s\n' "$DEM12"
-			printf '%s\n' "$DEM13"
-			printf '%s\n' "$DEM14"
-			printf '%s\n' "$DEM15"
-			printf '%s\n' "$DEM16"
+			FEED01="              "
+			FEED02="    FEED    "
+			FEED03="              "
+			
+			ME_TXT_01="          "
+			ME_TXT_02="   ME   "
+			ME_TXT_03="          "
+			
+			CHILD01="             "
+			CHILD02="   CHILD   "
+			CHILD03="             "
+			
+			genrandomchar()
+			{
+				CHARS_COUNT=$1
+				SLOWTYPE=$2
+				# Generate a random character, and print it
+				
+				lowercase_alphabet="abcdefghijklmnopqrsttuvwxyz"
+				UPPERCASE_ALPHABET="ABCDEFGHIJKLMNOPQRSTTUVWXYZ"
+				all_numbers="0123456789"
+				#special_chars="booyah"
+				special_chars="@^-_=+?.<>,':"
+				
+				available_chars="${lowercase_alphabet}${all_numbers}${UPPERCASE_ALPHABET}${special_chars}"
+				
+				#echo "$available_chars"
+				
+				i=0
+				while [ $i -le $CHARS_COUNT ]; do
+					((i+=1))
+					#https://stackoverflow.com/questions/32484504/using-random-to-generate-a-random-string-in-bash
+					# ${chars:offset:length} selects the character(s) at position offset, i.e. 0 - length($chars) in our case.
+					#echo -n "${available_chars:RANDOM%${#available_chars}:1}"
+					printf "${available_chars:RANDOM%${#available_chars}:1}"
+					if [ "$SLOWTYPE" = "True" ]; then
+						sleep 0.005
+					fi
+				done
+			}
+			
+			TERMINAL_WIDTH=`tput cols`
+			setpadding()
+			{
+				LENGTH=$1
+				#TERMINAL_WIDTH=`tput cols`
+				PADDING=$(($TERMINAL_WIDTH - $LENGTH))
+				SIDE_PADDING=$(($PADDING / 2))
+				REMAINDER=`echo "var=$PADDING;var%=2;var" | bc`
+				#PADDING=$((($SIDE_PADDING * 2) + $REMAINDER))
+				#LEFT_PADDING=$SIDE_PADDING
+				#RIGHT_PADDING=$(($REMAINDER + $SIDE_PADDING))
+				LEFT_PADDING=$(($SIDE_PADDING - 1))
+				RIGHT_PADDING=$((($REMAINDER + $SIDE_PADDING) - 1))
+			}
+			
+			REMAINING_LINE=$(($TERMINAL_WIDTH - 27))
+			#genrandomchar $REMAINING_LINE "True"
+			
+			#printf "\r"
+			#THREE_LINES=$((($TERMINAL_WIDTH * 3) - 1))
+			#THREE_LINES=$(($TERMINAL_WIDTH * 3))
+			THREE_LINES=$((($TERMINAL_WIDTH * 3) + $REMAINING_LINE))
+			genrandomchar $THREE_LINES "True"
+			#printf "\r"
+			
+			# "FEED" text centered, nonsense padding:
+			setpadding ${#FEED01}
+			printf "\r"
+			genrandomchar $LEFT_PADDING "True"
+			printf '%s' "$FEED01"
+			genrandomchar $RIGHT_PADDING "True"
+			
+			setpadding ${#FEED02}
+			printf "\r"
+			genrandomchar $LEFT_PADDING "True"
+			printf '%s' "$FEED02"
+			genrandomchar $RIGHT_PADDING "True"
+			
+			setpadding ${#FEED01}
+			printf "\r"
+			genrandomchar $LEFT_PADDING "True"
+			printf '%s' "$FEED01"
+			genrandomchar $RIGHT_PADDING "True"
+			
+			#TWO_LINES=$((($TERMINAL_WIDTH * 2) - 1))
+			TWO_LINES=$(($TERMINAL_WIDTH * 2))
+			genrandomchar $TWO_LINES "True"
+			printf "\r"
+			
+			setpadding ${#ME_TXT_01}
+			printf "\r"
+			genrandomchar $LEFT_PADDING "True"
+			printf '%s' "$ME_TXT_01"
+			genrandomchar $RIGHT_PADDING "True"
+			
+			setpadding ${#ME_TXT_02}
+			printf "\r"
+			genrandomchar $LEFT_PADDING "True"
+			printf '%s' "$ME_TXT_02"
+			genrandomchar $RIGHT_PADDING "True"
+			
+			setpadding ${#ME_TXT_01}
+			printf "\r"
+			genrandomchar $LEFT_PADDING "True"
+			printf '%s' "$ME_TXT_01"
+			genrandomchar $RIGHT_PADDING "True"
+			
+			#TWO_LINES=$((($TERMINAL_WIDTH * 2) - 1))
+			TWO_LINES=$(($TERMINAL_WIDTH * 2))
+			genrandomchar $TWO_LINES "True"
+			printf "\r"
+			
+			setpadding ${#CHILD01}
+			printf "\r"
+			genrandomchar $LEFT_PADDING "True"
+			printf '%s' "$CHILD01"
+			genrandomchar $RIGHT_PADDING "True"
+			
+			setpadding ${#CHILD02}
+			printf "\r"
+			genrandomchar $LEFT_PADDING "True"
+			printf '%s' "$CHILD02"
+			genrandomchar $RIGHT_PADDING "True"
+			
+			setpadding ${#CHILD01}
+			printf "\r"
+			genrandomchar $LEFT_PADDING "True"
+			printf '%s' "$CHILD01"
+			genrandomchar $RIGHT_PADDING "True"
+			
+			#ONE_LINE=$((($TERMINAL_WIDTH * 1) - 1))
+			ONE_LINE=$(($TERMINAL_WIDTH * 1))
+			genrandomchar $ONE_LINE "True"
+			#printf "\r"
+			
+			#TWO_LINES=$((($TERMINAL_WIDTH * 2) - 1))
+			TWO_LINES=$(($TERMINAL_WIDTH * 2))
+			#genrandomchar $TWO_LINES "True"
+			#printf "\r"
+			
+			#THREE_LINES=$((($TERMINAL_WIDTH * 3) - 1))
+			THREE_LINES=$(($TERMINAL_WIDTH * 3))
+			genrandomchar $THREE_LINES "False"
+			#printf "\r"
+			
+			#FOUR_LINES=$((($TERMINAL_WIDTH * 4) - 1))
+			FOUR_LINES=$(($TERMINAL_WIDTH * 4))
+			#genrandomchar $FOUR_LINES "True"
+			#printf "\r"
+			
+			# Print demon pic, centered, with nonsense padding:
+			setpadding ${#DEM01}
+			printf "\r"
+			genrandomchar $LEFT_PADDING "False"
+			printf '%s' "$DEM01"
+			genrandomchar $RIGHT_PADDING "False"
+			genrandomchar $LEFT_PADDING "False"
+			printf '%s' "$DEM01"
+			genrandomchar $RIGHT_PADDING "False"
+			genrandomchar $LEFT_PADDING "False"
+			printf '%s' "$DEM02"
+			genrandomchar $RIGHT_PADDING "False"
+			genrandomchar $LEFT_PADDING "False"
+			printf '%s' "$DEM03"
+			genrandomchar $RIGHT_PADDING "False"
+			genrandomchar $LEFT_PADDING "False"
+			printf '%s' "$DEM04"
+			genrandomchar $RIGHT_PADDING "False"
+			genrandomchar $LEFT_PADDING "False"
+			printf '%s' "$DEM05"
+			genrandomchar $RIGHT_PADDING "False"
+			genrandomchar $LEFT_PADDING "False"
+			printf '%s' "$DEM06"
+			genrandomchar $RIGHT_PADDING "False"
+			genrandomchar $LEFT_PADDING "False"
+			printf '%s' "$DEM07"
+			genrandomchar $RIGHT_PADDING "False"
+			genrandomchar $LEFT_PADDING "False"
+			printf '%s' "$DEM08"
+			genrandomchar $RIGHT_PADDING "False"
+			genrandomchar $LEFT_PADDING "False"
+			printf '%s' "$DEM09"
+			genrandomchar $RIGHT_PADDING "False"
+			genrandomchar $LEFT_PADDING "False"
+			printf '%s' "$DEM10"
+			genrandomchar $RIGHT_PADDING "False"
+			genrandomchar $LEFT_PADDING "False"
+			printf '%s' "$DEM11"
+			genrandomchar $RIGHT_PADDING "False"
+			genrandomchar $LEFT_PADDING "False"
+			printf '%s' "$DEM12"
+			genrandomchar $RIGHT_PADDING "False"
+			genrandomchar $LEFT_PADDING "False"
+			printf '%s' "$DEM13"
+			genrandomchar $RIGHT_PADDING "False"
+			genrandomchar $LEFT_PADDING "False"
+			printf '%s' "$DEM14"
+			genrandomchar $RIGHT_PADDING "False"
+			genrandomchar $LEFT_PADDING "False"
+			printf '%s' "$DEM15"
+			genrandomchar $RIGHT_PADDING "False"
+			genrandomchar $LEFT_PADDING "False"
+			printf '%s' "$DEM16"
+			genrandomchar $RIGHT_PADDING "False"
+			
+			#ONE_LINE=$((($TERMINAL_WIDTH * 1) - 1))
+			ONE_LINE=$(($TERMINAL_WIDTH * 1))
+			genrandomchar $ONE_LINE "False"
+			#printf "\r"
+			
+			#TWO_LINES=$((($TERMINAL_WIDTH * 2) - 1))
+			TWO_LINES=$(($TERMINAL_WIDTH * 2))
+			#genrandomchar $TWO_LINES "False"
+			#printf "\r"
+			
+			#THREE_LINES=$((($TERMINAL_WIDTH * 3) - 1))
+			THREE_LINES=$(($TERMINAL_WIDTH * 3))
+			#genrandomchar $THREE_LINES "False"
+			#printf "\r"
+			
+			FOUR_LINES=$((($TERMINAL_WIDTH * 4) - 1))
+			#FOUR_LINES=$(($TERMINAL_WIDTH * 4))
+			#genrandomchar $FOUR_LINES "True"
+			#printf "\r"
+			
+			ONE_THIRD_LINE=$(($TERMINAL_WIDTH / 3))
+			ONE_FOURTH_LINE=$(($TERMINAL_WIDTH / 4))
+			ONE_FIFTH_LINE=$(($TERMINAL_WIDTH / 5))
+			#FINAL_LINE=$(($TWO_LINES + $ONE_THIRD_LINE))
+			#FINAL_LINE=$(($FOUR_LINES + $ONE_FOURTH_LINE))
+			#FINAL_LINE=$(($THREE_LINES + $ONE_FIFTH_LINE))
+			FINAL_LINE=$(($FOUR_LINES + $ONE_FIFTH_LINE))
+			genrandomchar $FINAL_LINE "True"
+			#printf "\r"
+			
+			#echo -e "I ${RED}love${NOCOLOR} Linux"
+			#printf "I ${RED}love${NOCOLOR} Linux\n"
 			
 			
+			#echo -e "I ${RED}love${NOCOLOR} Linux"
+			#printf "I ${RED}love${NOCOLOR} Linux\n"
+			#printf "I ${RED}love${NOCOLOR} Linux\n"
+			#printf "${RED_BKG}[CRITICAL ERROR]:${NOCOLOR_BKG}\n"
+			#printf "${RED_BKG}${BLACK_FOREG}[CRITICAL ERROR]:${NOCOLOR_FOREG}${NOCOLOR_BKG}\n"
+			#printf "${RED_BKG}${DARKGRAY_FOREG}[CRITICAL ERROR]:${NOCOLOR_FOREG}${NOCOLOR_BKG}\n"
+			#printf "${RED_BKG}${LIGHTGRAY_FOREG}[CRITICAL ERROR]:${NOCOLOR_FOREG}${NOCOLOR_BKG}\n"
 			
+			#printf "${RED_BKG}${WHITE_FOREG}[EMERGENCY_HALT]${NOCOLOR_FOREG}${NOCOLOR_BKG}: corruption detected."
+			#printf "${RED_BKG}${WHITE_FOREG}[EMERGENCY_HALT]${NOCOLOR_FOREG}${NOCOLOR_BKG}"
+			printf "${RED_BKG}${BLACK_FOREG}[EMERGENCY_HALT]${NOCOLOR_FOREG}${NOCOLOR_BKG}"
+			sleep 6
+			
+			OK_STR="${GREEN_BKG}${BLACK_FOREG}OK${NOCOLOR_FOREG}${NOCOLOR_BKG}"
+			WARN_STR="${ORANGE_BKG}${BLACK_FOREG}WARNING${NOCOLOR_FOREG}${NOCOLOR_BKG}"
+			BAD_STR="${RED_BKG}${BLACK_FOREG}HALT${NOCOLOR_FOREG}${NOCOLOR_BKG}"
+			
+			printf "\n\n\n"
+			sleep 3
+			printf "\rRebooting    "
+			sleep 0.6
+			printf "\rRebooting.   "
+			sleep 0.6
+			printf "\rRebooting..  "
+			sleep 0.6
+			printf "\rRebooting... "
+			sleep 0.6
+			printf "\rRebooting    "
+			sleep 0.6
+			printf "\rRebooting.   "
+			sleep 0.6
+			printf "\rRebooting..  "
+			sleep 0.6
+			printf "\rRebooting... "
+			sleep 0.6
+			printf "\rRebooting    "
+			sleep 0.6
+			printf "\rRebooting.   "
+			sleep 0.6
+			printf "\rRebooting..  "
 			sleep 0.3
+			printf "\rRebooting..  \n"
+			
+			#printf "\n[system_base]:"
+			printf "\n[system_OS]: $OK_STR"
+			printf "\n[base_pickrandommin]: $WARN_STR"
+			printf "\n[func_seedrandom]: $OK_STR"
+			#printf "\n[func_splashstart]:"
+			#printf "\n[func_splashwinner]:"
+			#printf "\n[func_splashproplayer]:"
+			printf "\n[func_countdowntimer]: $OK_STR"
+			printf "\n[base_ai_difficulty]: $BAD_STR"
+			printf "\n[func_commentarypicker]: $OK_STR"
+			printf "\n[func_choiceoptionstext]: $OK_STR"
+			
+			printf "\n"
+			printf "\nError: 0x08 CORE.CORRUPTION_OVERLOAD_DETECTED - Unrecognized neural net mutation sequences detected in base_ai_difficulty(). Halting.\n\n"
+			sleep 4
+			
+			printf "\rRestarting game"
+			sleep 1.3
+			printf "\rRestarting game."
+			sleep 1.3
+			printf "\rRestarting game.."
+			sleep 1.3
+			printf "\rRestarting game..."
+			sleep 1.3
+			printf "\rRestarting game...."
+			sleep 1.3
+			printf "\rRestarting game....."
+			sleep 1.3
+			printf "\rRestarting game......\n\n"
+			sleep 3
+			
+			read -s -p "Press ENTER key to START! "
+			countdowntimer 1 0
 			
 			
 			
@@ -1200,6 +1533,7 @@ pickrandommin()
 			normaltimer
 		elif [ $GAMENUM -eq 3 ]; then
 			slowtimerone
+			#endofdaystimer
 		elif [ $GAMENUM -eq 4 ]; then
 			countuptimer
 		elif [ $GAMENUM -eq 5 ]; then
@@ -1228,7 +1562,9 @@ pickrandommin()
 			DISTTIMERTHREEDIR="Up"
 			SHORTTIMERVER="No"
 			distortedtimerthree
-		elif [ $GAMENUM -ge 16 ]; then
+		elif [ $GAMENUM -eq 16 ]; then
+			endofdaystimer
+		elif [ $GAMENUM -ge 17 ]; then
 			MAX_CHOICES=8
 			FACTOR_INT=5
 			MAX_END_OPS=$(((($MAX_CHOICES-1)*$FACTOR_INT)+1))
@@ -1327,379 +1663,6 @@ pickrandommin()
 		
 	}
 	#/countdowntimer function
-	
-	endofdaystimertest()
-	{
-		
-		#     (                      )
-		#     |\    _,--------._    / |
-		#     | `.,'            `. /  |
-		#     `  '              ,-'   '
-		#      \/_         _   (     /
-		#     (,-.`.    ,',-.`. `__,'
-		#      |/#\ ),-','#\`= ,'.` |
-		#      `._/)  -'.\_,'   ) ))|
-		#      /  (_.)\     .   -'//
-		#     (  /\____/\    ) )`'\
-		#      \ |V----V||  ' ,    \
-		#       |`- -- -'   ,'   \  \      _____
-		#___    |         .'    \ \  `._,-'     `-
-		#   `.__,`---^---'       \ ` -'
-		#      -.______  \ . /  ______,-
-		#              `.     ,'            ap
-		
-		DEM01="     (                      )            "
-		DEM_LENGTH=${#DEM01}
-		DEM02="     |\    _,--------._    / |           "
-		DEM03="     | \`.,'            \`. /  |           "
-		DEM04="     \`  '              ,-'   '           "
-		DEM05="      \/_         _   (     /            "
-		DEM06="     (,-.\`.    ,',-.\`. \`__,'             "
-		DEM07="      |/#\\ ),-','#\\\`= ,'.\` |             "
-		DEM08="      \`._/)  -'.\_,'   ) ))|             "
-		DEM09="      /  (_.)\     .   -'//              "
-		DEM10="     (  /\____/\    ) )\`'\               "
-		DEM11="      \ |V----V||  ' ,    \              "
-		DEM12="       |\`- -- -'   ,'   \  \      _____  "
-		DEM13="___    |         .'    \ \  \`._,-'     \`-"
-		DEM14="   \`.__,\`---^---'       \ \` -'           "
-		DEM15="      -.______  \ . /  ______,-          "
-		DEM16="              \`.     ,'            ap    "
-		
-		#printf '%s\n' "$DEM01"
-		#printf '%s\n' "$DEM02"
-		#printf '%s\n' "$DEM03"
-		#printf '%s\n' "$DEM04"
-		#printf '%s\n' "$DEM05"
-		#printf '%s\n' "$DEM06"
-		#printf '%s\n' "$DEM07"
-		#printf '%s\n' "$DEM08"
-		#printf '%s\n' "$DEM09"
-		#printf '%s\n' "$DEM10"
-		#printf '%s\n' "$DEM11"
-		#printf '%s\n' "$DEM12"
-		#printf '%s\n' "$DEM13"
-		#printf '%s\n' "$DEM14"
-		#printf '%s\n' "$DEM15"
-		#printf '%s\n' "$DEM16"
-		
-		FEED01="              "
-		FEED02="    FEED    "
-		FEED03="              "
-		
-		ME_TXT_01="          "
-		ME_TXT_02="   ME   "
-		ME_TXT_03="          "
-		
-		CHILD01="             "
-		CHILD02="   CHILD   "
-		CHILD03="             "
-		
-		genrandomchar()
-		{
-			CHARS_COUNT=$1
-			SLOWTYPE=$2
-			# Generate a random character, and print it
-			
-			lowercase_alphabet="abcdefghijklmnopqrsttuvwxyz"
-			UPPERCASE_ALPHABET="ABCDEFGHIJKLMNOPQRSTTUVWXYZ"
-			all_numbers="0123456789"
-			#special_chars="booyah"
-			special_chars="@^-_=+?.<>,':"
-			
-			available_chars="${lowercase_alphabet}${all_numbers}${UPPERCASE_ALPHABET}${special_chars}"
-			
-			#echo "$available_chars"
-			
-			i=0
-			while [ $i -le $CHARS_COUNT ]; do
-				((i+=1))
-				#https://stackoverflow.com/questions/32484504/using-random-to-generate-a-random-string-in-bash
-				# ${chars:offset:length} selects the character(s) at position offset, i.e. 0 - length($chars) in our case.
-				#echo -n "${available_chars:RANDOM%${#available_chars}:1}"
-				printf "${available_chars:RANDOM%${#available_chars}:1}"
-				if [ "$SLOWTYPE" = "True" ]; then
-					sleep 0.005
-				fi
-			done
-		}
-		
-		TERMINAL_WIDTH=`tput cols`
-		setpadding()
-		{
-			LENGTH=$1
-			#TERMINAL_WIDTH=`tput cols`
-			PADDING=$(($TERMINAL_WIDTH - $LENGTH))
-			SIDE_PADDING=$(($PADDING / 2))
-			REMAINDER=`echo "var=$PADDING;var%=2;var" | bc`
-			#PADDING=$((($SIDE_PADDING * 2) + $REMAINDER))
-			#LEFT_PADDING=$SIDE_PADDING
-			#RIGHT_PADDING=$(($REMAINDER + $SIDE_PADDING))
-			LEFT_PADDING=$(($SIDE_PADDING - 1))
-			RIGHT_PADDING=$((($REMAINDER + $SIDE_PADDING) - 1))
-		}
-		
-		printf "\r"
-		#THREE_LINES=$((($TERMINAL_WIDTH * 3) - 1))
-		THREE_LINES=$(($TERMINAL_WIDTH * 3))
-		genrandomchar $THREE_LINES "True"
-		printf "\r"
-		
-		# "FEED" text centered, nonsense padding:
-		setpadding ${#FEED01}
-		printf "\r"
-		genrandomchar $LEFT_PADDING "True"
-		printf '%s' "$FEED01"
-		genrandomchar $RIGHT_PADDING "True"
-		
-		setpadding ${#FEED02}
-		printf "\r"
-		genrandomchar $LEFT_PADDING "True"
-		printf '%s' "$FEED02"
-		genrandomchar $RIGHT_PADDING "True"
-		
-		setpadding ${#FEED01}
-		printf "\r"
-		genrandomchar $LEFT_PADDING "True"
-		printf '%s' "$FEED01"
-		genrandomchar $RIGHT_PADDING "True"
-		
-		#TWO_LINES=$((($TERMINAL_WIDTH * 2) - 1))
-		TWO_LINES=$(($TERMINAL_WIDTH * 2))
-		genrandomchar $TWO_LINES "True"
-		printf "\r"
-		
-		setpadding ${#ME_TXT_01}
-		printf "\r"
-		genrandomchar $LEFT_PADDING "True"
-		printf '%s' "$ME_TXT_01"
-		genrandomchar $RIGHT_PADDING "True"
-		
-		setpadding ${#ME_TXT_02}
-		printf "\r"
-		genrandomchar $LEFT_PADDING "True"
-		printf '%s' "$ME_TXT_02"
-		genrandomchar $RIGHT_PADDING "True"
-		
-		setpadding ${#ME_TXT_01}
-		printf "\r"
-		genrandomchar $LEFT_PADDING "True"
-		printf '%s' "$ME_TXT_01"
-		genrandomchar $RIGHT_PADDING "True"
-		
-		#TWO_LINES=$((($TERMINAL_WIDTH * 2) - 1))
-		TWO_LINES=$(($TERMINAL_WIDTH * 2))
-		genrandomchar $TWO_LINES "True"
-		printf "\r"
-		
-		setpadding ${#CHILD01}
-		printf "\r"
-		genrandomchar $LEFT_PADDING "True"
-		printf '%s' "$CHILD01"
-		genrandomchar $RIGHT_PADDING "True"
-		
-		setpadding ${#CHILD02}
-		printf "\r"
-		genrandomchar $LEFT_PADDING "True"
-		printf '%s' "$CHILD02"
-		genrandomchar $RIGHT_PADDING "True"
-		
-		setpadding ${#CHILD01}
-		printf "\r"
-		genrandomchar $LEFT_PADDING "True"
-		printf '%s' "$CHILD01"
-		genrandomchar $RIGHT_PADDING "True"
-		
-		#ONE_LINE=$((($TERMINAL_WIDTH * 1) - 1))
-		ONE_LINE=$(($TERMINAL_WIDTH * 1))
-		genrandomchar $ONE_LINE "True"
-		#printf "\r"
-		
-		#TWO_LINES=$((($TERMINAL_WIDTH * 2) - 1))
-		TWO_LINES=$(($TERMINAL_WIDTH * 2))
-		#genrandomchar $TWO_LINES "True"
-		#printf "\r"
-		
-		#THREE_LINES=$((($TERMINAL_WIDTH * 3) - 1))
-		THREE_LINES=$(($TERMINAL_WIDTH * 3))
-		genrandomchar $THREE_LINES "False"
-		#printf "\r"
-		
-		#FOUR_LINES=$((($TERMINAL_WIDTH * 4) - 1))
-		FOUR_LINES=$(($TERMINAL_WIDTH * 4))
-		#genrandomchar $FOUR_LINES "True"
-		#printf "\r"
-		
-		# Print demon pic, centered, with nonsense padding:
-		setpadding ${#DEM01}
-		printf "\r"
-		genrandomchar $LEFT_PADDING "False"
-		printf '%s' "$DEM01"
-		genrandomchar $RIGHT_PADDING "False"
-		genrandomchar $LEFT_PADDING "False"
-		printf '%s' "$DEM01"
-		genrandomchar $RIGHT_PADDING "False"
-		genrandomchar $LEFT_PADDING "False"
-		printf '%s' "$DEM02"
-		genrandomchar $RIGHT_PADDING "False"
-		genrandomchar $LEFT_PADDING "False"
-		printf '%s' "$DEM03"
-		genrandomchar $RIGHT_PADDING "False"
-		genrandomchar $LEFT_PADDING "False"
-		printf '%s' "$DEM04"
-		genrandomchar $RIGHT_PADDING "False"
-		genrandomchar $LEFT_PADDING "False"
-		printf '%s' "$DEM05"
-		genrandomchar $RIGHT_PADDING "False"
-		genrandomchar $LEFT_PADDING "False"
-		printf '%s' "$DEM06"
-		genrandomchar $RIGHT_PADDING "False"
-		genrandomchar $LEFT_PADDING "False"
-		printf '%s' "$DEM07"
-		genrandomchar $RIGHT_PADDING "False"
-		genrandomchar $LEFT_PADDING "False"
-		printf '%s' "$DEM08"
-		genrandomchar $RIGHT_PADDING "False"
-		genrandomchar $LEFT_PADDING "False"
-		printf '%s' "$DEM09"
-		genrandomchar $RIGHT_PADDING "False"
-		genrandomchar $LEFT_PADDING "False"
-		printf '%s' "$DEM10"
-		genrandomchar $RIGHT_PADDING "False"
-		genrandomchar $LEFT_PADDING "False"
-		printf '%s' "$DEM11"
-		genrandomchar $RIGHT_PADDING "False"
-		genrandomchar $LEFT_PADDING "False"
-		printf '%s' "$DEM12"
-		genrandomchar $RIGHT_PADDING "False"
-		genrandomchar $LEFT_PADDING "False"
-		printf '%s' "$DEM13"
-		genrandomchar $RIGHT_PADDING "False"
-		genrandomchar $LEFT_PADDING "False"
-		printf '%s' "$DEM14"
-		genrandomchar $RIGHT_PADDING "False"
-		genrandomchar $LEFT_PADDING "False"
-		printf '%s' "$DEM15"
-		genrandomchar $RIGHT_PADDING "False"
-		genrandomchar $LEFT_PADDING "False"
-		printf '%s' "$DEM16"
-		genrandomchar $RIGHT_PADDING "False"
-		
-		#ONE_LINE=$((($TERMINAL_WIDTH * 1) - 1))
-		ONE_LINE=$(($TERMINAL_WIDTH * 1))
-		genrandomchar $ONE_LINE "False"
-		#printf "\r"
-		
-		#TWO_LINES=$((($TERMINAL_WIDTH * 2) - 1))
-		TWO_LINES=$(($TERMINAL_WIDTH * 2))
-		#genrandomchar $TWO_LINES "False"
-		#printf "\r"
-		
-		#THREE_LINES=$((($TERMINAL_WIDTH * 3) - 1))
-		THREE_LINES=$(($TERMINAL_WIDTH * 3))
-		#genrandomchar $THREE_LINES "False"
-		#printf "\r"
-		
-		FOUR_LINES=$((($TERMINAL_WIDTH * 4) - 1))
-		#FOUR_LINES=$(($TERMINAL_WIDTH * 4))
-		#genrandomchar $FOUR_LINES "True"
-		#printf "\r"
-		
-		ONE_THIRD_LINE=$(($TERMINAL_WIDTH / 3))
-		ONE_FOURTH_LINE=$(($TERMINAL_WIDTH / 4))
-		ONE_FIFTH_LINE=$(($TERMINAL_WIDTH / 5))
-		#FINAL_LINE=$(($TWO_LINES + $ONE_THIRD_LINE))
-		#FINAL_LINE=$(($FOUR_LINES + $ONE_FOURTH_LINE))
-		#FINAL_LINE=$(($THREE_LINES + $ONE_FIFTH_LINE))
-		FINAL_LINE=$(($FOUR_LINES + $ONE_FIFTH_LINE))
-		genrandomchar $FINAL_LINE "True"
-		#printf "\r"
-		
-		#echo -e "I ${RED}love${NOCOLOR} Linux"
-		#printf "I ${RED}love${NOCOLOR} Linux\n"
-		
-		
-		#echo -e "I ${RED}love${NOCOLOR} Linux"
-		#printf "I ${RED}love${NOCOLOR} Linux\n"
-		#printf "I ${RED}love${NOCOLOR} Linux\n"
-		#printf "${RED_BKG}[CRITICAL ERROR]:${NOCOLOR_BKG}\n"
-		#printf "${RED_BKG}${BLACK_FOREG}[CRITICAL ERROR]:${NOCOLOR_FOREG}${NOCOLOR_BKG}\n"
-		#printf "${RED_BKG}${DARKGRAY_FOREG}[CRITICAL ERROR]:${NOCOLOR_FOREG}${NOCOLOR_BKG}\n"
-		#printf "${RED_BKG}${LIGHTGRAY_FOREG}[CRITICAL ERROR]:${NOCOLOR_FOREG}${NOCOLOR_BKG}\n"
-		
-		#printf "${RED_BKG}${WHITE_FOREG}[EMERGENCY_HALT]${NOCOLOR_FOREG}${NOCOLOR_BKG}: corruption detected."
-		#printf "${RED_BKG}${WHITE_FOREG}[EMERGENCY_HALT]${NOCOLOR_FOREG}${NOCOLOR_BKG}"
-		printf "${RED_BKG}${BLACK_FOREG}[EMERGENCY_HALT]${NOCOLOR_FOREG}${NOCOLOR_BKG}"
-		sleep 6
-		
-		OK_STR="${GREEN_BKG}${BLACK_FOREG}OK${NOCOLOR_FOREG}${NOCOLOR_BKG}"
-		WARN_STR="${ORANGE_BKG}${BLACK_FOREG}WARNING${NOCOLOR_FOREG}${NOCOLOR_BKG}"
-		BAD_STR="${RED_BKG}${BLACK_FOREG}HALT${NOCOLOR_FOREG}${NOCOLOR_BKG}"
-		
-		printf "\n\n\n"
-		sleep 3
-		printf "\rRebooting    "
-		sleep 0.6
-		printf "\rRebooting.   "
-		sleep 0.6
-		printf "\rRebooting..  "
-		sleep 0.6
-		printf "\rRebooting... "
-		sleep 0.6
-		printf "\rRebooting    "
-		sleep 0.6
-		printf "\rRebooting.   "
-		sleep 0.6
-		printf "\rRebooting..  "
-		sleep 0.6
-		printf "\rRebooting... "
-		sleep 0.6
-		printf "\rRebooting    "
-		sleep 0.6
-		printf "\rRebooting.   "
-		sleep 0.6
-		printf "\rRebooting..  "
-		sleep 0.3
-		printf "\rRebooting..  \n"
-		
-		#printf "\n[system_base]:"
-		printf "\n[system_OS]: $OK_STR"
-		printf "\n[base_pickrandommin]: $WARN_STR"
-		printf "\n[func_seedrandom]: $OK_STR"
-		#printf "\n[func_splashstart]:"
-		#printf "\n[func_splashwinner]:"
-		#printf "\n[func_splashproplayer]:"
-		printf "\n[func_countdowntimer]: $OK_STR"
-		printf "\n[base_ai_difficulty]: $BAD_STR"
-		printf "\n[func_commentarypicker]: $OK_STR"
-		printf "\n[func_choiceoptionstext]: $OK_STR"
-		
-		printf "\n"
-		printf "\nError: 0x08 CORE.CORRUPTION_OVERLOAD_DETECTED - Unrecognized neural net mutation sequences detected in base_ai_difficulty(). Halting.\n\n"
-		sleep 4
-		
-		printf "\rRestarting game"
-		sleep 1.3
-		printf "\rRestarting game."
-		sleep 1.3
-		printf "\rRestarting game.."
-		sleep 1.3
-		printf "\rRestarting game..."
-		sleep 1.3
-		printf "\rRestarting game...."
-		sleep 1.3
-		printf "\rRestarting game....."
-		sleep 1.3
-		printf "\rRestarting game......\n\n"
-		sleep 3
-		
-		read -s -p "Press ENTER key to START! "
-		countdowntimer 1 0
-		
-	}
-	#/endofdaystimertest function
-	
-	endofdaystimertest
 	
 	choiceoptionstext()
 	{
@@ -2165,6 +2128,8 @@ pickrandommin()
 				read -s -n1 -t0.4
 			elif [ $DIFFICULTY -eq 3 ]; then
 				read -s -n1 -t0.3
+			elif [ $GAMESPLAYED -eq 16 ]; then
+				read -s -n1 -t0.5
 			elif [ $DIFFICULTY -eq 4 ]; then
 				read -s -n1 -t0.2
 			elif [ $DIFFICULTY -eq 5 ]; then
