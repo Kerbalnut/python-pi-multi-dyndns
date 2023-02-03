@@ -550,7 +550,7 @@ checkpkg PIP "pygodaddy"
 # minute, hour, day of month, month, day of week, and the command to be executed.
 
 # m h dom mon dow   command
-# | | /   /   /
+# | |  /  /   /
 # | | |  /   /
 # | | | |   /
 # | | | |  /
@@ -622,20 +622,14 @@ checkpkg PIP "pygodaddy"
 
 # --------------------------------------------------------------------------------------------------------
 
-pickrandommin()
+pickrandmin()
 {
 	# This function will pick a random minute value from 0-59.
-	
 	#source ./rand.sh
 	. ./rand.sh 
-	
+	pickrandommin
 }
-
-#pickrandommin
-
-#rminpicker() {
-#	# Random minutes picker
-#}
+#pickrandmin
 
 removecronjob()
 {
@@ -659,6 +653,67 @@ addcronjob()
 	(crontab -l ; echo "$WET_HOT_CRON_LINE") | crontab -
 }
 
+cronfreqmenu()
+{
+	printf "\n\nSelect how frequently the Dynamic DNS script should run:\n"
+	echo " 0 - Once every two hours"
+	echo " 1 - Once per hour (RECOMMENDED)"
+	echo " 2 - Twice per hour (Non standard! May not work with every cron.)"
+	echo " 3 - Once every fifteen minutes (Non standard! May not work with every cron.)"
+	echo " 4 - Once every ten minutes (Non standard! May not work with every cron.)"
+	echo " 5 - Once every five minutes (Non standard! May not work with every cron.)"
+	echo " 6 - Enter custom cron tab string"
+}
+
+minselect()
+{
+	echo "You can offset the minute of the hour for when this job will execute. It is recommended to do this with a random value to avoid hitting servers at peak times when everyone else is too."
+	#echo " 0 - Random Minute Value Generator game (RECOMMENDED)"
+	#echo " 1 - Enter a minute value 0-59"
+	#echo " 2 - Go Back"
+}
+
+cronfreqmenu
+USER_INPUT="No escape"
+while [ $USER_INPUT -ge 0 ] && [ $USER_INPUT -le 6 ]; do
+	read -p "Choose option [0-6]: " USER_INPUT
+	if [ $USER_INPUT -ge 0 ] && [ $USER_INPUT -le 1 ]; then
+		#echo "You can offset the minute of the hour for when this job will execute. It is recommended to do this with a random value to avoid hitting servers at peak times when everyone else is too."
+		minselect
+		echo " 0 - Random Minute Value Generator game (RECOMMENDED)"
+		echo " 1 - Enter a minute value 0-59"
+		MIN_INPUT="No escape"
+		while [ $MIN_INPUT -ge 0 ] && [ $MIN_INPUT -le 2 ]; do
+		read -p "Choose option [0-2]: " MIN_INPUT
+			if [ $MIN_INPUT -eq 0 ]; then
+				pickrandmin
+				PICKEDMIN=$RANDOMMIN
+				minselect
+				printf " 0 - Random Minute Value Generator game (RECOMMENDED)"
+				printf " 1 - Accept pick %.2d" $PICKEDMIN
+				printf " 2 - Enter a minute value 0-59"
+				MIN_GAMEOVER_INPUT="No escape"
+				while [ $MIN_GAMEOVER_INPUT -ge 0 ] && [ $MIN_GAMEOVER_INPUT -le 3 ]; do
+					read -p "Choose option [0-3]: " MIN_GAMEOVER_INPUT
+					if [ $MIN_GAMEOVER_INPUT -eq 0 ]; then
+						
+					fi
+				done
+			elif [ $MIN_INPUT -eq 1 ]; then
+				
+			elif [ $MIN_INPUT -eq 2 ]; then
+				
+			fi
+			
+		done
+		
+	elif [ $USER_INPUT -eq 6 ]; then
+		
+		
+		
+	fi
+	
+done
 
 
 
