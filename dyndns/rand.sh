@@ -329,6 +329,77 @@ pickrandommin()
 	}
 	#/splashproplayer function
 	
+	splashallachievements()
+	{
+		#echo "__________________         ______ _                       "
+		#echo "| ___ \ ___ \ ___ \        | ___ \ |                      "
+		#echo "| |_/ / |_/ / |_/ / __ ___ | |_/ / | __ _ _   _  ___ _ __ "
+		#echo "|  __/|  __/|  __/ '__/ _ \|  __/| |/ _` | | | |/ _ \ '__|"
+		#echo "| |   | |   | |  | | | (_) | |   | | (_| | |_| |  __/ |   "
+		#echo "\_|   \_|   \_|  |_|  \___/\_|   |_|\__,_|\__, |\___|_|   "
+		#echo "                                           __/ |          "
+		#echo "                                          |___/           "
+		
+		printf "__________________         ______ _                        \n"
+		printf "| ___ \ ___ \ ___ \        | ___ \ |                       \n"
+		printf "| |_/ / |_/ / |_/ / __ ___ | |_/ / | __ _ _   _  ___ _ __  \n"
+		printf "|  __/|  __/|  __/ '__/ _ \|  __/| |/ _\` | | | |/ _ \ '__| \n"
+		printf "| |   | |   | |  | | | (_) | |   | | (_| | |_| |  __/ |    \n"
+		printf "\_|   \_|   \_|  |_|  \___/\_|   |_|\__,_|\__, |\___|_|    \n"
+		printf "                                           __/ |           \n"
+		printf "                                          |___/            \n"
+		printf "                  allachievements mode unlocked!                 \n"
+		printf "                      (PP for short!)                      \n"
+		printf "                                                           \n"
+		printf "   This mode becomes unlocked by gaining Achievements by   \n"
+		printf "     picking numbers with special messages, or after a     \n"
+		printf "     certain number of games have been played. You can     \n"
+		printf "   also toggle this mode on/off by typing in the special   \n"
+		#printf "         code, 'PP' on the selection menu screen!          \n"
+		printf "    code 'PP' on the selection menu screen, even for a     \n"
+		printf "                      brand new game!                      \n"
+		printf "\n"
+		read -s -p "Press ENTER key to continue... "
+		printf "\n"
+		
+		#           H   H H
+		#       HH H#H H#HH H H
+		#       H#H##H###MHH#HH
+		#        H###########H
+		#        :=+###HHHHHH;
+		#       :....++HHH.../:
+		#      :..............=:
+		#      :...............:
+		#     :................-:
+		#     :.................;
+		#     :.................=
+		#    :...................:
+		#    :......+;...+;......:
+		#    :......+#...+#......=
+		#    :...................:
+		#    :++++............+++:
+		#    :....+++++;++++++...:
+		#    :..................-:
+		#    =..................:
+		#     ;.................:
+		#    :::...............;
+		#   :..:-............,=:::
+		#   :...:-,.........,-:...:
+		#    ::;--=-,.....,==-:...:
+		#       ;:---:$$:=---;:=::
+		#        :---:;;----::
+		#        :---:;;----:;
+		#        :---:;;----;;
+		#        ;:---;;----;;
+		#       ;:----;;----:;;
+		#       ;:--::;;;:--::;
+		#        ;;;;;; ;;;;;;
+		
+		
+		
+	}
+	#/splashallachievements function
+	
 	splashtemp()
 	{
 		echo " ____    __    _  _  ____  _____  __  __    _  _  __    __   "
@@ -2226,4 +2297,4 @@ pickrandommin()
 	
 }
 
-pickrandommin
+#pickrandommin
