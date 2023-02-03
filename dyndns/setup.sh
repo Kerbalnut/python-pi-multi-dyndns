@@ -164,6 +164,11 @@ addlog()
 
 loadcolors()
 {
+	#loadcolors
+	#loadcolors "True" # Prints an example list of every color combo
+	
+	TEST_ALL_COLORS=$1
+	
 	RED='\033[0;31m'    #'0;31' is Red's ANSI color code
 	GREEN='\033[0;32m'  #'0;32' is Green's ANSI color code
 	YELLOW='\033[1;32m' #'1;32' is Yellow's ANSI color code
@@ -171,7 +176,7 @@ loadcolors()
 	WHITE='\033[1;37m'  #'1;37' is White's ANSI color code
 	NOCOLOR='\033[0m'
 	
-	# E.g.
+	# Example:
 	#echo -e "I ${RED}love${NOCOLOR} Linux"
 	#printf "I ${RED}love${NOCOLOR} Linux\n"
 	
@@ -193,32 +198,34 @@ loadcolors()
 	# For more info see
 	#https://stackoverflow.com/questions/4842424/list-of-ansi-color-escape-sequences
 	
-	# Background color:
+	# Foregrand & Background color:
 	
 	#echo -e "\033[38;5;208mpeach\033[0;00m"
 	# Taking apart this command: \033[38;5;208m
 	
 	# The \033 is the escape code. The [38; directs command to the foreground. If you want to change the background color instead, use [48; instead. The 5; is just a piece of the sequence that changes color. And the most important part, 208m, selects the actual color.
 	
-	RED_FOREG='\033[38;0;31m'    #'0;31' is Red's ANSI color code
-	GREEN_FOREG='\033[38;0;32m'  #'0;32' is Green's ANSI color code
+	#RED_FOREG='\033[38;0;31m'    #'0;31' is Red's ANSI color code
+	#GREEN_FOREG='\033[38;0;32m'  #'0;32' is Green's ANSI color code
 	YELLOW_FOREG='\033[38;1;32m' #'1;32' is Yellow's ANSI color code
-	BLUE_FOREG='\033[38;0;34m'   #'0;34' is Blue's ANSI color code
+	#BLUE_FOREG='\033[38;0;34m'   #'0;34' is Blue's ANSI color code
 	WHITE_FOREG='\033[38;1;37m'  #'1;37' is White's ANSI color code
-	BLACK_FOREG='\033[38;0;30m'  #'0;30' is Black's ANSI color code
+	#BLACK_FOREG='\033[38;0;30m'  #'0;30' is Black's ANSI color code
 	DARKGRAY_FOREG='\033[38;1;30m'
-	LIGHTGRAY_FOREG='\033[38;0;37m'
-	NOCOLOR_FOREG='\033[38;0m'
+	#LIGHTGRAY_FOREG='\033[38;0;37m'
+	#NOCOLOR_FOREG='\033[38;0m'
 	
-	RED_BKG='\033[48;0;31m'    #'0;31' is Red's ANSI color code
-	GREEN_BKG='\033[48;0;32m'  #'0;32' is Green's ANSI color code
-	YELLOW_BKG='\033[48;1;32m' #'1;32' is Yellow's ANSI color code
-	BLUE_BKG='\033[48;0;34m'   #'0;34' is Blue's ANSI color code
-	WHITE_BKG='\033[48;1;37m'  #'1;37' is White's ANSI color code
-	BLACK_BKG='\033[48;0;30m'  #'0;30' is Black's ANSI color code
-	DARKGRAY_BKG='\033[48;1;30m'
-	LIGHTGRAY_BKG='\033[48;0;37m'
-	NOCOLOR_BKG='\033[48;0m'
+	#RED_BKG='\033[48;0;31m'    #'0;31' is Red's ANSI color code
+	#GREEN_BKG='\033[48;0;32m'  #'0;32' is Green's ANSI color code
+	#YELLOW_BKG='\033[48;1;32m' #'1;32' is Yellow's ANSI color code
+	#BLUE_BKG='\033[48;0;34m'   #'0;34' is Blue's ANSI color code
+	#WHITE_BKG='\033[48;1;37m'  #'1;37' is White's ANSI color code
+	#BLACK_BKG='\033[48;0;30m'  #'0;30' is Black's ANSI color code
+	#DARKGRAY_BKG='\033[48;1;30m'
+	#LIGHTGRAY_BKG='\033[48;0;37m'
+	#NOCOLOR_BKG='\033[48;0m'
+	
+	# Foregrand & Background color:
 	
 	#https://opensource.com/article/19/9/linux-terminal-colors
 	
@@ -274,24 +281,25 @@ loadcolors()
 	LIGHT_GREEN_BKG='\033[102m'
 	LIGHT_BLUE_BKG='\033[104m'
 	LIGHT_PURPLE_BKG='\033[105m'
-	TEAL='\033[106m'
+	TEAL_BKG='\033[106m'
 	
-	#echo "Background color tests:"
-	#echo -e "I ${RED}love${NOCOLOR} Linux"
-	#printf "I ${RED}love${NOCOLOR} Linux\n"
-	#printf "I ${RED}love${NOCOLOR} Linux\n"
-	#printf "${RED_BKG}[CRITICAL ERROR]:${NOCOLOR_BKG}\n"
-	#printf "${RED_BKG}${BLACK_FOREG}[CRITICAL ERROR]:${NOCOLOR_FOREG}${NOCOLOR_BKG}\n"
-	#printf "${RED_BKG}${DARKGRAY_FOREG}[CRITICAL ERROR]:${NOCOLOR_FOREG}${NOCOLOR_BKG}\n"
-	#printf "${RED_BKG}${LIGHTGRAY_FOREG}[CRITICAL ERROR]:${NOCOLOR_FOREG}${NOCOLOR_BKG}\n"
-	#printf "${RED_BKG}${WHITE_FOREG}[CRITICAL ERROR]:${NOCOLOR_FOREG}${NOCOLOR_BKG}\n"
-	
-	##compgen -A variable | grep *_BKG
-	##echo (compgen -A variable | grep *_BKG)
-	#echo $(compgen -A variable | grep *_BKG)
-	#echo $((compgen -A variable | grep *_BKG))
-	#echo `compgen -A variable | grep *_BKG`
-	
+	if [ "$TEST_ALL_COLORS" = "True" ]; then
+		BACKGROUNDCOLORS=$(compgen -A variable | grep _BKG)
+		FOREGROUNDCOLORS=$(compgen -A variable | grep _FOREG)
+		BACKGROUNDCOLORS=($BACKGROUNDCOLORS)
+		FOREGROUNDCOLORS=($FOREGROUNDCOLORS)
+		
+		#for i in "${BACKGROUNDCOLORS[@]}"; do echo "Testing array list item: $i"; done
+		printf "\nTesting all color combos:\n"
+		for i in "${BACKGROUNDCOLORS[@]}"; do
+			printf "${NOCOLOR_FOREG}${NOCOLOR_BKG}${NOCOLOR}\n$i:\n"
+			BACKCOLOR=${!i}
+			for j in "${FOREGROUNDCOLORS[@]}"; do
+				FORECOLOR=${!j}
+				printf "${BACKCOLOR}${FORECOLOR} %s-%s ${NOCOLOR_FOREG}${NOCOLOR_BKG}" $i $j
+			done
+		done
+	fi
 }
 
 # --------------------------------------------------------------------------------------------------------
@@ -300,13 +308,15 @@ loadcolors()
 
 echo "1. Updating Raspbian."
 
+printf "\nsudo apt-get update\n"
+#read -s -p "Press ENTER key to continue... "
 #sudo apt-get update
 
 # Install Python, pip, and required modules:
 
 echo "2. Installing required packages."
 
-# Function to check if apt or pip packages are installed
+# Function to check if apt or pip packages are installed and install them.
 checkpkg()
 {
 	TYPE=$1
@@ -525,6 +535,7 @@ checkpkg PIP "pygodaddy"
 
 ###sudo chmod +x dyndns.py
 ###sudo chmod +x logcleanup.sh
+###sudo chmod +x rand.sh
 
 # --------------------------------------------------------------------------------------------------------
 
@@ -615,228 +626,8 @@ pickrandommin()
 {
 	# This function will pick a random minute value from 0-59.
 	
-	# RANDOM is an internal bash command that returns a pseudo-random 15-bit integer in the range 0 – 32767.
-	#https://www.geeksforgeeks.org/random-shell-variable-in-linux-with-examples/
-	# To enhance the randomization process, the random variable can be seeded with an initial value which can be the time in epoch, the process ID of the current shell, etc.
-	
-	# Syntax to use time in epoch to initialize the generator:
-	RANDOM=$(date +%s)
-	
-	# Syntax to use process ID of the current shell to initialze the generator:
-	RANDOM=$$ #PID of shell is stored in $$ variable
-	
-	# Generating random integer when the upper limit is given
-	
-	# Consider that you want to generate a random integer within Y (where Y is not included):
-	#R=$(($RANDOM%Y))
-	#echo $(($RANDOM%10)) #This will display a random integer between 0 and 9.
-	#echo $(($RANDOM%11)) #This will display a random integer between 0 and 10.
-	
-	RANDOMMIN=$(($RANDOM%60))
-	
-	#Precision modifier
-	#You can use the precision modifier (.) dot to specify a minimum number of digits to be displayed with %d, %u, %o, %x. It adds zero padding on the left of the value.
-	#abhishek@handbook:~$ printf "Roll Number: %.5d\n" 23
-	#Roll Number: 00023
-	
-	
-	printf "Random minute: %.2d\n" $RANDOMMIN
-	
-	printf "\rRandom minute: %.2d\n" $(($RANDOM%60))
-	
-	
-	printf "\rRandom minute: %.2d" $(($RANDOM%60)) && sleep 0.5 && printf "\rRandom minute: %.2d" $(($RANDOM%60)) && sleep 0.5 && printf "\rRandom minute: %.2d" $(($RANDOM%60)) && sleep 0.5 && printf "\rRandom minute: %.2d" $(($RANDOM%60)) && sleep 0.5 && printf "\rRandom minute: %.2d\n" $(($RANDOM%60))
-	
-	#read -p "Press Enter to continue"
-	
-	#read -s -n1 -p "Testing hello..."
-	
-	
-	read -s -n1 -t0.5 -p "Testing hello..."
-	unset REPLY
-	
-	
-	
-	
-	
-	MSG="Press ANY key to pick random minute value"
-	unset REPLY
-	while [ -v $REPLY ]; do
-		RANDOMMIN=$(($RANDOM%60))
-		printf "\r$MSG: %.2d" $RANDOMMIN
-		#echo -n -e "\r$MSG:  $RANDOMMIN  "
-		read -s -n1 -t1
-	done
-	
-	echo -e "\nDone with loop. \$RANDOMMIN : $RANDOMMIN - 1\n"
-	read -p "Press Enter to continue"
-	unset REPLY
-	
-	
-	
-	
-	
-	
-	x=0
-	unset REPLY
-	while [ -v $REPLY ]; do
-		((x+=1))
-		RANDOMMIN=$(($RANDOM%60))
-		printf "\r$x Random minute: %.2d" $RANDOMMIN
-		#echo -n -e "\r$x Random minute:  $RANDOMMIN  "
-		read -s -n1 -t1
-	done
-	
-	echo -e "\nDone with loop. \$RANDOMMIN : $RANDOMMIN - 2\n"
-	read -p "Press Enter to continue"
-	unset REPLY
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	x=0
-	unset REPLY
-	while [ -v $REPLY ]; do
-		((x+=1))
-		#echo "$x echo"
-		printf "\r$x Random minute: %.2d" $(($RANDOM%60))
-		read -s -n1 -t1
-		#echo -n -e '\033[2A'
-		#sleep 0.5
-	done
-	
-	echo -e "\nDone with loop.\n"
-	read -p "Press Enter to continue"
-	unset REPLY
-	
-	
-	
-	x=0
-	unset REPLY
-	while [ -v $REPLY ]; do
-		((x+=1))
-		#echo "$x echo"
-		printf "\r$x Random minute: %.2d\n" $(($RANDOM%60)) && read -s -n1 -t1 && printf "\r"
-		#sleep 0.5
-	done
-	
-	echo -e "\nDone with loop.\n"
-	read -p "Press Enter to continue"
-	unset REPLY
-	
-	
-	
-	x=0
-	unset REPLY
-	while [ -v $REPLY ]; do
-		((x+=1))
-		#echo "$x echo"
-		read -s -n1 -t1 && printf "\r$x Random minute: %.2d\n" $(($RANDOM%60))
-		#sleep 0.5
-	done
-	
-	echo -e "\nDone with loop.\n"
-	read -p "Press Enter to continue"
-	unset REPLY
-	
-	
-	
-	x=0
-	unset REPLY
-	while [ -v $REPLY ]; do
-		((x+=1))
-		#echo "$x echo"
-		printf "\r$x Random minute: %.2d\n" $(($RANDOM%60))
-		read -s -n1 -t1
-		#sleep 0.5
-	done
-	
-	echo -e "\nDone with loop.\n"
-	read -p "Press Enter to continue"
-	unset REPLY
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	x=0
-	unset REPLY
-	while [ -v $REPLY ]; do
-		((x+=1))
-		echo "$x echo"
-		read -s -n1 -t1 -p "$x Press key to continue.. $REPLY"
-		#sleep 0.5
-	done
-	
-	echo -e "\nDone with loop.\n"
-	read -p "Press Enter to continue"
-	unset REPLY
-	
-	
-	x=0
-	while [ $x -lt 20 ] || ! [ -v $uinput ]; do
-		((x+=1))
-		echo "$x echo"
-		read -s -n1 -t1 -p "$x Press key to continue.. $uinput" uinput
-		#sleep 0.5
-	done
-	echo -e "\nDone with loop.\n"
-	
-	printf "\n\$REPLY = $REPLY\n"
-	read -p "Press Enter to continue"
-	unset REPLY
-	
-	x=0
-	unset REPLY
-	while [[ $x -lt 20 ]] || ! [[ -v $REPLY ]]; do
-		((x+=1))
-		echo "$x echo"
-		read -s -n1 -t1 -p "$x Press key to continue.. $REPLY"
-		#sleep 0.5
-	done
-	
-	echo -e "\nDone with loop.\n"
-	read -p "Press Enter to continue"
-	
-	x=0
-	EXITCODE="iMpOsSiBlE_sTrInG.!@(Clw(k3"
-	uinput=$EXITCODE
-	unset REPLY
-	while [[ $x -lt 20 ]] || [[ $uinput != $EXITCODE ]]; do
-		((x+=1))
-		echo "$x echo $EXITCODE"
-		uinput=$EXITCODE
-		read -s -n1 -t1 -p "$x Press key to continue.. $uinput" uinput
-		#sleep 0.5
-	done
-	echo -e "\nDone with loop.\n"
-	
-	printf "\n\$REPLY = $REPLY\n"
-	read -p "Press Enter to continue"
-	unset REPLY
+	#source ./rand.sh
+	. ./rand.sh 
 	
 }
 

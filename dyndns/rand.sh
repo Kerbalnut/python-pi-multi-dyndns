@@ -6,6 +6,11 @@
 
 loadcolors()
 {
+	#loadcolors
+	#loadcolors "True" # Prints an example list of every color combo
+	
+	TEST_ALL_COLORS=$1
+	
 	RED='\033[0;31m'    #'0;31' is Red's ANSI color code
 	GREEN='\033[0;32m'  #'0;32' is Green's ANSI color code
 	YELLOW='\033[1;32m' #'1;32' is Yellow's ANSI color code
@@ -13,7 +18,7 @@ loadcolors()
 	WHITE='\033[1;37m'  #'1;37' is White's ANSI color code
 	NOCOLOR='\033[0m'
 	
-	# E.g.
+	# Example:
 	#echo -e "I ${RED}love${NOCOLOR} Linux"
 	#printf "I ${RED}love${NOCOLOR} Linux\n"
 	
@@ -35,32 +40,34 @@ loadcolors()
 	# For more info see
 	#https://stackoverflow.com/questions/4842424/list-of-ansi-color-escape-sequences
 	
-	# Background color:
+	# Foregrand & Background color:
 	
 	#echo -e "\033[38;5;208mpeach\033[0;00m"
 	# Taking apart this command: \033[38;5;208m
 	
 	# The \033 is the escape code. The [38; directs command to the foreground. If you want to change the background color instead, use [48; instead. The 5; is just a piece of the sequence that changes color. And the most important part, 208m, selects the actual color.
 	
-	RED_FOREG='\033[38;0;31m'    #'0;31' is Red's ANSI color code
-	GREEN_FOREG='\033[38;0;32m'  #'0;32' is Green's ANSI color code
+	#RED_FOREG='\033[38;0;31m'    #'0;31' is Red's ANSI color code
+	#GREEN_FOREG='\033[38;0;32m'  #'0;32' is Green's ANSI color code
 	YELLOW_FOREG='\033[38;1;32m' #'1;32' is Yellow's ANSI color code
-	BLUE_FOREG='\033[38;0;34m'   #'0;34' is Blue's ANSI color code
+	#BLUE_FOREG='\033[38;0;34m'   #'0;34' is Blue's ANSI color code
 	WHITE_FOREG='\033[38;1;37m'  #'1;37' is White's ANSI color code
-	BLACK_FOREG='\033[38;0;30m'  #'0;30' is Black's ANSI color code
+	#BLACK_FOREG='\033[38;0;30m'  #'0;30' is Black's ANSI color code
 	DARKGRAY_FOREG='\033[38;1;30m'
-	LIGHTGRAY_FOREG='\033[38;0;37m'
-	NOCOLOR_FOREG='\033[38;0m'
+	#LIGHTGRAY_FOREG='\033[38;0;37m'
+	#NOCOLOR_FOREG='\033[38;0m'
 	
-	RED_BKG='\033[48;0;31m'    #'0;31' is Red's ANSI color code
-	GREEN_BKG='\033[48;0;32m'  #'0;32' is Green's ANSI color code
-	YELLOW_BKG='\033[48;1;32m' #'1;32' is Yellow's ANSI color code
-	BLUE_BKG='\033[48;0;34m'   #'0;34' is Blue's ANSI color code
-	WHITE_BKG='\033[48;1;37m'  #'1;37' is White's ANSI color code
-	BLACK_BKG='\033[48;0;30m'  #'0;30' is Black's ANSI color code
-	DARKGRAY_BKG='\033[48;1;30m'
-	LIGHTGRAY_BKG='\033[48;0;37m'
-	NOCOLOR_BKG='\033[48;0m'
+	#RED_BKG='\033[48;0;31m'    #'0;31' is Red's ANSI color code
+	#GREEN_BKG='\033[48;0;32m'  #'0;32' is Green's ANSI color code
+	#YELLOW_BKG='\033[48;1;32m' #'1;32' is Yellow's ANSI color code
+	#BLUE_BKG='\033[48;0;34m'   #'0;34' is Blue's ANSI color code
+	#WHITE_BKG='\033[48;1;37m'  #'1;37' is White's ANSI color code
+	#BLACK_BKG='\033[48;0;30m'  #'0;30' is Black's ANSI color code
+	#DARKGRAY_BKG='\033[48;1;30m'
+	#LIGHTGRAY_BKG='\033[48;0;37m'
+	#NOCOLOR_BKG='\033[48;0m'
+	
+	# Foregrand & Background color:
 	
 	#https://opensource.com/article/19/9/linux-terminal-colors
 	
@@ -116,27 +123,30 @@ loadcolors()
 	LIGHT_GREEN_BKG='\033[102m'
 	LIGHT_BLUE_BKG='\033[104m'
 	LIGHT_PURPLE_BKG='\033[105m'
-	TEAL='\033[106m'
+	TEAL_BKG='\033[106m'
 	
-	#echo "Background color tests:"
-	#echo -e "I ${RED}love${NOCOLOR} Linux"
-	#printf "I ${RED}love${NOCOLOR} Linux\n"
-	#printf "I ${RED}love${NOCOLOR} Linux\n"
-	#printf "${RED_BKG}[CRITICAL ERROR]:${NOCOLOR_BKG}\n"
-	#printf "${RED_BKG}${BLACK_FOREG}[CRITICAL ERROR]:${NOCOLOR_FOREG}${NOCOLOR_BKG}\n"
-	#printf "${RED_BKG}${DARKGRAY_FOREG}[CRITICAL ERROR]:${NOCOLOR_FOREG}${NOCOLOR_BKG}\n"
-	#printf "${RED_BKG}${LIGHTGRAY_FOREG}[CRITICAL ERROR]:${NOCOLOR_FOREG}${NOCOLOR_BKG}\n"
-	#printf "${RED_BKG}${WHITE_FOREG}[CRITICAL ERROR]:${NOCOLOR_FOREG}${NOCOLOR_BKG}\n"
-	
-	##compgen -A variable | grep *_BKG
-	##echo (compgen -A variable | grep *_BKG)
-	#echo $(compgen -A variable | grep *_BKG)
-	#echo $((compgen -A variable | grep *_BKG))
-	#echo `compgen -A variable | grep *_BKG`
-	
+	if [ "$TEST_ALL_COLORS" = "True" ]; then
+		BACKGROUNDCOLORS=$(compgen -A variable | grep _BKG)
+		FOREGROUNDCOLORS=$(compgen -A variable | grep _FOREG)
+		BACKGROUNDCOLORS=($BACKGROUNDCOLORS)
+		FOREGROUNDCOLORS=($FOREGROUNDCOLORS)
+		
+		#for i in "${BACKGROUNDCOLORS[@]}"; do echo "Testing array list item: $i"; done
+		printf "\nTesting all color combos:\n"
+		for i in "${BACKGROUNDCOLORS[@]}"; do
+			printf "${NOCOLOR_FOREG}${NOCOLOR_BKG}${NOCOLOR}\n$i:\n"
+			BACKCOLOR=${!i}
+			for j in "${FOREGROUNDCOLORS[@]}"; do
+				FORECOLOR=${!j}
+				printf "${BACKCOLOR}${FORECOLOR} %s-%s ${NOCOLOR_FOREG}${NOCOLOR_BKG}" $i $j
+			done
+		done
+	fi
 }
 
 loadcolors
+
+#loadcolors "True"
 
 pickrandommin()
 {
@@ -688,7 +698,7 @@ pickrandommin()
 							#positive
 							;;
 					"5")
-							printf "You picked the number:  %2s    --  How swell!!                \n" $NUMPICK
+							printf "You picked the number:  %2s    --  How swell!                 \n" $NUMPICK
 							#positive
 							;;
 					"6")
@@ -1115,11 +1125,14 @@ pickrandommin()
 			sleep 0.9
 			printf "\r26a0FAng0gam11in.246 851A2"
 			sleep 0.9
-			printf "\r861FAA21B742811B2210C98AFE"
+			#printf "\r861FAA21B742811B2210C98AFE"
+			hexstring='861FAA21B742811B2210C98AFE'
+			#echo "${#hexstring}"
+			printf "\r$hexstring"
 			sleep 0.9
 			#printf "\r+SN3^i..zv5\A4tm'Rh1DqeLHU"
 			printf "\r+SN3^i..zv5\\A4tm'Rh1DqeLHU"
-			sleep 0.5
+			sleep 3
 			
 			#     (                      )
 			#     |\    _,--------._    / |
@@ -1173,16 +1186,21 @@ pickrandommin()
 			#printf '%s\n' "$DEM15"
 			#printf '%s\n' "$DEM16"
 			
+			loadcolors
+			
 			FEED01="              "
 			FEED02="    FEED    "
+			#FEED02="    ${RED}FEED${NOCOLOR}    "
 			FEED03="              "
 			
 			ME_TXT_01="          "
 			ME_TXT_02="   ME   "
+			#ME_TXT_02="   ${RED}ME${NOCOLOR}   "
 			ME_TXT_03="          "
 			
 			CHILD01="             "
 			CHILD02="   CHILD   "
+			#CHILD02="   ${RED}CHILD${NOCOLOR}   "
 			CHILD03="             "
 			
 			genrandomchar()
@@ -1229,7 +1247,8 @@ pickrandommin()
 				RIGHT_PADDING=$((($REMAINDER + $SIDE_PADDING) - 1))
 			}
 			
-			REMAINING_LINE=$(($TERMINAL_WIDTH - 27))
+			#REMAINING_LINE=$(($TERMINAL_WIDTH - 27))
+			REMAINING_LINE=$(($TERMINAL_WIDTH - ${#hexstring} + 1))
 			#genrandomchar $REMAINING_LINE "True"
 			
 			#printf "\r"
@@ -1249,7 +1268,8 @@ pickrandommin()
 			setpadding ${#FEED02}
 			printf "\r"
 			genrandomchar $LEFT_PADDING "True"
-			printf '%s' "$FEED02"
+			#printf '%s' "$FEED02"
+			printf "${RED}%s${NOCOLOR}" "$FEED02"
 			genrandomchar $RIGHT_PADDING "True"
 			
 			setpadding ${#FEED01}
@@ -1272,7 +1292,8 @@ pickrandommin()
 			setpadding ${#ME_TXT_02}
 			printf "\r"
 			genrandomchar $LEFT_PADDING "True"
-			printf '%s' "$ME_TXT_02"
+			#printf '%s' "$ME_TXT_02"
+			printf "${RED}%s${NOCOLOR}" "$ME_TXT_02"
 			genrandomchar $RIGHT_PADDING "True"
 			
 			setpadding ${#ME_TXT_01}
@@ -1295,7 +1316,8 @@ pickrandommin()
 			setpadding ${#CHILD02}
 			printf "\r"
 			genrandomchar $LEFT_PADDING "True"
-			printf '%s' "$CHILD02"
+			#printf '%s' "$CHILD02"
+			printf "${RED}%s${NOCOLOR}" "$CHILD02"
 			genrandomchar $RIGHT_PADDING "True"
 			
 			setpadding ${#CHILD01}
@@ -1328,55 +1350,55 @@ pickrandommin()
 			setpadding ${#DEM01}
 			printf "\r"
 			genrandomchar $LEFT_PADDING "False"
-			printf '%s' "$DEM01"
+			printf "${RED}%s${NOCOLOR}" "$DEM01"
 			genrandomchar $RIGHT_PADDING "False"
 			genrandomchar $LEFT_PADDING "False"
-			printf '%s' "$DEM01"
+			printf "${RED}%s${NOCOLOR}" "$DEM01"
 			genrandomchar $RIGHT_PADDING "False"
 			genrandomchar $LEFT_PADDING "False"
-			printf '%s' "$DEM02"
+			printf "${RED}%s${NOCOLOR}" "$DEM02"
 			genrandomchar $RIGHT_PADDING "False"
 			genrandomchar $LEFT_PADDING "False"
-			printf '%s' "$DEM03"
+			printf "${RED}%s${NOCOLOR}" "$DEM03"
 			genrandomchar $RIGHT_PADDING "False"
 			genrandomchar $LEFT_PADDING "False"
-			printf '%s' "$DEM04"
+			printf "${RED}%s${NOCOLOR}" "$DEM04"
 			genrandomchar $RIGHT_PADDING "False"
 			genrandomchar $LEFT_PADDING "False"
-			printf '%s' "$DEM05"
+			printf "${RED}%s${NOCOLOR}" "$DEM05"
 			genrandomchar $RIGHT_PADDING "False"
 			genrandomchar $LEFT_PADDING "False"
-			printf '%s' "$DEM06"
+			printf "${RED}%s${NOCOLOR}" "$DEM06"
 			genrandomchar $RIGHT_PADDING "False"
 			genrandomchar $LEFT_PADDING "False"
-			printf '%s' "$DEM07"
+			printf "${RED}%s${NOCOLOR}" "$DEM07"
 			genrandomchar $RIGHT_PADDING "False"
 			genrandomchar $LEFT_PADDING "False"
-			printf '%s' "$DEM08"
+			printf "${RED}%s${NOCOLOR}" "$DEM08"
 			genrandomchar $RIGHT_PADDING "False"
 			genrandomchar $LEFT_PADDING "False"
-			printf '%s' "$DEM09"
+			printf "${RED}%s${NOCOLOR}" "$DEM09"
 			genrandomchar $RIGHT_PADDING "False"
 			genrandomchar $LEFT_PADDING "False"
-			printf '%s' "$DEM10"
+			printf "${RED}%s${NOCOLOR}" "$DEM10"
 			genrandomchar $RIGHT_PADDING "False"
 			genrandomchar $LEFT_PADDING "False"
-			printf '%s' "$DEM11"
+			printf "${RED}%s${NOCOLOR}" "$DEM11"
 			genrandomchar $RIGHT_PADDING "False"
 			genrandomchar $LEFT_PADDING "False"
-			printf '%s' "$DEM12"
+			printf "${RED}%s${NOCOLOR}" "$DEM12"
 			genrandomchar $RIGHT_PADDING "False"
 			genrandomchar $LEFT_PADDING "False"
-			printf '%s' "$DEM13"
+			printf "${RED}%s${NOCOLOR}" "$DEM13"
 			genrandomchar $RIGHT_PADDING "False"
 			genrandomchar $LEFT_PADDING "False"
-			printf '%s' "$DEM14"
+			printf "${RED}%s${NOCOLOR}" "$DEM14"
 			genrandomchar $RIGHT_PADDING "False"
 			genrandomchar $LEFT_PADDING "False"
-			printf '%s' "$DEM15"
+			printf "${RED}%s${NOCOLOR}" "$DEM15"
 			genrandomchar $RIGHT_PADDING "False"
 			genrandomchar $LEFT_PADDING "False"
-			printf '%s' "$DEM16"
+			printf "${RED}%s${NOCOLOR}" "$DEM16"
 			genrandomchar $RIGHT_PADDING "False"
 			
 			#ONE_LINE=$((($TERMINAL_WIDTH * 1) - 1))
@@ -1426,51 +1448,79 @@ pickrandommin()
 			printf "${RED_BKG}${BLACK_FOREG}[EMERGENCY_HALT]${NOCOLOR_FOREG}${NOCOLOR_BKG}"
 			sleep 6
 			
-			OK_STR="${GREEN_BKG}${BLACK_FOREG}OK${NOCOLOR_FOREG}${NOCOLOR_BKG}"
-			WARN_STR="${ORANGE_BKG}${BLACK_FOREG}WARNING${NOCOLOR_FOREG}${NOCOLOR_BKG}"
-			BAD_STR="${RED_BKG}${BLACK_FOREG}HALT${NOCOLOR_FOREG}${NOCOLOR_BKG}"
+			OK_STR="${GREEN_BKG}${BLACK_FOREG} OK ${NOCOLOR_FOREG}${NOCOLOR_BKG}"
+			WARN_STR="${ORANGE_BKG}${BLACK_FOREG} WARNING ${NOCOLOR_FOREG}${NOCOLOR_BKG}"
+			BAD_STR="${RED_BKG}${BLACK_FOREG} HALT ${NOCOLOR_FOREG}${NOCOLOR_BKG}"
 			
 			printf "\n\n\n"
 			sleep 3
-			printf "\rRebooting    "
+			printf "\rRebooting   "
 			sleep 0.6
-			printf "\rRebooting.   "
+			printf "\rRebooting.  "
 			sleep 0.6
-			printf "\rRebooting..  "
+			printf "\rRebooting.. "
 			sleep 0.6
-			printf "\rRebooting... "
+			printf "\rRebooting..."
 			sleep 0.6
-			printf "\rRebooting    "
+			printf "\rRebooting   "
 			sleep 0.6
-			printf "\rRebooting.   "
+			printf "\rRebooting.  "
 			sleep 0.6
-			printf "\rRebooting..  "
+			printf "\rRebooting.. "
 			sleep 0.6
-			printf "\rRebooting... "
+			printf "\rRebooting..."
 			sleep 0.6
-			printf "\rRebooting    "
+			printf "\rRebooting   "
 			sleep 0.6
-			printf "\rRebooting.   "
+			printf "\rRebooting.  "
 			sleep 0.6
-			printf "\rRebooting..  "
+			printf "\rRebooting.. "
 			sleep 0.3
-			printf "\rRebooting..  \n"
+			printf "\rRebooting.. \n"
 			
 			#printf "\n[system_base]:"
-			printf "\n[system_OS]: $OK_STR"
-			printf "\n[base_pickrandommin]: $WARN_STR"
-			printf "\n[func_seedrandom]: $OK_STR"
+			#printf "\n[system_OS]: $OK_STR"
+			printf "\n[system_OS]: "
+			sleep 0.2
+			printf "$OK_STR"
+			sleep 0.2
+			#printf "\n[base_pickrandommin]: $WARN_STR"
+			printf "\n[base_pickrandommin]: "
+			sleep 0.2
+			printf "$WARN_STR"
+			sleep 0.2
+			#printf "\n[func_seedrandom]: $OK_STR"
+			printf "\n[func_seedrandom]: "
+			sleep 0.2
+			printf "$OK_STR"
+			sleep 0.2
 			#printf "\n[func_splashstart]:"
 			#printf "\n[func_splashwinner]:"
 			#printf "\n[func_splashproplayer]:"
-			printf "\n[func_countdowntimer]: $OK_STR"
-			printf "\n[base_ai_difficulty]: $BAD_STR"
-			printf "\n[func_commentarypicker]: $OK_STR"
-			printf "\n[func_choiceoptionstext]: $OK_STR"
+			#printf "\n[func_countdowntimer]: $OK_STR"
+			printf "\n[func_countdowntimer]: "
+			sleep 0.2
+			printf "$OK_STR"
+			sleep 0.2
+			#printf "\n[base_ai_difficulty]: $BAD_STR"
+			printf "\n[base_ai_difficulty]: "
+			sleep 0.2
+			printf "$BAD_STR"
+			sleep 0.2
+			#printf "\n[func_commentarypicker]: $OK_STR"
+			printf "\n[func_commentarypicker]: "
+			sleep 0.2
+			printf "$OK_STR"
+			sleep 0.2
+			#printf "\n[func_choiceoptionstext]: $OK_STR"
+			printf "\n[func_choiceoptionstext]: "
+			sleep 0.2
+			printf "$OK_STR"
+			sleep 0.2
 			
 			printf "\n"
-			printf "\nError: 0x08 CORE.CORRUPTION_OVERLOAD_DETECTED - Unrecognized neural net mutation sequences detected in base_ai_difficulty(). Halting.\n\n"
-			sleep 4
+			printf "\n${RED_FOREG}Error:${NOCOLOR}${NOCOLOR_FOREG} 0x08 CORE.CORRUPTION_OVERLOAD_DETECTED - ${DARKGRAY_FOREG}Unrecognized neural net mutation sequences detected in base_ai_difficulty().${NOCOLOR}${NOCOLOR_FOREG} Halting.\n\n"
+			sleep 4.5
 			
 			printf "\rRestarting game"
 			sleep 1.3
@@ -1489,9 +1539,6 @@ pickrandommin()
 			
 			read -s -p "Press ENTER key to START! "
 			countdowntimer 1 0
-			
-			
-			
 		}
 		
 		if [ $GAMENUM -lt 2 ]; then
@@ -1541,8 +1588,7 @@ pickrandommin()
 			# MAX_CHOICES=(number of different alt countdowns to pick from in case block below)
 			# FACTOR_INT=(however many times more likely you want an alt countdown to be picked over the standard one)
 			# ((MAX_CHOICES-1) * FACTOR_INT) + 1
-			# E.g. There's 5 countdown sequences including the default/normal one to pick from, and I want the non-standard ones to occur 5 times more often than the standard one:
-			# ((5-1) * 5) + 1 = 21
+			# E.g. There's 6 countdown sequences including the default/normal one to pick from, and I want the non-standard ones to occur 5 times more often than the standard one:
 			# ((6-1) * 5) + 1 = 26
 			
 			#if [ -v $ENDGAMERAND ]; then
