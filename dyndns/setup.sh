@@ -662,14 +662,14 @@ cronfreqmenu()
 	printf "\n\nSelect how frequently the Dynamic DNS script should run:\n"
 	echo " 0 - Once every two hours"
 	echo " 1 - Once per hour (Recommended)"
-	echo " 2 - Twice per hour (Non standard! May not work with every cron.)"
-	echo " 3 - Once every fifteen minutes (Non standard! May not work with every cron.)"
+	echo " 2 - Twice per hour"
+	echo " 3 - Once every fifteen minutes"
 	echo " 4 - Once every ten minutes (Non standard! May not work with every cron.)"
 	echo " 5 - Once every five minutes (Non standard! May not work with every cron.)"
 	echo " 6 - Enter custom cron tab string"
 }
 
-minselect()
+minselecttxt()
 {
 	printf "\nWhen scheduling cron tasks, you can offset the minute of the hour for when this job will execute. Setting this with a random value will avoid hitting servers at peak times like at the top of the hour.\n\n"
 	printf "Please select a minute value:\n"
@@ -678,17 +678,81 @@ minselect()
 	#echo " 2 - Go Back"
 }
 
+minselect()
+{
+	
+	if [ $USER_INPUT -eq 0 ]; then
+		printf ""
+	elif [ $USER_INPUT -eq 1 ]; then
+		printf ""
+	fi
+	minselecttxt
+	echo " 0 - Random Minute Value Generator (Recommended)"
+	echo " 1 - Enter a minute value 0-59"
+	MIN_INPUT="No escape"
+	while ! [[ $MIN_INPUT -ge 0 && $MIN_INPUT -le 2 ]]; do
+	read -p "Choose option [0-2]: " MIN_INPUT
+		if [ $MIN_INPUT -eq 0 ]; then
+			pickrandmin
+			PICKEDMIN=$RANDOMMIN
+			minselecttxt
+			printf " 0 - Random Minute Value Generator (Recommended)"
+			printf " 1 - Enter a minute value 0-59"
+			if [ -v $RANDOMMIN ]; then
+				printf " 2 - Accept pick: '%.2d'" $PICKEDMIN
+			fi
+			MIN_GAMEOVER_INPUT="No escape"
+			while ! [[ $MIN_GAMEOVER_INPUT -ge 0 && $MIN_GAMEOVER_INPUT -le 3 ]]; do
+				read -p "Choose option [0-2]: " MIN_GAMEOVER_INPUT
+				if [ $MIN_GAMEOVER_INPUT -eq 0 ]; then
+					
+				fi
+			done
+		elif [ $MIN_INPUT -eq 1 ]; then
+			
+		elif [ $MIN_INPUT -eq 2 ]; then
+			
+		fi
+		
+	done
+	
+}
+
+minselect()
+{
+	PICKEDMIN=$RANDOMMIN
+	minselecttxt
+	echo " 0 - Random Minute Value Generator (Recommended)"
+	echo " 1 - Enter a minute value 0-59"
+	if [ -v $RANDOMMIN ]; then
+		printf " 2 - Accept pick: '%.2d'" $PICKEDMIN
+	fi
+	MIN_INPUT="No escape"
+	while ! [[ $MIN_INPUT -ge 0 && $MIN_INPUT -le 2 ]]; do
+	read -p "Choose option [0-2]: " MIN_INPUT
+		if [ $MIN_INPUT -eq 0 ]; then
+			pickrandmin
+		elif [ $MIN_INPUT -eq 1 ]; then
+			
+		elif [ $MIN_INPUT -eq 2 ]; then
+			
+		fi
+		
+	done
+	
+}
+
 cronfreqmenu
 USER_INPUT="No escape"
-while [ $USER_INPUT -ge 0 ] && [ $USER_INPUT -le 6 ]; do
+while ! [[ $USER_INPUT -ge 0 && $USER_INPUT -le 6 ]]; do
 	read -p "Choose option [0-6]: " USER_INPUT
-	if [ $USER_INPUT -ge 0 ] && [ $USER_INPUT -le 1 ]; then
+	if [ $USER_INPUT -ge 0 ] && [ $USER_INPUT -le 1 ]]; then
 		if [ $USER_INPUT -eq 0 ]; then
 			printf ""
 		elif [ $USER_INPUT -eq 1 ]; then
 			printf ""
 		fi
-		minselect
+		minselecttxt
 		echo " 0 - Random Minute Value Generator (Recommended)"
 		echo " 1 - Enter a minute value 0-59"
 		MIN_INPUT="No escape"
@@ -697,10 +761,15 @@ while [ $USER_INPUT -ge 0 ] && [ $USER_INPUT -le 6 ]; do
 			if [ $MIN_INPUT -eq 0 ]; then
 				pickrandmin
 				PICKEDMIN=$RANDOMMIN
-				minselect
+				minselecttxt
+				
+				if [ -v $ENDGAMERAND ]; then
+					printf " 2 - Accept pick: %.2d" $PICKEDMIN
+				fi
+				
 				printf " 0 - Random Minute Value Generator (Recommended)"
 				printf " 1 - Enter a minute value 0-59"
-				printf " 2 - Accept pick: %.2d" $PICKEDMIN
+				
 				MIN_GAMEOVER_INPUT="No escape"
 				while [ $MIN_GAMEOVER_INPUT -ge 0 ] && [ $MIN_GAMEOVER_INPUT -le 3 ]; do
 					read -p "Choose option [0-2]: " MIN_GAMEOVER_INPUT
@@ -716,12 +785,21 @@ while [ $USER_INPUT -ge 0 ] && [ $USER_INPUT -le 6 ]; do
 			
 		done
 		
+	elif [ $USER_INPUT -eq 2 ]; then
+		CRON_SCHED="0,30 * * * *"
+		CRON_STRING=""
+	elif [ $USER_INPUT -eq 3 ]; then
+		CRON_SCHED="0,15,30,45 * * * *"
+		CRON_STRING=""
+	elif [ $USER_INPUT -eq 4 ]; then
+		CRON_SCHED="0/10 * * * *"
+		CRON_STRING=""
+	elif [ $USER_INPUT -eq 5 ]; then
+		CRON_SCHED="0/5 * * * *"
+		CRON_STRING=""
 	elif [ $USER_INPUT -eq 6 ]; then
 		
-		
-		
 	fi
-	
 done
 
 
