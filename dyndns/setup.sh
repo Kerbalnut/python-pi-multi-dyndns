@@ -725,43 +725,48 @@ while ! [[ $USER_INPUT -ge 0 && $USER_INPUT -le 6 ]]; do
 done
 
 if [ $USER_INPUT -ge 0 ] && [ $USER_INPUT -le 1 ]]; then
-	if [ $USER_INPUT -eq 0 ]; then
-		printf "Once per two hours selected.\n\n"
-	elif [ $USER_INPUT -eq 1 ]; then
-		printf "Once per hour selected.\n\n"
-	fi
-	minselecttxt
-	echo " 0 - Random Minute Value Generator (Recommended)"
-	echo " 1 - Enter a minute value 0-59"
 	MIN_INPUT="No escape"
-	while ! [[ $MIN_INPUT -ge 0 && $MIN_INPUT -le 2 ]]; do
-		read -p "Choose option [0-2]: " MIN_INPUT
-	done
-	if [ $MIN_INPUT -eq 0 ]; then
+	while ! [[ $MIN_INPUT -ge 0 && $MIN_INPUT -le 3 ]]; do
+		if [ $USER_INPUT -eq 0 ]; then
+			printf "Once per two hours selected.\n\n"
+		elif [ $USER_INPUT -eq 1 ]; then
+			printf "Once per hour selected.\n\n"
+		fi
+		minselecttxt
+		printf " 0 - Random Minute Value Generator (Recommended)"
+		printf " 1 - Enter a minute value 0-59"
 		MIN_GAMEOVER_INPUT="No escape"
-		while ! [[ $MIN_GAMEOVER_INPUT -ge 0 && $MIN_GAMEOVER_INPUT -le 3 ]]; do
+		if [ -v $RANDOMMIN ]; then
+			printf " 2 - Accept pick: %.2d" $PICKEDMIN
+			while ! [[ $MIN_GAMEOVER_INPUT -ge 0 && $MIN_GAMEOVER_INPUT -le 3 ]]; do
+				read -p "Choose option [0-2]: " MIN_GAMEOVER_INPUT
+			done
+		else
+			while ! [[ $MIN_GAMEOVER_INPUT -ge 0 && $MIN_GAMEOVER_INPUT -le 3 ]]; do
+				read -p "Choose option [0-1]: " MIN_GAMEOVER_INPUT
+			done
+		fi
+		
+		if [ $MIN_GAMEOVER_INPUT -eq 0 ]; then
 			pickrandmin
 			PICKEDMIN=$RANDOMMIN
-			minselecttxt
-			printf " 0 - Random Minute Value Generator (Recommended)"
-			printf " 1 - Enter a minute value 0-59"
-			if [ -v $RANDOMMIN ]; then
-				printf " 2 - Accept pick: %.2d" $PICKEDMIN
+			MIN_INPUT="No escape"
+		elif [ $MIN_GAMEOVER_INPUT -eq 1 ]; then
+			while ! [[ $MIN_GAMEOVER_INPUT -ge 0 && $MIN_GAMEOVER_INPUT -le 3 ]]; do
 				read -p "Choose option [0-2]: " MIN_GAMEOVER_INPUT
-			else
-				read -p "Choose option [0-1]: " MIN_GAMEOVER_INPUT
-			fi
+			done
+		elif [ $MIN_GAMEOVER_INPUT -eq 2 ]; then
 			
-			if [ $MIN_GAMEOVER_INPUT -eq 0 ]; then
-				
-			fi
-		done
+		fi
+		
+		
+	done
 	fi
 	elif [ $MIN_INPUT -eq 1 ]; then
 		
 	elif [ $MIN_INPUT -eq 2 ]; then
 		
-	fi
+fi
 
 if [ $USER_INPUT -eq 2 ]; then
 	CRON_SCHED="0,30 * * * *"
