@@ -82,8 +82,8 @@
 #        - For more detailed info, see the top help section of the 'scp.ps1' script.
 #    - pscp.exe: a command-line scp tool that comes with PuTTY for Windows.
 #        - Example commands:
-#        -        cmd.exe \> pscp -r "%UserProfile%\Documents\GitHub\Python-DynDNS-NameSilo\dyndns\*" pi@10.210.69.42:/home/pi/dyndns/
-#        - powershell.exe \> pscp -r "$env:USERPROFILE\Documents\GitHub\Python-DynDNS-NameSilo\dyndns\*" pi@10.210.69.42:/home/pi/dyndns/
+#        -        cmd.exe \> pscp -r "%UserProfile%\Documents\GitHub\python-pi-multi-dyndns\dyndns\*" pi@10.210.69.42:/home/pi/dyndns/
+#        - powershell.exe \> pscp -r "$env:USERPROFILE\Documents\GitHub\python-pi-multi-dyndns\dyndns\*" pi@10.210.69.42:/home/pi/dyndns/
 
 # D) Execute this script on remote host to automate the rest of setup, or run the remaining commands manually:
 
@@ -306,7 +306,7 @@ loadcolors()
 
 # Make sure Python is installed and packages are up-to-date:
 
-echo "1. Updating Raspbian."
+printf "\n1. Updating Raspbian.\n"
 
 printf "\nsudo apt-get update\n"
 #read -s -p "Press ENTER key to continue... "
@@ -314,7 +314,7 @@ printf "\nsudo apt-get update\n"
 
 # Install Python, pip, and required modules:
 
-echo "2. Installing required packages."
+printf "\n2. Installing required packages.\n"
 
 # Function to check if apt or pip packages are installed and install them.
 checkpkg()
@@ -347,12 +347,12 @@ checkpkg()
 		if [ "$TYPE" == "APT" ]; then
 			#echo -e "${WHITE}[${YELLOW}APT${WHITE}][${RED}$PKGNAME${WHITE}]${NOCOLOR} package is not installed"
 			printf "${WHITE}[${YELLOW}APT${WHITE}][${RED}$PKGNAME${WHITE}]${NOCOLOR} package is not installed\n"
-			echo "Installing $PKGNAME with apt..."
-			sudo apt install $PKGNAME
+			printf "Installing $PKGNAME with apt...\nsudo apt install $PKGNAME\n"
+			#sudo apt install $PKGNAME
 		elif [ "$TYPE" == "PIP" ]; then
 			#echo -e "${WHITE}[${BLUE}PIP${WHITE}][${RED}$PKGNAME${WHITE}]${NOCOLOR} package is not installed"
 			printf "${WHITE}[${BLUE}PIP${WHITE}][${RED}$PKGNAME${WHITE}]${NOCOLOR} package is not installed\n"
-			echo "Installing $PKGNAME with pip..."
+			printf "Installing $PKGNAME with pip...\nsudo pip install $PKGNAME\n"
 			#sudo pip install $PKGNAME
 		fi
 		return
@@ -374,12 +374,12 @@ checkpkg()
 NEW_INSTALLED="False"
 echo "Installing APT packages:"
 checkpkg APT "bc"
-#checkpkg APT "python2.7"
-#checkpkg APT "pip"
-#checkpkg APT "python-pip"
-#checkpkg APT "python3"
-#checkpkg APT "python3.7"
-#checkpkg APT "python3-pip"
+checkpkg APT "python2.7"
+checkpkg APT "pip"
+checkpkg APT "python-pip"
+checkpkg APT "python3"
+checkpkg APT "python3.7"
+checkpkg APT "python3-pip"
 
 if [ -f /var/run/reboot-required ] || [ $NEW_INSTALLED=="True" ]; then
 	if [ -f /var/run/reboot-required ]; then
@@ -388,7 +388,7 @@ if [ -f /var/run/reboot-required ] || [ $NEW_INSTALLED=="True" ]; then
 	fi
 	if [ $NEW_INSTALLED=="True" ]; then
 		#echo -e "A restart is ${YELLOW}HIGHLY RECOMMENDED${NOCOLOR} after new (Python) software has been installed, and before installing any new pip (Python) packages up next."
-		printf "A restart is ${YELLOW}HIGHLY RECOMMENDED${NOCOLOR} after new (Python) software has been installed, and before installing any new pip (Python) packages up next.\n"
+		printf "A restart is ${YELLOW}RECOMMENDED${NOCOLOR} after new (Python) software has been installed, and before installing any new pip (Python) packages up next.\n"
 	fi
 	echo "You must run this script again after booting back up to complete all setup commands."
 	
@@ -533,6 +533,8 @@ checkpkg PIP "pygodaddy"
 
 # --------------------------------------------------------------------------------------------------------
 
+printf "\n3. Set execution permissions for scripts to run.\n"
+
 ###sudo chmod +x dyndns.py
 ###sudo chmod +x logcleanup.sh
 ###sudo chmod +x rand.sh
@@ -633,6 +635,7 @@ pickrandmin()
 
 removecronjob()
 {
+	#Example: removecronjob dyndns.sh
 	SCRIPT_NAME=$1
 	CRONYJOB=$(crontab -l | grep $SCRIPT_NAME)
 	echo $CRONYJOB
@@ -649,6 +652,7 @@ removecronjob()
 
 addcronjob()
 {
+	#Example: addcronjob 0 0 1 */1 * /home/pi/dyndns/logcleanup.sh
 	WET_HOT_CRON_LINE=$@
 	(crontab -l ; echo "$WET_HOT_CRON_LINE") | crontab -
 }
@@ -657,7 +661,7 @@ cronfreqmenu()
 {
 	printf "\n\nSelect how frequently the Dynamic DNS script should run:\n"
 	echo " 0 - Once every two hours"
-	echo " 1 - Once per hour (RECOMMENDED)"
+	echo " 1 - Once per hour (Recommended)"
 	echo " 2 - Twice per hour (Non standard! May not work with every cron.)"
 	echo " 3 - Once every fifteen minutes (Non standard! May not work with every cron.)"
 	echo " 4 - Once every ten minutes (Non standard! May not work with every cron.)"
@@ -667,8 +671,9 @@ cronfreqmenu()
 
 minselect()
 {
-	echo "You can offset the minute of the hour for when this job will execute. It is recommended to do this with a random value to avoid hitting servers at peak times when everyone else is too."
-	#echo " 0 - Random Minute Value Generator game (RECOMMENDED)"
+	printf "\nWhen scheduling cron tasks, you can offset the minute of the hour for when this job will execute. Setting this with a random value will avoid hitting servers at peak times like at the top of the hour.\n\n"
+	printf "Please select a minute value:\n"
+	#echo " 0 - Random Minute Value Generator (RECOMMENDED)"
 	#echo " 1 - Enter a minute value 0-59"
 	#echo " 2 - Go Back"
 }
@@ -678,9 +683,13 @@ USER_INPUT="No escape"
 while [ $USER_INPUT -ge 0 ] && [ $USER_INPUT -le 6 ]; do
 	read -p "Choose option [0-6]: " USER_INPUT
 	if [ $USER_INPUT -ge 0 ] && [ $USER_INPUT -le 1 ]; then
-		#echo "You can offset the minute of the hour for when this job will execute. It is recommended to do this with a random value to avoid hitting servers at peak times when everyone else is too."
+		if [ $USER_INPUT -eq 0 ]; then
+			printf ""
+		elif [ $USER_INPUT -eq 1 ]; then
+			printf ""
+		fi
 		minselect
-		echo " 0 - Random Minute Value Generator game (RECOMMENDED)"
+		echo " 0 - Random Minute Value Generator (Recommended)"
 		echo " 1 - Enter a minute value 0-59"
 		MIN_INPUT="No escape"
 		while [ $MIN_INPUT -ge 0 ] && [ $MIN_INPUT -le 2 ]; do
@@ -689,12 +698,12 @@ while [ $USER_INPUT -ge 0 ] && [ $USER_INPUT -le 6 ]; do
 				pickrandmin
 				PICKEDMIN=$RANDOMMIN
 				minselect
-				printf " 0 - Random Minute Value Generator game (RECOMMENDED)"
-				printf " 1 - Accept pick %.2d" $PICKEDMIN
-				printf " 2 - Enter a minute value 0-59"
+				printf " 0 - Random Minute Value Generator (Recommended)"
+				printf " 1 - Enter a minute value 0-59"
+				printf " 2 - Accept pick: %.2d" $PICKEDMIN
 				MIN_GAMEOVER_INPUT="No escape"
 				while [ $MIN_GAMEOVER_INPUT -ge 0 ] && [ $MIN_GAMEOVER_INPUT -le 3 ]; do
-					read -p "Choose option [0-3]: " MIN_GAMEOVER_INPUT
+					read -p "Choose option [0-2]: " MIN_GAMEOVER_INPUT
 					if [ $MIN_GAMEOVER_INPUT -eq 0 ]; then
 						
 					fi
@@ -724,10 +733,10 @@ done
 
 # Run dynamic-DNS update script every 1 hour (on the 23rd minute) for PDA.com via NameSilo.com API
 
-###23 */1 * * * python2.7 /home/pi/DynDNS/DynDNS-NameSilo.py
+###23 */1 * * * python2.7 /home/pi/dyndns/dyndns-NameSilo.py
 
-# Run clean-up script for DynDNS-NameSilo.py logs, once a month
-###0 0 1 */1 * /home/pi/DynDNS/DynDNS-NameSilo-LogCleanup.sh
+# Run clean-up script for dyndns-NameSilo.py logs, once a month
+###0 0 1 */1 * /home/pi/dyndns/dyndns-NameSilo-LogCleanup.sh
 
 
 
@@ -740,11 +749,11 @@ done
 
 # Test python script:
 
-###python2.7 /home/pi/DynDNS/DynDNS-NameSilo.py
+###python2.7 /home/pi/dyndns/dyndns.py
 
 # Test log cleanup script:
 
-###/home/pi/DynDNS/DynDNS-NameSilo-LogCleanup.sh
+###/home/pi/dyndns/logcleanup.sh
 
 
 
