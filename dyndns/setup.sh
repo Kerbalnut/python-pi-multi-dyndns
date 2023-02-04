@@ -718,6 +718,67 @@ minselect()
 	
 }
 
+cronfreqmenu
+USER_INPUT="No escape"
+while ! [[ $USER_INPUT -ge 0 && $USER_INPUT -le 6 ]]; do
+	read -p "Choose option [0-6]: " USER_INPUT
+done
+
+if [ $USER_INPUT -ge 0 ] && [ $USER_INPUT -le 1 ]]; then
+	if [ $USER_INPUT -eq 0 ]; then
+		printf "Once per two hours selected.\n\n"
+	elif [ $USER_INPUT -eq 1 ]; then
+		printf "Once per hour selected.\n\n"
+	fi
+	minselecttxt
+	echo " 0 - Random Minute Value Generator (Recommended)"
+	echo " 1 - Enter a minute value 0-59"
+	MIN_INPUT="No escape"
+	while ! [[ $MIN_INPUT -ge 0 && $MIN_INPUT -le 2 ]]; do
+		read -p "Choose option [0-2]: " MIN_INPUT
+	done
+	if [ $MIN_INPUT -eq 0 ]; then
+		MIN_GAMEOVER_INPUT="No escape"
+		while ! [[ $MIN_GAMEOVER_INPUT -ge 0 && $MIN_GAMEOVER_INPUT -le 3 ]]; do
+			pickrandmin
+			PICKEDMIN=$RANDOMMIN
+			minselecttxt
+			printf " 0 - Random Minute Value Generator (Recommended)"
+			printf " 1 - Enter a minute value 0-59"
+			if [ -v $RANDOMMIN ]; then
+				printf " 2 - Accept pick: %.2d" $PICKEDMIN
+				read -p "Choose option [0-2]: " MIN_GAMEOVER_INPUT
+			else
+				read -p "Choose option [0-1]: " MIN_GAMEOVER_INPUT
+			fi
+			
+			if [ $MIN_GAMEOVER_INPUT -eq 0 ]; then
+				
+			fi
+		done
+	fi
+	elif [ $MIN_INPUT -eq 1 ]; then
+		
+	elif [ $MIN_INPUT -eq 2 ]; then
+		
+	fi
+
+if [ $USER_INPUT -eq 2 ]; then
+	CRON_SCHED="0,30 * * * *"
+	CRON_STRING=""
+elif [ $USER_INPUT -eq 3 ]; then
+	CRON_SCHED="0,15,30,45 * * * *"
+	CRON_STRING=""
+elif [ $USER_INPUT -eq 4 ]; then
+	CRON_SCHED="0/10 * * * *"
+	CRON_STRING=""
+elif [ $USER_INPUT -eq 5 ]; then
+	CRON_SCHED="0/5 * * * *"
+	CRON_STRING=""
+elif [ $USER_INPUT -eq 6 ]; then
+	
+fi
+
 minselect()
 {
 	PICKEDMIN=$RANDOMMIN
@@ -741,67 +802,6 @@ minselect()
 	done
 	
 }
-
-cronfreqmenu
-USER_INPUT="No escape"
-while ! [[ $USER_INPUT -ge 0 && $USER_INPUT -le 6 ]]; do
-	read -p "Choose option [0-6]: " USER_INPUT
-	if [ $USER_INPUT -ge 0 ] && [ $USER_INPUT -le 1 ]]; then
-		if [ $USER_INPUT -eq 0 ]; then
-			printf ""
-		elif [ $USER_INPUT -eq 1 ]; then
-			printf ""
-		fi
-		minselecttxt
-		echo " 0 - Random Minute Value Generator (Recommended)"
-		echo " 1 - Enter a minute value 0-59"
-		MIN_INPUT="No escape"
-		while [ $MIN_INPUT -ge 0 ] && [ $MIN_INPUT -le 2 ]; do
-		read -p "Choose option [0-2]: " MIN_INPUT
-			if [ $MIN_INPUT -eq 0 ]; then
-				pickrandmin
-				PICKEDMIN=$RANDOMMIN
-				minselecttxt
-				
-				if [ -v $ENDGAMERAND ]; then
-					printf " 2 - Accept pick: %.2d" $PICKEDMIN
-				fi
-				
-				printf " 0 - Random Minute Value Generator (Recommended)"
-				printf " 1 - Enter a minute value 0-59"
-				
-				MIN_GAMEOVER_INPUT="No escape"
-				while [ $MIN_GAMEOVER_INPUT -ge 0 ] && [ $MIN_GAMEOVER_INPUT -le 3 ]; do
-					read -p "Choose option [0-2]: " MIN_GAMEOVER_INPUT
-					if [ $MIN_GAMEOVER_INPUT -eq 0 ]; then
-						
-					fi
-				done
-			elif [ $MIN_INPUT -eq 1 ]; then
-				
-			elif [ $MIN_INPUT -eq 2 ]; then
-				
-			fi
-			
-		done
-		
-	elif [ $USER_INPUT -eq 2 ]; then
-		CRON_SCHED="0,30 * * * *"
-		CRON_STRING=""
-	elif [ $USER_INPUT -eq 3 ]; then
-		CRON_SCHED="0,15,30,45 * * * *"
-		CRON_STRING=""
-	elif [ $USER_INPUT -eq 4 ]; then
-		CRON_SCHED="0/10 * * * *"
-		CRON_STRING=""
-	elif [ $USER_INPUT -eq 5 ]; then
-		CRON_SCHED="0/5 * * * *"
-		CRON_STRING=""
-	elif [ $USER_INPUT -eq 6 ]; then
-		
-	fi
-done
-
 
 
 
