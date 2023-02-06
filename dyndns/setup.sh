@@ -152,7 +152,10 @@
 
 # Parameters:
 
+# Set as "True" or "False" string
+INSTALL_PYTHON3="False"
 
+# --------------------------------------------------------------------------------------------------------
 
 # Logging functions:
 addlog()
@@ -377,9 +380,11 @@ checkpkg APT "bc"
 checkpkg APT "python2.7"
 checkpkg APT "pip"
 checkpkg APT "python-pip"
-checkpkg APT "python3"
-checkpkg APT "python3.7"
-checkpkg APT "python3-pip"
+if [ $INSTALL_PYTHON3 = "True" ]; then
+	checkpkg APT "python3"
+	checkpkg APT "python3.7"
+	checkpkg APT "python3-pip"
+fi
 
 if [ -f /var/run/reboot-required ] || [ $NEW_INSTALLED=="True" ]; then
 	if [ -f /var/run/reboot-required ]; then
@@ -624,6 +629,11 @@ printf "\n3. Set execution permissions for scripts to run.\n"
 
 # --------------------------------------------------------------------------------------------------------
 
+CUR_DIR=$(pwd)
+
+DYNDNS_PATH="$CUR_DIR/dyndns.py"
+LOGCLEAN_PATH="$CUR_DIR/logcleanup.sh"
+
 pickrandmin()
 {
 	# This function will pick a random minute value from 0-59.
@@ -636,6 +646,7 @@ pickrandmin()
 removecronjob()
 {
 	#Example: removecronjob dyndns.sh
+	#Example: removecronjob /home/pi/dyndns/dyndns.sh
 	SCRIPT_NAME=$1
 	CRONYJOB=$(crontab -l | grep $SCRIPT_NAME)
 	echo $CRONYJOB
@@ -678,53 +689,13 @@ minselecttxt()
 	#echo " 2 - Go Back"
 }
 
-minselect()
-{
-	
-	if [ $USER_INPUT -eq 0 ]; then
-		printf ""
-	elif [ $USER_INPUT -eq 1 ]; then
-		printf ""
-	fi
-	minselecttxt
-	echo " 0 - Random Minute Value Generator (Recommended)"
-	echo " 1 - Enter a minute value 0-59"
-	MIN_INPUT="No escape"
-	while ! [[ $MIN_INPUT -ge 0 && $MIN_INPUT -le 2 ]]; do
-	read -p "Choose option [0-2]: " MIN_INPUT
-		if [ $MIN_INPUT -eq 0 ]; then
-			pickrandmin
-			PICKEDMIN=$RANDOMMIN
-			minselecttxt
-			printf " 0 - Random Minute Value Generator (Recommended)"
-			printf " 1 - Enter a minute value 0-59"
-			if [ -v $RANDOMMIN ]; then
-				printf " 2 - Accept pick: '%.2d'" $PICKEDMIN
-			fi
-			MIN_GAMEOVER_INPUT="No escape"
-			while ! [[ $MIN_GAMEOVER_INPUT -ge 0 && $MIN_GAMEOVER_INPUT -le 3 ]]; do
-				read -p "Choose option [0-2]: " MIN_GAMEOVER_INPUT
-				if [ $MIN_GAMEOVER_INPUT -eq 0 ]; then
-					
-				fi
-			done
-		elif [ $MIN_INPUT -eq 1 ]; then
-			
-		elif [ $MIN_INPUT -eq 2 ]; then
-			
-		fi
-		
-	done
-	
-}
-
 cronfreqmenu
 USER_INPUT="No escape"
 while ! [[ $USER_INPUT -ge 0 && $USER_INPUT -le 6 ]]; do
 	read -p "Choose option [0-6]: " USER_INPUT
 done
 
-if [ $USER_INPUT -ge 0 ] && [ $USER_INPUT -le 1 ]]; then
+if [ $USER_INPUT -ge 0 ] && [ $USER_INPUT -le 1 ]; then
 	MIN_INPUT="No escape"
 	while ! [[ $MIN_INPUT -ge 0 && $MIN_INPUT -le 3 ]]; do
 		if [ $USER_INPUT -eq 0 ]; then
@@ -736,7 +707,7 @@ if [ $USER_INPUT -ge 0 ] && [ $USER_INPUT -le 1 ]]; then
 		printf " 0 - Random Minute Value Generator (Recommended)"
 		printf " 1 - Enter a minute value 0-59"
 		MIN_GAMEOVER_INPUT="No escape"
-		if [ -v $RANDOMMIN ]; then
+		if [ -v $PICKEDMIN ]; then
 			printf " 2 - Accept pick: %.2d" $PICKEDMIN
 			while ! [[ $MIN_GAMEOVER_INPUT -ge 0 && $MIN_GAMEOVER_INPUT -le 3 ]]; do
 				read -p "Choose option [0-2]: " MIN_GAMEOVER_INPUT
@@ -752,63 +723,119 @@ if [ $USER_INPUT -ge 0 ] && [ $USER_INPUT -le 1 ]]; then
 			PICKEDMIN=$RANDOMMIN
 			MIN_INPUT="No escape"
 		elif [ $MIN_GAMEOVER_INPUT -eq 1 ]; then
-			while ! [[ $MIN_GAMEOVER_INPUT -ge 0 && $MIN_GAMEOVER_INPUT -le 3 ]]; do
-				read -p "Choose option [0-2]: " MIN_GAMEOVER_INPUT
+			PICKEDMIN="No escape"
+			while ! [[ $PICKEDMIN -ge 0 && $PICKEDMIN -le 59 ]]; do
+				read -p "Enter minute value [0-59]: " PICKEDMIN
 			done
+			MIN_INPUT="No escape"
 		elif [ $MIN_GAMEOVER_INPUT -eq 2 ]; then
-			
+			break
 		fi
-		
-		
 	done
+	if [ $USER_INPUT -eq 0 ]; then
+		#printf "Once per two hours selected.\n\n"
+		CRON_SCHED="$PICKEDMIN */2 * * *"
+	elif [ $USER_INPUT -eq 1 ]; then
+		#printf "Once per hour selected.\n\n"
+		CRON_SCHED="$PICKEDMIN * * * *"
 	fi
-	elif [ $MIN_INPUT -eq 1 ]; then
-		
-	elif [ $MIN_INPUT -eq 2 ]; then
-		
-fi
-
-if [ $USER_INPUT -eq 2 ]; then
+	CRON_STRING="$CRON_SCHED $DYNDNS_PATH"
+elif [ $USER_INPUT -eq 2 ]; then
 	CRON_SCHED="0,30 * * * *"
-	CRON_STRING=""
+	CRON_STRING="$CRON_SCHED $DYNDNS_PATH"
 elif [ $USER_INPUT -eq 3 ]; then
 	CRON_SCHED="0,15,30,45 * * * *"
-	CRON_STRING=""
+	CRON_STRING="$CRON_SCHED $DYNDNS_PATH"
 elif [ $USER_INPUT -eq 4 ]; then
 	CRON_SCHED="0/10 * * * *"
-	CRON_STRING=""
+	CRON_STRING="$CRON_SCHED $DYNDNS_PATH"
 elif [ $USER_INPUT -eq 5 ]; then
 	CRON_SCHED="0/5 * * * *"
-	CRON_STRING=""
+	CRON_STRING="$CRON_SCHED $DYNDNS_PATH"
 elif [ $USER_INPUT -eq 6 ]; then
-	
+	echo "Enter custom cron string: (do not include file path)"
+	echo "m h dom mon dow   $DYNDNS_PATH"
+	echo "For example:"
+	echo "0 * * * *         (once every hour, at the zero minute mark)"
+	echo "0,30 * * * *      (once every half hour, at zero minutes and thirty)"
+	echo "0 */2 * * *       (once every two hours, at zero minute mark)"
+	echo "0/10 * * * *      (once every 10 minutes)"
+	ACCEPTED_STR="No escape"
+	while [ $ACCEPTED_STR != "True" ]; do
+		read -p "Enter a valid cron schedule string: " CRON_SCHED
+		printf "\nAccept this value? $CRON_SCHED $DYNDNS_PATH\n\n"
+		read -p "Are you sure? [y/n]: " ACCEPTED_STR
+		if [ $ACCEPTED_STR = "y" ]; then
+			ACCEPTED_STR="True"
+			break
+		elif [ $ACCEPTED_STR = "n" ]; then
+			ACCEPTED_STR="False"
+			continue
+		fi
+	done
+	CRON_STRING="$CRON_SCHED $DYNDNS_PATH"
 fi
 
-minselect()
+echo "Remove old job first if it exists"
+removecronjob $DYNDNS_PATH
+
+echo "Add new cron job"
+addcronjob $CRON_STRING
+
+logcleanupfreqmenu()
 {
-	PICKEDMIN=$RANDOMMIN
-	minselecttxt
-	echo " 0 - Random Minute Value Generator (Recommended)"
-	echo " 1 - Enter a minute value 0-59"
-	if [ -v $RANDOMMIN ]; then
-		printf " 2 - Accept pick: '%.2d'" $PICKEDMIN
-	fi
-	MIN_INPUT="No escape"
-	while ! [[ $MIN_INPUT -ge 0 && $MIN_INPUT -le 2 ]]; do
-	read -p "Choose option [0-2]: " MIN_INPUT
-		if [ $MIN_INPUT -eq 0 ]; then
-			pickrandmin
-		elif [ $MIN_INPUT -eq 1 ]; then
-			
-		elif [ $MIN_INPUT -eq 2 ]; then
-			
-		fi
-		
-	done
-	
+	printf "\n\nSelect how frequently the Log Cleanup script should run:\n"
+	echo " 0 - Once every two weeks"
+	echo " 1 - Once every three weeks"
+	echo " 2 - Once per month (Recommended)"
+	echo " 3 - Once every 2 months"
+	echo " 4 - Once every 3 months"
+	echo " 5 - Enter custom cron tab string"
 }
 
+logcleanupfreqmenu
+USER_INPUT="No escape"
+while ! [[ $USER_INPUT -ge 0 && $USER_INPUT -le 5 ]]; do
+	read -p "Choose option [0-5]: " USER_INPUT
+done
 
+if [ $USER_INPUT -ge 0 ] && [ $USER_INPUT -le 1 ]; then
+	CRON_STRING="$CRON_SCHED $DYNDNS_PATH"
+elif [ $USER_INPUT -eq 2 ]; then
+	CRON_SCHED="0,30 * * * *"
+	CRON_STRING="$CRON_SCHED $DYNDNS_PATH"
+elif [ $USER_INPUT -eq 3 ]; then
+	CRON_SCHED="0,15,30,45 * * * *"
+	CRON_STRING="$CRON_SCHED $DYNDNS_PATH"
+elif [ $USER_INPUT -eq 4 ]; then
+	CRON_SCHED="0/10 * * * *"
+	CRON_STRING="$CRON_SCHED $DYNDNS_PATH"
+elif [ $USER_INPUT -eq 5 ]; then
+	CRON_SCHED="0/5 * * * *"
+	CRON_STRING="$CRON_SCHED $DYNDNS_PATH"
+elif [ $USER_INPUT -eq 6 ]; then
+	echo "Enter custom cron string: (do not include file path)"
+	echo "m h dom mon dow   $DYNDNS_PATH"
+	echo "For example:"
+	echo "0 * * * *         (once every hour, at the zero minute mark)"
+	echo "0,30 * * * *      (once every half hour, at zero minutes and thirty)"
+	echo "0 */2 * * *       (once every two hours, at zero minute mark)"
+	echo "0/10 * * * *      (once every 10 minutes)"
+	ACCEPTED_STR="No escape"
+	while [ $ACCEPTED_STR != "True" ]; do
+		read -p "Enter a valid cron schedule string: " CRON_SCHED
+		printf "\nAccept this value? $CRON_SCHED $DYNDNS_PATH\n\n"
+		read -p "Are you sure? [y/n]: " ACCEPTED_STR
+		if [ $ACCEPTED_STR = "y" ]; then
+			ACCEPTED_STR="True"
+			break
+		elif [ $ACCEPTED_STR = "n" ]; then
+			ACCEPTED_STR="False"
+			continue
+		fi
+	done
+	CRON_STRING="$CRON_SCHED $DYNDNS_PATH"
+fi
 
 
 
