@@ -1,3 +1,8 @@
+#!/bin/bash
+
+####>>>!/bin/sh###
+####>>>!/bin/bash###
+####>>>!/usr/bin/env bash
 
 # --------------------------------------------------------------------------------------------------------
 
@@ -157,7 +162,7 @@
 # Parameters:
 
 # Set as "True" or "False" string
-INSTALL_PYTHON3="True"
+INSTALL_PYTHON3="False"
 
 # --------------------------------------------------------------------------------------------------------
 
@@ -384,10 +389,10 @@ checkpkg()
 
 NEW_INSTALLED="False"
 echo "Installing APT packages:"
-checkpkg APT "bc"
-checkpkg APT "python2.7"
-checkpkg APT "pip"
-checkpkg APT "python-pip"
+#checkpkg APT "bc"
+#checkpkg APT "python2.7"
+#checkpkg APT "pip"
+#checkpkg APT "python-pip"
 if [ $INSTALL_PYTHON3 = "True" ]; then
 	checkpkg APT "python3"
 	checkpkg APT "python3.7"
@@ -570,6 +575,75 @@ sudo chmod +x rand.sh
 printf "\n4. Checking params folder is setup properly.\n"
 # Exclude __init__.py and any file with _TEMPLATE suffix. Any other file with a .py or .pyc extension should could as a valid params folder.
 
+#Exclude=("a" "b" "c")
+#Exclude=("__init__.py" "__init__.pyc")
+#Listing=(`ls -1Q ./params/`)
+#Files=( $(comm -23 <( printf "%s\n" "${Listing[@]}" ) <( printf "%s\n" "${Exclude[@]}" ) ) )
+#
+#printf "$Listing\n"
+#printf "%s\n" "$Listing"
+#
+#echo ${Files[@]}
+#printf "$Files\n"
+#printf "%s\n" "$Files"
+
+printf "\n Search dir:\n"
+SEARCH_DIR="./params"
+for entry in "$SEARCH_DIR"/*; do
+	echo "$entry"
+done
+
+printf "\n Search dir:\n"
+SEARCH_DIR="./params"
+PARAM_FILES=()
+for entry in "$SEARCH_DIR"/*; do
+	PASS="True"
+	if [[ $entry == *__init__.py* ]]; then
+		PASS="False"
+	fi
+	if [[ $entry == *_TEMPLATE* ]]; then
+		PASS="False"
+	fi
+	#echo $PASS
+	if [ "$PASS" = "True" ]; then
+		echo "$entry"
+		PARAM_FILES+=($entry)
+	fi
+done
+
+PY_FILES=()
+PYC_FILES=()
+for i in "${PARAM_FILES[@]}"; do
+	if [[ $i == *.py ]]; then
+		PY_FILES+=($i)
+	fi
+	if [[ $i == *.pyc ]]; then
+		PYC_FILES+=($i)
+	fi
+done
+
+printf "\nPy files:\n"
+printf "${PY_FILES[@]}\n"
+printf "\n.pyc files:\n"
+printf "${PYC_FILES[@]}\n"
+printf "\n"
+
+read -p "Press ENTER key to continue... "
+
+
+
+
+args=()
+
+
+for ((i=0; i<5; ++i)); do
+    args+=($i)
+    echo "${args[@]}"
+done
+
+
+
+
 # --------------------------------------------------------------------------------------------------------
 
 printf "\n5. Testing script(s) execution.\n"
@@ -579,7 +653,7 @@ DYNDNS_PATH="$CUR_DIR/dyndns.py"
 LOGCLEAN_PATH="$CUR_DIR/logcleanup.sh"
 
 printf "\nTesting Dynamic DNS script:\npython $DYNDNS_PATH\n"
-read -s -p "Press ENTER key to continue... "
+read -p "Press ENTER key to continue... "
 python $DYNDNS_PATH
 
 printf "\nTesting log cleanup script:\n$LOGCLEAN_PATH\n"
