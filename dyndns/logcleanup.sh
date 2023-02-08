@@ -1,3 +1,4 @@
+#!/bin/bash
 
 #Index: 
 # 1. Information & Description:
@@ -110,7 +111,7 @@ function pause(){
 }
 
 function AppendLogFooter(){
-	ARCHIVE_LOGFILE_PATH = $1
+	ARCHIVE_LOGFILE_PATH=$1
 	shift;
 	#shift; shift;
 	# Having shifted once, the rest is now comments ...
@@ -130,7 +131,6 @@ function AppendLogFooter(){
 		echo "Archive message:" $COMMENTS $'\n' >> $ARCHIVE_LOGFILE_PATH
 	fi
 	echo $'\n' >> $ARCHIVE_LOGFILE_PATH
-	return CURRENT_TIMESTAMP
 }
 
 # /Functions
@@ -160,8 +160,7 @@ cp $CURRENT_LOGFILE_PATH $ARCHIVE_LOGFILE_PATH
 # Append footer message to archive log file:
 AppendLogFooter $ARCHIVE_LOGFILE_PATH
 # Capture value returned by last command
-ret=$?
-echo "Current timestamp value is: $ret"
+echo "Current timestamp value is: $CURRENT_TIMESTAMP"
 
 #echo $'\n'"Wrapping-up archive log file:"
 ##CURRENT_TIMESTAMP=`date --iso-8601=ns`
