@@ -96,7 +96,7 @@
 #sudo chmod +x setup.sh
 
 # 2. Run this script:
-#sudo -i /home/pi/dyndns/test.sh
+#sudo -i ./setup.sh
 
 # If you want to do these steps manually, see the section below.
 
@@ -136,12 +136,18 @@
 
 # Something like:
 
-#23 */1 * * * python2.7 /home/pi/dyndns/dyndns.py
-#0 0 1 */1 * /home/pi/dyndns/logcleanup.sh
+#23 * * * * python2.7 /home/pi/dyndns/dyndns.py
+#0 0 1 * * /home/pi/dyndns/logcleanup.sh
 
 # Done!
 
 # Test the scripts by running them. Check the logs after about an hour to see if 'dyndns.py' is working, and after the first of next month check if there's a new '_LASTMONTH.log' log file made by 'logcleanup.sh'.
+
+#python2.7 ./dyndns.py
+
+# Test log cleanup script:
+
+#./logcleanup.sh
 
 # --------------------------------------------------------------------------------------------------------
 
@@ -151,11 +157,10 @@
 # Parameters:
 
 # Set as "True" or "False" string
-INSTALL_PYTHON3="False"
+INSTALL_PYTHON3="True"
 
 # --------------------------------------------------------------------------------------------------------
 
-# Logging functions:
 addlog()
 {
 	TAG=$1
@@ -318,6 +323,8 @@ printf "\nsudo apt-get update\n"
 printf "\n2. Installing required packages.\n"
 
 # Function to check if apt or pip packages are installed and install them.
+PIP_PKGS=$(pip list)
+#printf "$PIP_PKGS\n"
 checkpkg()
 {
 	TYPE=$1
@@ -334,24 +341,25 @@ checkpkg()
 	fi
 	
 	# Check if package is already installed:
-	if [ "$TYPE"=="APT" ]; then
+	if [ "$TYPE" = "APT" ]; then
 		#RESULTS=$(sudo apt list --installed | grep -i ^$PKGNAME/)
 		RESULTS=$(sudo apt list --installed 2> /dev/null | grep -i ^$PKGNAME/)
-	elif [ "$TYPE"=="PIP" ]; then
-		RESULTS=$(pip list | grep -i ^$PKGNAME)
+	elif [ "$TYPE" = "PIP" ]; then
+		#RESULTS=$(pip list | grep -i ^$PKGNAME)
+		RESULTS=$(printf "$PIP_PKGS\n" | grep -i ^$PKGNAME)
 	fi
 	
 	# If package is not installed, install it:
 	if [ -z "$RESULTS" ]; then
 		#echo "\$RESULTS var for $PKGNAME is empty, package not installed"
 		NEW_INSTALLED="True"
-		if [ "$TYPE" == "APT" ]; then
+		if [ "$TYPE" = "APT" ]; then
 			#echo -e "${WHITE}[${YELLOW}APT${WHITE}][${RED}$PKGNAME${WHITE}]${NOCOLOR} package is not installed"
 			printf "${WHITE}[${YELLOW}APT${WHITE}][${RED}$PKGNAME${WHITE}]${NOCOLOR} package is not installed\n"
 			printf "Installing $PKGNAME with apt...\n"
 			printf "sudo apt install $PKGNAME\n"
 			#sudo apt install $PKGNAME
-		elif [ "$TYPE" == "PIP" ]; then
+		elif [ "$TYPE" = "PIP" ]; then
 			#echo -e "${WHITE}[${BLUE}PIP${WHITE}][${RED}$PKGNAME${WHITE}]${NOCOLOR} package is not installed"
 			printf "${WHITE}[${BLUE}PIP${WHITE}][${RED}$PKGNAME${WHITE}]${NOCOLOR} package is not installed\n"
 			printf "Installing $PKGNAME with pip...\n"
@@ -361,10 +369,10 @@ checkpkg()
 		return
 	else
 		#echo "\$RESULTS var for $PKGNAME is NOT empty, package already installed"
-		if [ "$TYPE"=="APT" ]; then
+		if [ "$TYPE" = "APT" ]; then
 			#echo -e "${WHITE}[${YELLOW}APT${WHITE}][${GREEN}Installed${WHITE}]${NOCOLOR}: $PKGNAME"
 			printf "${WHITE}[${YELLOW}APT${WHITE}][${GREEN}Installed${WHITE}]${NOCOLOR}: $PKGNAME\n"
-		elif [ "$TYPE"=="PIP" ]; then
+		elif [ "$TYPE" = "PIP" ]; then
 			#echo -e "${WHITE}[${BLUE}PIP${WHITE}][${GREEN}Installed${WHITE}]${NOCOLOR}: $PKGNAME"
 			printf "${WHITE}[${BLUE}PIP${WHITE}][${GREEN}Installed${WHITE}]${NOCOLOR}: $PKGNAME\n"
 		fi
@@ -386,12 +394,13 @@ if [ $INSTALL_PYTHON3 = "True" ]; then
 	checkpkg APT "python3-pip"
 fi
 
-if [ -f /var/run/reboot-required ] || [ $NEW_INSTALLED=="True" ]; then
+if [ -f /var/run/reboot-required ] || [ $NEW_INSTALLED = "True" ]; then
+	printf "\n"
 	if [ -f /var/run/reboot-required ]; then
 		#echo -e "${RED}Reboot required detected.${NOCOLOR}"
 		printf "${RED}Reboot required detected.${NOCOLOR}\n"
 	fi
-	if [ $NEW_INSTALLED=="True" ]; then
+	if [ $NEW_INSTALLED = "True" ]; then
 		#echo -e "A restart is ${YELLOW}HIGHLY RECOMMENDED${NOCOLOR} after new (Python) software has been installed, and before installing any new pip (Python) packages up next."
 		printf "A restart is ${YELLOW}RECOMMENDED${NOCOLOR} after new (Python) software has been installed, and before installing any new pip (Python) packages up next.\n"
 	fi
@@ -403,10 +412,19 @@ if [ -f /var/run/reboot-required ] || [ $NEW_INSTALLED=="True" ]; then
 		read USER_INPUT
 	done
 	
-	if [ "$USER_INPUT"=="y" ]; then
+	if [ "$USER_INPUT" = "y" ]; then
 		sudo reboot now
 	fi
 fi
+
+# Setup Python:
+echo "Setting up Python:"
+#http://vivithemage.com/2018/09/17/namesilo-dns-update-via-python-script-and-cron-job-on-pfsense/
+# Now if you are like me, and use pfsense, you have to install a module, which you can do by running these commands in shell:
+#echo "python2.7 -m ensurepip"
+#python2.7 -m ensurepip
+#echo "python2.7 -m pip install -upgrade pip"
+#python2.7 -m pip install -upgrade pip
 
 # Check that required pip packages are installed
 
@@ -540,9 +558,12 @@ checkpkg PIP "pygodaddy"
 
 printf "\n3. Set execution permissions for scripts to run.\n"
 
-###sudo chmod +x dyndns.py
-###sudo chmod +x logcleanup.sh
-###sudo chmod +x rand.sh
+echo "sudo chmod +x dyndns.py"
+sudo chmod +x dyndns.py
+echo "sudo chmod +x logcleanup.sh"
+sudo chmod +x logcleanup.sh
+echo "sudo chmod +x rand.sh"
+sudo chmod +x rand.sh
 
 # --------------------------------------------------------------------------------------------------------
 
@@ -614,9 +635,6 @@ printf "\n3. Set execution permissions for scripts to run.\n"
 # The first time you run crontab you'll be prompted to select an editor
 # If you are not sure which one to use, choose nano by pressing Enter.
 
-# Add a scheduled task
-
-
 # Check that cronjobs are running:
 
 # On a default installation the cron jobs get logged to
@@ -629,10 +647,23 @@ printf "\n3. Set execution permissions for scripts to run.\n"
 
 # --------------------------------------------------------------------------------------------------------
 
-CUR_DIR=$(pwd)
+printf "\n4. Testing script(s) execution\n"
 
+CUR_DIR=$(pwd)
 DYNDNS_PATH="$CUR_DIR/dyndns.py"
 LOGCLEAN_PATH="$CUR_DIR/logcleanup.sh"
+
+printf "\nTesting Dynamic DNS script:\npython $DYNDNS_PATH\n"
+read -s -p "Press ENTER key to continue... "
+python $DYNDNS_PATH
+
+printf "\nTesting log cleanup script:\n$LOGCLEAN_PATH\n"
+read -s -p "Press ENTER key to continue... "
+$LOGCLEAN_PATH
+
+# --------------------------------------------------------------------------------------------------------
+
+printf "\n5. Configuring cron jobs for scheduled script execution:\n"
 
 pickrandmin()
 {
@@ -649,15 +680,17 @@ removecronjob()
 	#Example: removecronjob /home/pi/dyndns/dyndns.sh
 	SCRIPT_NAME=$1
 	CRONYJOB=$(crontab -l | grep $SCRIPT_NAME)
-	echo $CRONYJOB
-	USER_INPUT="No escape"
-	while [ "$USER_INPUT" != "y" ] && [ "$USER_INPUT" != "n" ]; do
-		echo "Delete cron job(s)? [y/n]:"
-		read USER_INPUT
-	done
-	if [ "$USER_INPUT" != "y" ]; then
-		#sed -i "/$USER_INPUT/d" filename
-		crontab -l | grep -v "$SCRIPT_NAME" | crontab -
+	if [ "$CRONYJOB" != "" ]; then
+		printf "$CRONYJOB\n"
+		USER_INPUT="No escape"
+		while [ "$USER_INPUT" != "y" ] && [ "$USER_INPUT" != "n" ]; do
+			echo "Delete cron job(s)? [y/n]:"
+			read USER_INPUT
+		done
+		if [ "$USER_INPUT" = "y" ]; then
+			#sed -i "/$USER_INPUT/d" filename
+			crontab -l | grep -v "$SCRIPT_NAME" | crontab -
+		fi
 	fi
 }
 
@@ -665,12 +698,30 @@ addcronjob()
 {
 	#Example: addcronjob 0 0 1 */1 * /home/pi/dyndns/logcleanup.sh
 	WET_HOT_CRON_LINE=$@
-	(crontab -l ; echo "$WET_HOT_CRON_LINE") | crontab -
+	echo "Adding cron line:"
+	echo "$WET_HOT_CRON_LINE"
+	read -s -p "Press ENTER key to continue... "
+	(crontab -l 2>/dev/null; echo "$WET_HOT_CRON_LINE") | crontab -
+}
+
+showcronjobs()
+{
+	#Example: showcronjobs
+	USER_INPUT="No escape"
+	while [ "$USER_INPUT" != "y" ] && [ "$USER_INPUT" != "n" ]; do
+		printf "\nShow all current cron job(s)? [y/n]:"
+		read USER_INPUT
+	done
+	if [ "$USER_INPUT" = "y" ]; then
+		CRONJOBLIST=$(crontab -l)
+		printf "crontab -l\n"
+		printf "$CRONJOBLIST\n"
+	fi
 }
 
 cronfreqmenu()
 {
-	printf "\n\nSelect how frequently the Dynamic DNS script should run:\n"
+	printf "\nSelect how frequently the Dynamic DNS script should run:\n"
 	echo " 0 - Once every two hours"
 	echo " 1 - Once per hour (Recommended)"
 	echo " 2 - Twice per hour"
@@ -682,53 +733,56 @@ cronfreqmenu()
 
 minselecttxt()
 {
-	printf "\nWhen scheduling cron tasks, you can offset the minute of the hour for when this job will execute. Setting this with a random value will avoid hitting servers at peak times like at the top of the hour.\n\n"
+	printf "\n(NOTE: When scheduling cron tasks, you can offset the minute of the hour for when this job will execute. Setting this with a random value instead of 0 will avoid hitting servers at peak times like at the top of the hour.)\n\n"
 	printf "Please select a minute value:\n"
 	#echo " 0 - Random Minute Value Generator (RECOMMENDED)"
 	#echo " 1 - Enter a minute value 0-59"
 	#echo " 2 - Go Back"
 }
 
+showcronjobs
+
 cronfreqmenu
-USER_INPUT="No escape"
-while ! [[ $USER_INPUT -ge 0 && $USER_INPUT -le 6 ]]; do
+USER_INPUT=99
+while ! [[ "$USER_INPUT" -ge 0 && "$USER_INPUT" -le 6 ]]; do
 	read -p "Choose option [0-6]: " USER_INPUT
 done
 
 if [ $USER_INPUT -ge 0 ] && [ $USER_INPUT -le 1 ]; then
-	MIN_INPUT="No escape"
-	while ! [[ $MIN_INPUT -ge 0 && $MIN_INPUT -le 3 ]]; do
+	MIN_INPUT=99
+	while ! [[ "$MIN_INPUT" -ge 0 && "$MIN_INPUT" -le 3 ]]; do
 		if [ $USER_INPUT -eq 0 ]; then
-			printf "Once per two hours selected.\n\n"
+			printf "\nOnce per two hours selected.\n"
 		elif [ $USER_INPUT -eq 1 ]; then
-			printf "Once per hour selected.\n\n"
+			printf "\nOnce per hour selected.\n"
 		fi
 		minselecttxt
-		printf " 0 - Random Minute Value Generator (Recommended)"
-		printf " 1 - Enter a minute value 0-59"
-		MIN_GAMEOVER_INPUT="No escape"
-		if [ -v $PICKEDMIN ]; then
-			printf " 2 - Accept pick: %.2d" $PICKEDMIN
-			while ! [[ $MIN_GAMEOVER_INPUT -ge 0 && $MIN_GAMEOVER_INPUT -le 3 ]]; do
+		printf " 0 - Random Minute Value Generator (Recommended)\n"
+		printf " 1 - Enter a minute value 0-59\n"
+		MIN_GAMEOVER_INPUT=99
+		#if [ -v "$PICKEDMIN" ]; then
+		if [ -v PICKEDMIN ]; then
+			printf " 2 - Accept pick: %.2d\n" $PICKEDMIN
+			while ! [[ "$MIN_GAMEOVER_INPUT" -ge 0 && "$MIN_GAMEOVER_INPUT" -le 2 ]]; do
 				read -p "Choose option [0-2]: " MIN_GAMEOVER_INPUT
 			done
 		else
-			while ! [[ $MIN_GAMEOVER_INPUT -ge 0 && $MIN_GAMEOVER_INPUT -le 3 ]]; do
+			while ! [[ "$MIN_GAMEOVER_INPUT" -ge 0 && "$MIN_GAMEOVER_INPUT" -le 1 ]]; do
 				read -p "Choose option [0-1]: " MIN_GAMEOVER_INPUT
 			done
 		fi
 		
-		if [ $MIN_GAMEOVER_INPUT -eq 0 ]; then
+		if [ "$MIN_GAMEOVER_INPUT" -eq 0 ]; then
 			pickrandmin
 			PICKEDMIN=$RANDOMMIN
-			MIN_INPUT="No escape"
-		elif [ $MIN_GAMEOVER_INPUT -eq 1 ]; then
-			PICKEDMIN="No escape"
+			MIN_INPUT=99
+		elif [ "$MIN_GAMEOVER_INPUT" -eq 1 ]; then
+			PICKEDMIN=99
 			while ! [[ $PICKEDMIN -ge 0 && $PICKEDMIN -le 59 ]]; do
 				read -p "Enter minute value [0-59]: " PICKEDMIN
 			done
-			MIN_INPUT="No escape"
-		elif [ $MIN_GAMEOVER_INPUT -eq 2 ]; then
+			MIN_INPUT=99
+		elif [ "$MIN_GAMEOVER_INPUT" -eq 2 ]; then
 			break
 		fi
 	done
@@ -739,21 +793,21 @@ if [ $USER_INPUT -ge 0 ] && [ $USER_INPUT -le 1 ]; then
 		#printf "Once per hour selected.\n\n"
 		CRON_SCHED="$PICKEDMIN * * * *"
 	fi
-	CRON_STRING="$CRON_SCHED $DYNDNS_PATH"
+	CRON_STRING="$CRON_SCHED python $DYNDNS_PATH"
 elif [ $USER_INPUT -eq 2 ]; then
 	CRON_SCHED="0,30 * * * *"
-	CRON_STRING="$CRON_SCHED $DYNDNS_PATH"
+	CRON_STRING="$CRON_SCHED python $DYNDNS_PATH"
 elif [ $USER_INPUT -eq 3 ]; then
 	CRON_SCHED="0,15,30,45 * * * *"
-	CRON_STRING="$CRON_SCHED $DYNDNS_PATH"
+	CRON_STRING="$CRON_SCHED python $DYNDNS_PATH"
 elif [ $USER_INPUT -eq 4 ]; then
 	CRON_SCHED="0/10 * * * *"
 	#CRON_SCHED="0,10,20,30,40,50 * * * *"
-	CRON_STRING="$CRON_SCHED $DYNDNS_PATH"
+	CRON_STRING="$CRON_SCHED python $DYNDNS_PATH"
 elif [ $USER_INPUT -eq 5 ]; then
 	CRON_SCHED="0/5 * * * *"
 	#CRON_SCHED="0,5,10,15,20,25,30,35,45,50,55 * * * *"
-	CRON_STRING="$CRON_SCHED $DYNDNS_PATH"
+	CRON_STRING="$CRON_SCHED python $DYNDNS_PATH"
 elif [ $USER_INPUT -eq 6 ]; then
 	echo "Enter custom cron string: (do not include file path)"
 	echo "m h dom mon dow   $DYNDNS_PATH"
@@ -775,14 +829,13 @@ elif [ $USER_INPUT -eq 6 ]; then
 			continue
 		fi
 	done
-	CRON_STRING="$CRON_SCHED $DYNDNS_PATH"
+	CRON_STRING="$CRON_SCHED python $DYNDNS_PATH"
 fi
 
-printf "Remove old job first if it exists\n$DYNDNS_PATH\n"
+printf "Remove old job if it exists before adding new one:\n$DYNDNS_PATH\n"
 removecronjob $DYNDNS_PATH
 
-printf "Add new cron job\n$CRON_STRING\n"
-addcronjob $CRON_STRING
+addcronjob "$CRON_STRING"
 
 logcleanupfreqmenu()
 {
@@ -795,8 +848,8 @@ logcleanupfreqmenu()
 }
 
 logcleanupfreqmenu
-USER_INPUT="No escape"
-while ! [[ $USER_INPUT -ge 0 && $USER_INPUT -le 4 ]]; do
+USER_INPUT=99
+while ! [[ "$USER_INPUT" -ge 0 && "$USER_INPUT" -le 4 ]]; do
 	read -p "Choose option [0-4]: " USER_INPUT
 done
 
@@ -836,44 +889,28 @@ elif [ $USER_INPUT -eq 4 ]; then
 	CRON_STRING="$CRON_SCHED $LOGCLEAN_PATH"
 fi
 
-printf "Remove old job first if it exists\n$LOGCLEAN_PATH\n"
+printf "Remove old job if it exists before adding new one:\n$LOGCLEAN_PATH\n"
 removecronjob $LOGCLEAN_PATH
 
-printf "Add new cron job\n$CRON_STRING\n"
-addcronjob $CRON_STRING
+addcronjob "$CRON_STRING"
 
+showcronjobs
 
-# m h  dom mon dow   command
+echo "End of setup script."
+if [ -f /var/run/reboot-required ]; then
+	#echo -e "${RED}Reboot required detected.${NOCOLOR}"
+	printf "${RED}Reboot required detected.${NOCOLOR}\n"
+fi
 
-# Run dynamic-DNS update script every 1 hour (on the 23rd minute) for PDA.com via NameSilo.com API
-###23 */1 * * * python2.7 /home/pi/dyndns/dyndns-NameSilo.py
+USER_INPUT="No escape"
+while [ "$USER_INPUT" != "y" ] && [ "$USER_INPUT" != "n" ]; do
+	echo "Restart now? [y/n]:"
+	read USER_INPUT
+done
 
-# Run clean-up script for dyndns-NameSilo.py logs, once a month
-###0 0 1 */1 * /home/pi/dyndns/dyndns-NameSilo-LogCleanup.sh
-
-
-
-
-
-
-
-
-# --------------------------------------------------------------------------------------------------------
-
-# Test python script:
-
-###python2.7 /home/pi/dyndns/dyndns.py
-
-# Test log cleanup script:
-
-###/home/pi/dyndns/logcleanup.sh
-
-
-
-
-
-
-
+if [ "$USER_INPUT" = "y" ]; then
+	sudo reboot now
+fi
 
 # --------------------------------------------------------------------------------------------------------
 
@@ -898,64 +935,6 @@ addcronjob $CRON_STRING
 
 # --------------------------------------------------------------------------------------------------------
 
-
-
-
-
-
-# --------------------------------------------------------------------------------------------------------
-
-
-
-# https://www.pythonforbeginners.com/files/reading-and-writing-files-in-python
-
-
-# Open, write to file, close file:
-
-#file = open("testfile.txt","w") 
- 
-#file.write("Hello World") 
-#file.write("This is our new text file") 
-#file.write("and this is another line.") 
-#file.write("Why? Because we can.") 
- 
-#file.close() 
-
-# Mode:
-
-# Including a mode argument is optional because a default value of 'r' will be assumed if it is omitted. The 'r' value stands for read mode, which is just one of many. 
-
-# The modes are: 
-
-#     'r' – Read mode which is used when the file is only being read 
-#     'w' – Write mode which is used to edit and write new information to the file (any existing files with the same name will be erased when this mode is activated) 
-#     'a' – Appending mode, which is used to add new data to the end of the file; that is new information is automatically amended to the end 
-#     'r+' – Special read and write mode, which is used to handle both actions when working with a file 
-
-# Python - Check if files exists, & create blank file if it doesn't.
-
-# Get current file name:
-
-
-
-
-# Check if file exists:
-
-#os.path.isfile(path)
-
-#OurLogFile = os.path.isfile(path)
-
-# Append to file:
-
-# To append a file: 
-
-#fh = open("hello.txt", "a") 
-#fh.write("We Meet Again World") 
-#fh.close 
-
-
-
-# --------------------------------------------------------------------------------------------------------
 
 
 
