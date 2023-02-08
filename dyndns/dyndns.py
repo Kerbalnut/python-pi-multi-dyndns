@@ -14,21 +14,9 @@ from pygodaddy import GoDaddyClient
 from email.mime.text import MIMEText
 
 #import separate config file(s) with sensitive data:
-#import params/paramsGoDaddy
-#import DynDNS-NameSilo-Parameters
-#import params/paramsNameSilo
 
-#from .params.paramsGoDaddy import paramsGoDaddy
-#from .params.paramsNameSilo import paramsNameSilo
-
-#from .dirfoo1.foo1 import Foo1
-#from .dirfoo2.foo2 import Foo2
-
-
-import params.paramsGoDaddy
-import params.paramsNameSilo
-
-
+import params.GoDaddy as paramsGoDaddy
+import params.NameSilo as paramsNameSilo
 
 #Index: 
 # 1. Information & Description:
@@ -55,7 +43,7 @@ import params.paramsNameSilo
 
 # More setup details, notes, and information at:
 # DynDNS-NameSilo.txt
-# %UserProfile%\Documents\Flash Drive updates\Pi-Hole DNS server\DynDNS-NameSilo.txt
+# %UserProfile%\Documents\GitHub\python-pi-multi-dyndns\dyndns\setup.sh
 
 # /Information & Description
 # ---------------------------------------------------------------------------------------------------------
@@ -85,56 +73,18 @@ import params.paramsNameSilo
 #chmod +x dyndns.py
 #ls -l
 
-# Permissions breakdown:
-# drwxrwxrwx
-# | |  |  |
-# | |  |  others
-# | |  group
-# | user
-# is directory?
-
-# u  =  owner of the file (user)
-# g  =  groups owner  (group)
-# o  =  anyone else on the system (other)
-# a  =  all
-
-# + =  add permission
-# - =  remove permission
-
-# r  = read permission
-# w  = write permission
-# x  = execute permission
-
-# Schedule script to run automatically every hour, offset 23 mins:
-#crontab -l
-#crontab -e
-#0 */1 * * * python2.7 /home/pi/dyndns/dyndns.py
-#23 */1 * * * python2.7 /home/pi/dyndns/dyndns.py
-#crontab -l
-
-# m h  dom mon dow   command
-
-# * * * * *  command to execute
-# - - - - -
-# | | | | |
-# | | | | |
-# | | | | +----- day of week (0 - 7) (0 to 6 are Sunday to Saturday, or use names; 7 is Sunday, the same as 0)
-# | | | +---------- month (1 - 12)
-# | | +--------------- day of month (1 - 31)
-# | +-------------------- hour (0 - 23)
-# +------------------------- min (0 - 59)
 
 # /Setup & Instructions
 # ---------------------------------------------------------------------------------------------------------
 # Parameters:
 
 # 1
-PATH_TO_PRODUCTION_PARAMS = './params/paramsNameSilo.py'
+PATH_TO_PRODUCTION_PARAMS = './params/NameSilo.py'
 
 execfile(PATH_TO_PRODUCTION_PARAMS)
 
 # 2
-GODADDY_PARAMS = './params/paramsGoDaddy.py'
+GODADDY_PARAMS = './params/GoDaddy.py'
 
 execfile(GODADDY_PARAMS)
 
@@ -910,58 +860,11 @@ def DynDNSUpdateGoDaddy(LOG_FILE_0,paramsGoDaddy,public_ip=False):
 	args = parser.parse_args()
 	
 	#start log file
-	logging.basicConfig(filename=paramsGoDaddy.logfile, format='%(asctime)s %(message)s', level=logging.INFO)
+	#logging.basicConfig(filename=paramsGoDaddy.logfile, format='%(asctime)s %(message)s', level=logging.INFO)
 	
 	#what is my public ip?
 	if (public_ip == False):
 		public_ip = GetPublicIP(LOG_FILE_0)
-	
-	# login to GoDaddy DNS management
-	# docs at https://pygodaddy.readthedocs.org/en/latest/
-	client = GoDaddyClient()
-	
-	try:
-		loggedin = client.login(paramsGoDaddy.gduser, paramsGoDaddy.gdpass)
-	except:
-		LogFileAddError(LOG_FILE_0,('Could not log in to GoDaddy: %s' % loggedin))
-	
-	LogFileAddUntaggedMsg(LOG_FILE_0,('Logged-in to GoDaddy: %s' % loggedin))
-	
-	if client.login(paramsGoDaddy.gduser, paramsGoDaddy.gdpass):
-		# find out current dns record value. This can also be done with a quick nslookupA
-		# with something like socket.gethostbyname()
-		# however, this can include caching somewhere in the dns layers
-		# We could also use dnspython libraray, but that adds a lot of complexity
-		
-		# use the GoDaddy object to find our current IP registered
-		domaininfo = client.find_dns_records(paramsGoDaddy.GODADDY_DOMAIN)
-		for record in domaininfo:
-			if record.hostname == paramsGoDaddy.subdomainArecordName:
-				if record.value != public_ip:
-					LogFileAddUpdate(LOG_FILE_0,("Update required: old {0}, new {1}".format(record.value, public_ip)))
-					logging.info("Update required: old {0}, new {1}".format(record.value, public_ip))
-					updateinfo = "old " + record.value + ", new " + public_ip
-					# This will fail if you try to set the same IP as already registered!
-					if client.update_dns_record(paramsGoDaddy.subdomainArecordName+"."+paramsGoDaddy.GODADDY_DOMAIN, public_ip):
-						LogFileAddOK(LOG_FILE_0,('Update OK: '+paramsGoDaddy.subdomainArecordName+'.'+paramsGoDaddy.GODADDY_DOMAIN+', '+public_ip+'\n'+updateinfo))
-						logging.info('Update OK')
-						#email_update("Update OK!\n"+updateinfo)
-					else:
-						LogFileAddError(LOG_FILE_0,('Update DNS FAILED! '+paramsGoDaddy.subdomainArecordName+'.'+paramsGoDaddy.GODADDY_DOMAIN+', '+public_ip+'\n'+updateinfo))
-						logging.info('Update DNS FAILED!')
-						#email_update("Update failed!\n"+updateinfo)
-				else:
-					LogFileAddUntaggedMsg(LOG_FILE_0,('No update required.'))
-					logging.info('No update required.')
-					if args.verbose:
-						print('Verbose on, sending no update required email.')
-						#email_update('No update required.')
-	else:
-		LogFileAddError(LOG_FILE_0,('CANNOT login to GoDaddy'))
-		logging.error('CANNOT login to GoDaddy')
-		#email_update('ERROR: Cannot login to GoDaddy!')
-	
-	#/ Login method
 	
 	#--------------------------------------------------------------------------------
 	

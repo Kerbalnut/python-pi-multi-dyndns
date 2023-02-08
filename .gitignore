@@ -1,6 +1,6 @@
 
-/dyndns/params/paramsNameSilo.py
-/dyndns/params/paramsGoDaddy.py
+/dyndns/params/NameSilo.py
+/dyndns/params/GoDaddy.py
 download
 /dyndns/dyndns-LastMonth.log
 /dyndns/dyndns.log
