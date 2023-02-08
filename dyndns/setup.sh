@@ -12,12 +12,14 @@
 
 # Overview:
 # The Manual steps:
-# - Manually edit param files
-# - Create 'dyndns' directory on the remote host via SSH
-# - Copy these files into newly created dir with scp
+# A) Manually edit param/scp script files:
+# B) Create 'dyndns' directory on the remote host:
+# C) Copy files from local machine into newly created directory, with scp/scripts:
+# D) Execute this script on remote host to automate the rest of setup, or run the remaining commands manually:
 # The Automatic steps: (this script will do these automatically)
 # - Install any required dependency packages (apt packages and python modules via pip)
 #    - (will not update any packages, only install any that are missing)
+# - Test scripts and params files are working
 # - Set permissions and cron jobs for scheduled automatic execution
 #    - (dyndns.py and logcleanup.sh)
 
@@ -90,10 +92,6 @@
 
 # D) Execute this script on remote host to automate the rest of setup, or run the remaining commands manually:
 
-# Remainging actions: 
-#    - Install dependencies. (apt packages like python, pip, and bc; and python modules using pip)
-#    - Set permissions and cron jobs for automatic execution.
-
 # All the files we need should now be copied into the 'dyndns' folder on the remote host. We still need to update the permissions of the files to make them executable, and set up cron jobs to automatically execute the scripts on a regular schedule.
 # However, because we have the setup.sh script now on the device, we can use it for the remaining setup commands. We just need to make it executable, and execute it.
 
@@ -105,6 +103,10 @@
 #. ./setup.sh
 
 # If you want to do these steps manually, see the section below.
+
+# Remainging actions: 
+#    - Install dependencies. (apt packages like python, pip, and bc; and python modules using pip)
+#    - Set permissions and cron jobs for automatic execution.
 
 # --------------------------------------------------------------------------------------------------------
 
@@ -999,28 +1001,5 @@ if [ "$USER_INPUT" = "y" ]; then
 fi
 
 # --------------------------------------------------------------------------------------------------------
-
-#http://vivithemage.com/2018/09/17/namesilo-dns-update-via-python-script-and-cron-job-on-pfsense/
-
-# Now if you are like me, and use pfsense, you have to install a module, which you can do by running these commands in shell:
-# python2.7 -m ensurepip
-# python2.7 -m pip install requests
-# python2.7 -m pip install –upgrade pip
-
-# Once you run that, chmod +x your .py script and you are good to go to add the script to a cronjob. I added it via the pfsense cron gui:
-# */5 	* 	* 	* 	* 	root 	/usr/local/bin/python2.7 /usr/local/namesilo_update.py
-
-# DO make sure it's in a directory you can run as the user, and modify permissions to make sure.
-
-# I am using namesilo for my DNS, and they've got a solid little API system for stuff you can do to modify your DNS entries. So I use it as a poor mans dynamic DNS at home. For whatever reason though, their rrid changes every time you do an update, so you need to modify the URL to include the new rrid, which you pull from a dnsupdate api call. Thanks to a coworkers python skills, he wrote me this up, works great. Will only run the API call to update if the IP has changed. There are few things you must change for your own information though, and that is:
-
-# DOMAIN.TLDS (example: vivithemage.com) – there are 3 places to change this, line 7, 19, and line 39.
-# APIKEY (you get this from namesilo when you generate your API key) – there is one spot to change this, in line 39.
-# SUBDOMAIN (example: home) – there is one spot to change this, line 39.
-# SUB.DOMAIN.TLDS (example: home.vivithemage.com) – there are 3 spots to change this, line 26, 27 and 28.
-
-# --------------------------------------------------------------------------------------------------------
-
-
 
 
