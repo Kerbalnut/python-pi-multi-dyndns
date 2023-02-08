@@ -14,8 +14,21 @@ from pygodaddy import GoDaddyClient
 from email.mime.text import MIMEText
 
 #import separate config file(s) with sensitive data:
-import paramsGoDaddy
+#import params/paramsGoDaddy
 #import DynDNS-NameSilo-Parameters
+#import params/paramsNameSilo
+
+#from .params.paramsGoDaddy import paramsGoDaddy
+#from .params.paramsNameSilo import paramsNameSilo
+
+#from .dirfoo1.foo1 import Foo1
+#from .dirfoo2.foo2 import Foo2
+
+
+import params.paramsGoDaddy
+import params.paramsNameSilo
+
+
 
 #Index: 
 # 1. Information & Description:
@@ -116,12 +129,12 @@ import paramsGoDaddy
 # Parameters:
 
 # 1
-PATH_TO_PRODUCTION_PARAMS = 'DynDNS-NameSilo-Parameters.py'
+PATH_TO_PRODUCTION_PARAMS = './params/paramsNameSilo.py'
 
 execfile(PATH_TO_PRODUCTION_PARAMS)
 
 # 2
-GODADDY_PARAMS = 'paramsGoDaddy.py'
+GODADDY_PARAMS = './params/paramsGoDaddy.py'
 
 execfile(GODADDY_PARAMS)
 
@@ -221,7 +234,7 @@ def LogFileInit():
 		print('Appending results to log file: '+LOG_FILE_NAME)
 	else:
 		# Create a new log file 
-		LogFileCreateNewLog(LOG_FILE_FULL_PATH,LOG_FILE_NAME);
+		LogFileCreateNewLog(LOG_FILE_FULL_PATH,FULL_SCRIPT_PATH,LOG_FILE_NAME);
 	
 	# Create curated log file if it does not exit
 	if (os.path.isfile(LOG_FILE_CURATED_PATH)):
@@ -229,7 +242,7 @@ def LogFileInit():
 		print('Appending results to log file: '+LOG_FILE_CURATED_NAME)
 	else:
 		# Create a new log file 
-		LogFileCreateNewLog(LOG_FILE_CURATED_PATH,LOG_FILE_CURATED_NAME);
+		LogFileCreateNewLog(LOG_FILE_CURATED_PATH,FULL_SCRIPT_PATH,LOG_FILE_CURATED_NAME);
 	
 	# In case TEMP log file got left over from failed run, process and clean it up:
 	if (os.path.isfile(LOG_FILE_TEMP)):
@@ -250,7 +263,7 @@ def LogFileInit():
 	return LOG_FILE_0, LOG_FILE_FULL_PATH, LOG_FILE_CURATED_PATH, VID_TO_CURATE
 
 # Create new log file
-def LogFileCreateNewLog(LOG_FILE_FULL_PATH,LOG_FILE_NAME=False):
+def LogFileCreateNewLog(LOG_FILE_FULL_PATH,FULL_SCRIPT_PATH,LOG_FILE_NAME=False):
 	# NOT RECOMMENDED to use directly: use LogFileInit() instead, it calls this function and many others.
 	#"Creates a new log, prints a file header, for creating new logs."
 	# To call this function:
