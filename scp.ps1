@@ -103,9 +103,9 @@ Set-SCPItem -Destination $RemotePathDL -Path $LocalPath @RemoteParams
 $LocalPath = Join-Path -Path $LocalSubFolder -ChildPath "setup.sh"
 Set-SCPItem -Destination $RemotePathDL -Path $LocalPath @RemoteParams
 
-# Upload test.sh script:
+# Upload rand.sh script:
 
-$LocalPath = Join-Path -Path $LocalSubFolder -ChildPath "test.sh"
+$LocalPath = Join-Path -Path $LocalSubFolder -ChildPath "rand.sh"
 Set-SCPItem -Destination $RemotePathDL -Path $LocalPath @RemoteParams
 
 #-----------------------------------------------------------------------------------------------------------------------

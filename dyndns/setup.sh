@@ -16,8 +16,6 @@
 # - Set permissions and cron jobs for scheduled automatic execution
 #    - (dyndns.py and logcleanup.sh)
 
-# Complete manual steps are also provided at the end of these instructions
-
 # --------------------------------------------------------------------------------------------------------
 
 # First time setup instructions:
@@ -350,12 +348,14 @@ checkpkg()
 		if [ "$TYPE" == "APT" ]; then
 			#echo -e "${WHITE}[${YELLOW}APT${WHITE}][${RED}$PKGNAME${WHITE}]${NOCOLOR} package is not installed"
 			printf "${WHITE}[${YELLOW}APT${WHITE}][${RED}$PKGNAME${WHITE}]${NOCOLOR} package is not installed\n"
-			printf "Installing $PKGNAME with apt...\nsudo apt install $PKGNAME\n"
+			printf "Installing $PKGNAME with apt...\n"
+			printf "sudo apt install $PKGNAME\n"
 			#sudo apt install $PKGNAME
 		elif [ "$TYPE" == "PIP" ]; then
 			#echo -e "${WHITE}[${BLUE}PIP${WHITE}][${RED}$PKGNAME${WHITE}]${NOCOLOR} package is not installed"
 			printf "${WHITE}[${BLUE}PIP${WHITE}][${RED}$PKGNAME${WHITE}]${NOCOLOR} package is not installed\n"
-			printf "Installing $PKGNAME with pip...\nsudo pip install $PKGNAME\n"
+			printf "Installing $PKGNAME with pip...\n"
+			printf "sudo pip install $PKGNAME\n"
 			#sudo pip install $PKGNAME
 		fi
 		return
@@ -748,9 +748,11 @@ elif [ $USER_INPUT -eq 3 ]; then
 	CRON_STRING="$CRON_SCHED $DYNDNS_PATH"
 elif [ $USER_INPUT -eq 4 ]; then
 	CRON_SCHED="0/10 * * * *"
+	#CRON_SCHED="0,10,20,30,40,50 * * * *"
 	CRON_STRING="$CRON_SCHED $DYNDNS_PATH"
 elif [ $USER_INPUT -eq 5 ]; then
 	CRON_SCHED="0/5 * * * *"
+	#CRON_SCHED="0,5,10,15,20,25,30,35,45,50,55 * * * *"
 	CRON_STRING="$CRON_SCHED $DYNDNS_PATH"
 elif [ $USER_INPUT -eq 6 ]; then
 	echo "Enter custom cron string: (do not include file path)"
@@ -776,55 +778,52 @@ elif [ $USER_INPUT -eq 6 ]; then
 	CRON_STRING="$CRON_SCHED $DYNDNS_PATH"
 fi
 
-echo "Remove old job first if it exists"
+printf "Remove old job first if it exists\n$DYNDNS_PATH\n"
 removecronjob $DYNDNS_PATH
 
-echo "Add new cron job"
+printf "Add new cron job\n$CRON_STRING\n"
 addcronjob $CRON_STRING
 
 logcleanupfreqmenu()
 {
 	printf "\n\nSelect how frequently the Log Cleanup script should run:\n"
-	echo " 0 - Once every two weeks"
-	echo " 1 - Once every three weeks"
-	echo " 2 - Once per month (Recommended)"
-	echo " 3 - Once every 2 months"
-	echo " 4 - Once every 3 months"
-	echo " 5 - Enter custom cron tab string"
+	echo " 0 - Once every two weeks (on the 1st and the 15th of every month)"
+	echo " 1 - Once per month (Recommended)"
+	echo " 2 - Once every 2 months"
+	echo " 3 - Once every 3 months"
+	echo " 4 - Enter custom cron tab string"
 }
 
 logcleanupfreqmenu
 USER_INPUT="No escape"
-while ! [[ $USER_INPUT -ge 0 && $USER_INPUT -le 5 ]]; do
-	read -p "Choose option [0-5]: " USER_INPUT
+while ! [[ $USER_INPUT -ge 0 && $USER_INPUT -le 4 ]]; do
+	read -p "Choose option [0-4]: " USER_INPUT
 done
 
-if [ $USER_INPUT -ge 0 ] && [ $USER_INPUT -le 1 ]; then
-	CRON_STRING="$CRON_SCHED $DYNDNS_PATH"
+if [ $USER_INPUT -eq 0 ]; then
+	CRON_SCHED="0 0 1,15 * *"
+	CRON_STRING="$CRON_SCHED $LOGCLEAN_PATH"
+elif [ $USER_INPUT -eq 1 ]; then
+	CRON_SCHED="0 0 1 * *"
+	CRON_STRING="$CRON_SCHED $LOGCLEAN_PATH"
 elif [ $USER_INPUT -eq 2 ]; then
-	CRON_SCHED="0,30 * * * *"
-	CRON_STRING="$CRON_SCHED $DYNDNS_PATH"
+	CRON_SCHED="0 0 1 */2 *"
+	CRON_STRING="$CRON_SCHED $LOGCLEAN_PATH"
 elif [ $USER_INPUT -eq 3 ]; then
-	CRON_SCHED="0,15,30,45 * * * *"
-	CRON_STRING="$CRON_SCHED $DYNDNS_PATH"
+	CRON_SCHED="0 0 1 */3 *"
+	CRON_STRING="$CRON_SCHED $LOGCLEAN_PATH"
 elif [ $USER_INPUT -eq 4 ]; then
-	CRON_SCHED="0/10 * * * *"
-	CRON_STRING="$CRON_SCHED $DYNDNS_PATH"
-elif [ $USER_INPUT -eq 5 ]; then
-	CRON_SCHED="0/5 * * * *"
-	CRON_STRING="$CRON_SCHED $DYNDNS_PATH"
-elif [ $USER_INPUT -eq 6 ]; then
 	echo "Enter custom cron string: (do not include file path)"
-	echo "m h dom mon dow   $DYNDNS_PATH"
+	echo "m h dom mon dow   $LOGCLEAN_PATH"
 	echo "For example:"
-	echo "0 * * * *         (once every hour, at the zero minute mark)"
-	echo "0,30 * * * *      (once every half hour, at zero minutes and thirty)"
-	echo "0 */2 * * *       (once every two hours, at zero minute mark)"
-	echo "0/10 * * * *      (once every 10 minutes)"
+	echo "0 0 1,15 * *      (twice per month, on the 1st and 15th)"
+	echo "0 0 1 * *         (once a month, on the 1st at midnight)"
+	echo "0 0 1 */2 *       (once every 2 months, on the 1st at midnight)"
+	echo "0 0 1 */3 *       (once every 3 months, on the 1st at midnight)"
 	ACCEPTED_STR="No escape"
 	while [ $ACCEPTED_STR != "True" ]; do
 		read -p "Enter a valid cron schedule string: " CRON_SCHED
-		printf "\nAccept this value? $CRON_SCHED $DYNDNS_PATH\n\n"
+		printf "\nAccept this value? $CRON_SCHED $LOGCLEAN_PATH\n\n"
 		read -p "Are you sure? [y/n]: " ACCEPTED_STR
 		if [ $ACCEPTED_STR = "y" ]; then
 			ACCEPTED_STR="True"
@@ -834,15 +833,19 @@ elif [ $USER_INPUT -eq 6 ]; then
 			continue
 		fi
 	done
-	CRON_STRING="$CRON_SCHED $DYNDNS_PATH"
+	CRON_STRING="$CRON_SCHED $LOGCLEAN_PATH"
 fi
 
+printf "Remove old job first if it exists\n$LOGCLEAN_PATH\n"
+removecronjob $LOGCLEAN_PATH
+
+printf "Add new cron job\n$CRON_STRING\n"
+addcronjob $CRON_STRING
 
 
 # m h  dom mon dow   command
 
 # Run dynamic-DNS update script every 1 hour (on the 23rd minute) for PDA.com via NameSilo.com API
-
 ###23 */1 * * * python2.7 /home/pi/dyndns/dyndns-NameSilo.py
 
 # Run clean-up script for dyndns-NameSilo.py logs, once a month
