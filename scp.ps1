@@ -86,9 +86,15 @@ Set-SCPItem -Destination $RemotePathUL -Path $LocalPath @RemoteParams
 
 # Upload sensitive parameters folder:
 
-$ParamsPath = "$RemotePathDL"
 $LocalPath = Join-Path -Path $LocalSubFolder -ChildPath "params"
-Set-SCPItem -Destination $ParamsPath -Path $LocalPath @RemoteParams
+Set-SCPItem -Destination $RemotePathDL -Path $LocalPath @RemoteParams
+
+# Upload lib folder:
+
+$LocalLibPath = Join-Path -Path $LocalSubFolder -ChildPath "lib"
+Set-SCPItem -Destination $RemotePathDL -Path $LocalLibPath @RemoteParams
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # Upload dynamic DNS python script:
 
@@ -103,11 +109,6 @@ Set-SCPItem -Destination $RemotePathDL -Path $LocalPath @RemoteParams
 # Upload setup.sh script:
 
 $LocalPath = Join-Path -Path $LocalSubFolder -ChildPath "setup.sh"
-Set-SCPItem -Destination $RemotePathDL -Path $LocalPath @RemoteParams
-
-# Upload rand.sh script:
-
-$LocalPath = Join-Path -Path $LocalSubFolder -ChildPath "rand.sh"
 Set-SCPItem -Destination $RemotePathDL -Path $LocalPath @RemoteParams
 
 # Upload log files:
