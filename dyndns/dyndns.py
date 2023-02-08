@@ -948,15 +948,89 @@ def DynDNSUpdateGoDaddy(LOG_FILE_0,paramsGoDaddy,public_ip=False):
 	# Review GoDaddy API response
 	print('Parsing XML response...')
 	xml = ET.fromstring(xml_response.content)
-	#print(xml_response.content)
-	#print(xml_response)
-	#print(xml)
+	print('0 :')
+	print(xml_response.content)
+	#<response><result><data>455.251.170.100</data><name>@</name><ttl>1800</ttl><type>A</type></result></response>
+	print('1 :')
+	print(xml_response)
+	print('2 :')
+	print(xml)
 	
+	print('3 :')
+	for response in xml.iter('response'):
+		print(response.attrib)
+		#print(response.attrib["result"])
+	
+	
+	print('4 :')
+	for result in xml.iter("result"):
+		#print (result.attrib["data"])
+		print (result.find('data').text)
+	
+	
+	print('5 :')
+	for record in xml.iter('request'):
+		current_namesilo = record.find('ip').text
+	
+	
+	
+	# Get our Public IP from NameSilo response:
+	for record in xml.iter('request'):
+		current_namesilo = record.find('ip').text
+	
+	
+	#for response in xml.iter("response"):
+	#	print (response.attrib["result"])
+	
+	#for response in xml.iter("response"):
+	#	print (h.attrib["D"])
+	#for f in xml.iter("F"):
+	#	print (f.attrib, f.text)
+	
+	#for h in root.iter("H"):
+	#	print (h.attrib["D"])
+	#for f in root.iter("F"):
+	#	print (f.attrib, f.text)
+	
+	#<root>
+	#<H D="14/11/2017">
+	#<FC>
+	#    <F LV="0">The quick</F>
+	#    <F LV="1">brown</F>
+	#    <F LV="2">fox</F>
+	#</FC>
+	#</H>
+	#<H D="14/11/2017">
+	#<FC>
+	#    <F LV="0">The lazy</F>
+	#    <F LV="1">fox</F>
+	#</FC>
+	#</H>
+	#</root>""")
+	# root = tree.getroot()
+	for h in root.iter("H"):
+	    print (h.attrib["D"])
+	for f in root.iter("F"):
+	    print (f.attrib, f.text)
 	
 	#xml = ET.parse(xml_response.content)
 	
-	for item in xml.result:
+	#print('3 :')
+	#print(xml)
+	
+	
+	print('4 :')
+	for item in xml:
 		print(item)
+	
+	
+	print('5 :')
+	for item in xml_response.response:
+		print(item)
+	
+	
+	#for item in xml.result:
+	#	print(item)
 	
 	
 	#print(xml.response.result.data)
