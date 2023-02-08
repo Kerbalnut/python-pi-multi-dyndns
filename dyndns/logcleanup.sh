@@ -89,7 +89,7 @@
 # --------------------------------------------------------------------------------------------------------
 # Parameters:
 
-CURRENT_LOGFILE_PATH="/home/pi/dyndns/dyndns-RottenEggs.log"
+CURRENT_LOGFILE_PATH="/home/pi/dyndns/dyndns.log"
 
 #ARCHIVE_LOGFILE_PATH="/home/pi/dyndns/dyndns-LastTwoWeeks.log"
 ARCHIVE_LOGFILE_PATH="/home/pi/dyndns/dyndns-LastMonth.log"
@@ -140,7 +140,7 @@ function AppendLogFooter(){
 # https://www.shellscript.sh/
 
 # Delete archive log file:
-echo "Deleting archive log file (if exists):"
+printf "\nDeleting archive log file (if exists):\n"
 echo $ARCHIVE_LOGFILE_PATH
 if [ -f $ARCHIVE_LOGFILE_PATH ]; then
 	# File exists.

@@ -638,7 +638,7 @@ pickrandommin()
 					((COMMENTSELECT+=1))
 					
 					# Make sure we don't pick the same comment that was just shown to the user on last run.
-					if [[ $COMMENTSELECT = $LAST_SELECTED ]]; then
+					if [ "$COMMENTSELECT" = "$LAST_SELECTED" ]; then
 						# Re-roll!
 						#echo "Re-roll for same comment as used last time!"
 						SELECTION_APPROVED="False"
@@ -1610,6 +1610,7 @@ pickrandommin()
 			
 			read -s -p "Press ENTER key to START! "
 			countdowntimer 1 0
+			setdifficulty
 		}
 		
 		if [ $GAMENUM -lt 2 ]; then
