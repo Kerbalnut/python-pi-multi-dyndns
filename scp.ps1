@@ -82,6 +82,8 @@ Write-Host "UPLOAD operations using Set-SCPItem"
 $LocalPath = $LocalSubFolder
 Set-SCPItem -Destination $RemotePathUL -Path $LocalPath @RemoteParams
 
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 # Upload sensitive parameters folder:
 
 $ParamsPath = "$RemotePathDL"
@@ -107,8 +109,6 @@ Set-SCPItem -Destination $RemotePathDL -Path $LocalPath @RemoteParams
 
 $LocalPath = Join-Path -Path $LocalSubFolder -ChildPath "rand.sh"
 Set-SCPItem -Destination $RemotePathDL -Path $LocalPath @RemoteParams
-
-#-----------------------------------------------------------------------------------------------------------------------
 
 # Upload log files:
 
