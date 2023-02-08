@@ -183,7 +183,7 @@ loadcolors()
 	
 	RED='\033[0;31m'    #'0;31' is Red's ANSI color code
 	GREEN='\033[0;32m'  #'0;32' is Green's ANSI color code
-	YELLOW='\033[1;32m' #'1;32' is Yellow's ANSI color code
+	YELLOW='\033[1;33m' #'1;33' is Yellow's ANSI color code
 	BLUE='\033[0;34m'   #'0;34' is Blue's ANSI color code
 	WHITE='\033[1;37m'  #'1;37' is White's ANSI color code
 	NOCOLOR='\033[0m'
@@ -648,13 +648,24 @@ CUR_DIR=$(pwd)
 DYNDNS_PATH="$CUR_DIR/dyndns.py"
 LOGCLEAN_PATH="$CUR_DIR/logcleanup.sh"
 
+hrule()
+{
+	printf "\n${YELLOW}====================${NOCOLOR}\n"
+}
+
 printf "\nTesting Dynamic DNS script:\npython $DYNDNS_PATH\n"
 read -p "Press ENTER key to continue... "
+hrule
 python $DYNDNS_PATH
+hrule
+printf "End of testing Dyn DNS python script.\n"
 
 printf "\nTesting log cleanup script:\n$LOGCLEAN_PATH\n"
-read -s -p "Press ENTER key to continue... "
+read -p "Press ENTER key to continue... "
+hrule
 $LOGCLEAN_PATH
+hrule
+printf "End of testing log cleanup shell script.\n"
 
 # --------------------------------------------------------------------------------------------------------
 
