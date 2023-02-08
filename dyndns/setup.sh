@@ -567,6 +567,27 @@ sudo chmod +x rand.sh
 
 # --------------------------------------------------------------------------------------------------------
 
+printf "\n4. Checking params folder is setup properly.\n"
+# Exclude __init__.py and any file with _TEMPLATE suffix. Any other file with a .py or .pyc extension should could as a valid params folder.
+
+# --------------------------------------------------------------------------------------------------------
+
+printf "\n5. Testing script(s) execution.\n"
+
+CUR_DIR=$(pwd)
+DYNDNS_PATH="$CUR_DIR/dyndns.py"
+LOGCLEAN_PATH="$CUR_DIR/logcleanup.sh"
+
+printf "\nTesting Dynamic DNS script:\npython $DYNDNS_PATH\n"
+read -s -p "Press ENTER key to continue... "
+python $DYNDNS_PATH
+
+printf "\nTesting log cleanup script:\n$LOGCLEAN_PATH\n"
+read -s -p "Press ENTER key to continue... "
+$LOGCLEAN_PATH
+
+# --------------------------------------------------------------------------------------------------------
+
 # Setup DynDNS cron jobs:
 
 # --------------------------------------------------------------------------------------------------------
@@ -647,23 +668,7 @@ sudo chmod +x rand.sh
 
 # --------------------------------------------------------------------------------------------------------
 
-printf "\n4. Testing script(s) execution\n"
-
-CUR_DIR=$(pwd)
-DYNDNS_PATH="$CUR_DIR/dyndns.py"
-LOGCLEAN_PATH="$CUR_DIR/logcleanup.sh"
-
-printf "\nTesting Dynamic DNS script:\npython $DYNDNS_PATH\n"
-read -s -p "Press ENTER key to continue... "
-python $DYNDNS_PATH
-
-printf "\nTesting log cleanup script:\n$LOGCLEAN_PATH\n"
-read -s -p "Press ENTER key to continue... "
-$LOGCLEAN_PATH
-
-# --------------------------------------------------------------------------------------------------------
-
-printf "\n5. Configuring cron jobs for scheduled script execution:\n"
+printf "\n6. Configuring cron jobs for scheduled script execution:\n"
 
 pickrandmin()
 {
@@ -896,7 +901,7 @@ addcronjob "$CRON_STRING"
 
 showcronjobs
 
-echo "End of setup script."
+printf "\n7. End of setup script.\n"
 if [ -f /var/run/reboot-required ]; then
 	#echo -e "${RED}Reboot required detected.${NOCOLOR}"
 	printf "${RED}Reboot required detected.${NOCOLOR}\n"
