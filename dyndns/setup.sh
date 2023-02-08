@@ -102,6 +102,7 @@
 
 # 2. Run this script:
 #sudo -i ./setup.sh
+#. ./setup.sh
 
 # If you want to do these steps manually, see the section below.
 
@@ -575,25 +576,13 @@ sudo chmod +x rand.sh
 printf "\n4. Checking params folder is setup properly.\n"
 # Exclude __init__.py and any file with _TEMPLATE suffix. Any other file with a .py or .pyc extension should could as a valid params folder.
 
-#Exclude=("a" "b" "c")
-#Exclude=("__init__.py" "__init__.pyc")
-#Listing=(`ls -1Q ./params/`)
-#Files=( $(comm -23 <( printf "%s\n" "${Listing[@]}" ) <( printf "%s\n" "${Exclude[@]}" ) ) )
-#
-#printf "$Listing\n"
-#printf "%s\n" "$Listing"
-#
-#echo ${Files[@]}
-#printf "$Files\n"
-#printf "%s\n" "$Files"
-
 printf "\n Search dir:\n"
 SEARCH_DIR="./params"
 for entry in "$SEARCH_DIR"/*; do
 	echo "$entry"
 done
 
-printf "\n Search dir:\n"
+#printf "\n Search dir:\n"
 SEARCH_DIR="./params"
 PARAM_FILES=()
 for entry in "$SEARCH_DIR"/*; do
@@ -604,44 +593,86 @@ for entry in "$SEARCH_DIR"/*; do
 	if [[ $entry == *_TEMPLATE* ]]; then
 		PASS="False"
 	fi
-	#echo $PASS
 	if [ "$PASS" = "True" ]; then
-		echo "$entry"
+		#echo "$entry"
 		PARAM_FILES+=($entry)
 	fi
 done
 
+#printf "\n Filter dir:\n"
 PY_FILES=()
 PYC_FILES=()
 for i in "${PARAM_FILES[@]}"; do
+	#echo "$i"
 	if [[ $i == *.py ]]; then
+		#echo "Added to PY"
 		PY_FILES+=($i)
 	fi
 	if [[ $i == *.pyc ]]; then
+		#echo "ADDED to .PYC list"
 		PYC_FILES+=($i)
 	fi
 done
 
 printf "\nPy files:\n"
-printf "${PY_FILES[@]}\n"
+printf "%s\n" "${PY_FILES[@]}"
 printf "\n.pyc files:\n"
-printf "${PYC_FILES[@]}\n"
+printf "%s\n" "${PYC_FILES[@]}"
 printf "\n"
+
+#PY_FILES=()
+#PY_FILES=("./params/paramsGoDaddy.pyc" "./params/paramsNameSilo.pyc")
+#if [ -v PY_FILES ]; then echo "Var is populated with data!"; else echo "Var is empty"; fi
+
+PY_FILE_EXISTS="False"
+PYC_FILE_EXISTS="False"
+
+if [ -v PY_FILES ]; then 
+	PY_FILE_EXISTS="True"
+else 
+	PY_FILE_EXISTS="False"
+fi
+
+PYC_FILE_EXISTS="False"
+if [ -v PY_FILES ]; then 
+	PYC_FILE_EXISTS="True"
+else 
+	PYC_FILE_EXISTS="False"
+fi
+
+
+PY_FILE_EXISTS="False"
+PYC_FILE_EXISTS="False"
+
+if [ $PY_FILE_EXISTS != "True" ] && [ $PYC_FILE_EXISTS != "True" ]; then
+	printf "\nWARNING: No configured parameter files detected! \nPlease make sure the $SEARCH_DIR/ directory contains \nat least one params .py script, without _TEMPLATE in the filename.\nTo set up a params file with your account details, make a copy of one of the _TEMPLATE.py files, but without the text \"_TEMPLATE\" in the new name. Edit the file to find more detailed instructions on how to set the variables with your account information.\n"
+	printf "\nThese are the only files currently in $SEARCH_DIR/:\n"
+	Listing=(`ls -1Q $SEARCH_DIR/`)
+	printf "%s\n" "${Listing[@]}"
+	printf "\nPress Ctrl-C now to cancel this script.\n"
+	read -p "Press ENTER key to continue... "
+	
+fi
+
+
+PY_FILES=()
+
+
 
 read -p "Press ENTER key to continue... "
 
 
 
-
-args=()
-
-
-for ((i=0; i<5; ++i)); do
-    args+=($i)
-    echo "${args[@]}"
-done
-
-
+if [ -v PICKEDMIN ]; then
+	printf " 2 - Accept pick: %.2d\n" $PICKEDMIN
+	while ! [[ "$MIN_GAMEOVER_INPUT" -ge 0 && "$MIN_GAMEOVER_INPUT" -le 2 ]]; do
+		read -p "Choose option [0-2]: " MIN_GAMEOVER_INPUT
+	done
+else
+	while ! [[ "$MIN_GAMEOVER_INPUT" -ge 0 && "$MIN_GAMEOVER_INPUT" -le 1 ]]; do
+		read -p "Choose option [0-1]: " MIN_GAMEOVER_INPUT
+	done
+fi
 
 
 # --------------------------------------------------------------------------------------------------------
