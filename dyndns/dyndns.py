@@ -913,7 +913,7 @@ def DynDNSUpdateGoDaddy(LOG_FILE_0,paramsGoDaddy,public_ip=False):
 		full_url = api_url+'v1/domains/'+paramsGoDaddy.GODADDY_DOMAIN+'/records/'+recordtype+'/'+url_encoded
 	#/v1/domains/{domain}/records/{type}/{name}
 	#"https://api.godaddy.com/v1/domains/${mydomain}/records/A/${myhostname}"
-	auth = ("%s:%s" % (paramsGoDaddy.GODADDY_API_KEY,paramsGoDaddy.GODADDY_API_SECRET))
+	godaddy_api_auth = ("%s:%s" % (paramsGoDaddy.GODADDY_API_KEY,paramsGoDaddy.GODADDY_API_SECRET))
 	#dnsdata=`curl -s -X GET -H "Authorization: sso-key ${gdapikey}" "https://api.godaddy.com/v1/domains/${mydomain}/records/A/${myhostname}"`
 	
 	#--------------------------------------------------------------------------------
@@ -927,15 +927,23 @@ def DynDNSUpdateGoDaddy(LOG_FILE_0,paramsGoDaddy,public_ip=False):
 	#"accept": "text/xml"
 	
 	if (RESPONSE_FORMAT == "JSON"):
+		#data = {
+		#	"Authorization": ("sso-key %s:%s" % (paramsGoDaddy.GODADDY_API_KEY,paramsGoDaddy.GODADDY_API_SECRET)),
+		#	"accept": "application/json"
+		#}
 		data = {
-			"Authorization": ("sso-key %s:%s" % (paramsGoDaddy.GODADDY_API_KEY,paramsGoDaddy.GODADDY_API_SECRET)),
+			"Authorization": ("sso-key %s" % (godaddy_api_auth)),
 			"accept": "application/json"
 		}
 		LogFileAddURLCall(LOG_FILE_0,("GoDaddy.com JSON API Operation: %s" % full_url))
 		json_response = requests.get(full_url,headers=data)
 	elif (RESPONSE_FORMAT == "XML"):
+		#data = {
+		#	"Authorization": ("sso-key %s:%s" % (paramsGoDaddy.GODADDY_API_KEY,paramsGoDaddy.GODADDY_API_SECRET)),
+		#	"accept": "application/xml"
+		#}
 		data = {
-			"Authorization": ("sso-key %s:%s" % (paramsGoDaddy.GODADDY_API_KEY,paramsGoDaddy.GODADDY_API_SECRET)),
+			"Authorization": ("sso-key %s" % (godaddy_api_auth)),
 			"accept": "application/xml"
 		}
 		LogFileAddURLCall(LOG_FILE_0,("GoDaddy.com XML API Operation: %s" % full_url))
@@ -948,32 +956,32 @@ def DynDNSUpdateGoDaddy(LOG_FILE_0,paramsGoDaddy,public_ip=False):
 	#https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
 	if (RESPONSE_FORMAT == "JSON"):
 		if (json_response.status_code == 200):
-			LogFileAddOK(LOG_FILE_0,('HTTP Response Success: %s %s' % (json_response.status_code, json_response.reason)))
+			LogFileAddOK(LOG_FILE_0,('GoDaddy HTTP Response Success: %s %s' % (json_response.status_code, json_response.reason)))
 			#print('[OK]: HTTP Response Success: 200 OK')
 			# Use fnmatchcase for true/false response from fnmatch module. Use str() function for format status code as a string.
 			#elif fnmatch.fnmatchcase(str(json_response.status_code), '2??'):
 		elif (json_response.ok):
-			LogFileAddOK(LOG_FILE_0,('HTTP Response Successful; Code: %s (%s)' % (json_response.status_code, json_response.reason)))
-			LogFileAddUntaggedMsg(LOG_FILE_0,("Request URL: \n%s\n" % full_url))
+			LogFileAddOK(LOG_FILE_0,('GoDaddy HTTP Response Successful; Code: %s (%s)' % (json_response.status_code, json_response.reason)))
+			LogFileAddUntaggedMsg(LOG_FILE_0,("GoDaddy Request URL: \n%s\n" % full_url))
 		else:
-			LogFileAddTrouble(LOG_FILE_0,('HTTP Non-Terminating Response; Code: %s (%s)\n' % (json_response.status_code, json_response.reason)))
-			LogFileAddUntaggedMsg(LOG_FILE_0,("Request URL: \n%s\n" % full_url))
-			LogFileAddUntaggedMsg(LOG_FILE_0,("Response: \n%s\n" % json_response))
-			LogFileAddUntaggedMsg(LOG_FILE_0,("Full Response: \n%s\n" % json_response.content))
+			LogFileAddTrouble(LOG_FILE_0,('GoDaddy HTTP Non-Terminating Response; Code: %s (%s)\n' % (json_response.status_code, json_response.reason)))
+			LogFileAddUntaggedMsg(LOG_FILE_0,("GoDaddy Request URL: \n%s\n" % full_url))
+			LogFileAddUntaggedMsg(LOG_FILE_0,("GoDaddy Response: \n%s\n" % json_response))
+			LogFileAddUntaggedMsg(LOG_FILE_0,("GoDaddy Full Response: \n%s\n" % json_response.content))
 	elif (RESPONSE_FORMAT == "XML"):
 		if (xml_response.status_code == 200):
-			LogFileAddOK(LOG_FILE_0,('HTTP Response Success: %s %s' % (xml_response.status_code, xml_response.reason)))
+			LogFileAddOK(LOG_FILE_0,('GoDaddy HTTP Response Success: %s %s' % (xml_response.status_code, xml_response.reason)))
 			#print('[OK]: HTTP Response Success: 200 OK')
 			# Use fnmatchcase for true/false response from fnmatch module. Use str() function for format status code as a string.
 			#elif fnmatch.fnmatchcase(str(xml_response.status_code), '2??'):
 		elif (xml_response.ok):
-			LogFileAddOK(LOG_FILE_0,('HTTP Response Successful; Code: %s (%s)' % (xml_response.status_code, xml_response.reason)))
-			LogFileAddUntaggedMsg(LOG_FILE_0,("Request URL: \n%s\n" % full_url))
+			LogFileAddOK(LOG_FILE_0,('GoDaddy HTTP Response Successful; Code: %s (%s)' % (xml_response.status_code, xml_response.reason)))
+			LogFileAddUntaggedMsg(LOG_FILE_0,("GoDaddy Request URL: \n%s\n" % full_url))
 		else:
-			LogFileAddTrouble(LOG_FILE_0,('HTTP Non-Terminating Response; Code: %s (%s)\n' % (xml_response.status_code, xml_response.reason)))
-			LogFileAddUntaggedMsg(LOG_FILE_0,("Request URL: \n%s\n" % full_url))
-			LogFileAddUntaggedMsg(LOG_FILE_0,("Response: \n%s\n" % xml_response))
-			LogFileAddUntaggedMsg(LOG_FILE_0,("Full Response: \n%s\n" % xml_response.content))
+			LogFileAddTrouble(LOG_FILE_0,('GoDaddy HTTP Non-Terminating Response; Code: %s (%s)\n' % (xml_response.status_code, xml_response.reason)))
+			LogFileAddUntaggedMsg(LOG_FILE_0,("GoDaddy Request URL: \n%s\n" % full_url))
+			LogFileAddUntaggedMsg(LOG_FILE_0,("GoDaddy Response: \n%s\n" % xml_response))
+			LogFileAddUntaggedMsg(LOG_FILE_0,("GoDaddy Full Response: \n%s\n" % xml_response.content))
 		print('xml_response type: ')
 		print(type(xml_response))
 	
@@ -1034,7 +1042,7 @@ def DynDNSUpdateGoDaddy(LOG_FILE_0,paramsGoDaddy,public_ip=False):
 	else:
 		LogFileAddOK(LOG_FILE_0,('IP matches GoDaddy record: %s' % (GODADDY_CURRENT_IP)))
 	
-	if ( GODADDY_CURRENT_TTL != paramsGoDaddy.DNS_RECORD_TTL ):
+	if ( ("%s" % GODADDY_CURRENT_TTL) != ("%s" % paramsGoDaddy.DNS_RECORD_TTL) ):
 		UPDATE_RECORD = "True"
 		LogFileAddUpdate(LOG_FILE_0,('Set TTL value (%s) does not match the GoDaddy %s domain record TTL (%s)' % (paramsGoDaddy.DNS_RECORD_TTL, paramsGoDaddy.GODADDY_DOMAIN, GODADDY_CURRENT_TTL)))
 	else:
@@ -1044,11 +1052,66 @@ def DynDNSUpdateGoDaddy(LOG_FILE_0,paramsGoDaddy,public_ip=False):
 	
 	# Update record via GoDaddy API:
 	
+	#https://developer.godaddy.com/doc/endpoint/domains#/v1/recordReplaceTypeName
 	if ( UPDATE_RECORD == "True" ):
 		
+		#curl -X 'PUT' \
+		#  'https://api.ote-godaddy.com/v1/domains/example.com/records/A/%40' \
+		#  -H 'accept: application/json' \
+		#  -H 'Content-Type: application/json' \
+		#  -H 'Authorization: sso-key UzQxLikm_46KxDFnbjN7cQjmw6wocia:46L26ydpkwMaKZV6uVdDWe' \
+		#  -d '[
+		#  {
+		#    "data": "string",
+		#    "port": 65535,
+		#    "priority": 0,
+		#    "protocol": "string",
+		#    "service": "string",
+		#    "ttl": 0,
+		#    "weight": 0
+		#  }
+		#]'
 		
+		headers_dat = {
+			'accept': 'application/json',
+			'Content-Type': 'application/json',
+			'Authorization': ('sso-key %s' % (godaddy_api_auth))
+		}
 		
+		#print(json.dumps(json_dat))
+		#print(json.dumps({"data": ("%s" % (public_ip))}))
+		#json_dat = json.dumps(json_dat)
 		
+		# Thanks to this site for finally helping me get the right requests.put() format working:
+		#https://curlconverter.com/
+		json_data = [
+			{
+				'data': ('%s' % (public_ip)),
+				'ttl': (paramsGoDaddy.DNS_RECORD_TTL),
+			},
+		]
+		
+		LogFileAddURLCall(LOG_FILE_0,("GoDaddy.com PUT API call: %s" % full_url))
+		
+		put_response = requests.put(full_url, headers=headers_dat, json=json_data)
+		# Note: json_data will not be serialized by requests
+		# exactly as it was in the original request.
+		#data = '[\n  {\n    "data": "string"\n  }\n]'
+		#response = requests.put('https://api.ote-godaddy.com/v1/domains/rotten-eggs.com/records/A/%40', headers=headers, data=data)
+		
+		if (put_response.status_code == 200):
+			LogFileAddOK(LOG_FILE_0,('GoDaddy HTTP Response Success: %s %s' % (put_response.status_code, put_response.reason)))
+			#print('[OK]: HTTP Response Success: 200 OK')
+			# Use fnmatchcase for true/false response from fnmatch module. Use str() function for format status code as a string.
+			#elif fnmatch.fnmatchcase(str(put_response.status_code), '2??'):
+		elif (put_response.ok):
+			LogFileAddOK(LOG_FILE_0,('GoDaddy HTTP Response Successful; Code: %s (%s)' % (put_response.status_code, put_response.reason)))
+			LogFileAddUntaggedMsg(LOG_FILE_0,("GoDaddy Request URL: \n%s\n" % full_url))
+		else:
+			LogFileAddTrouble(LOG_FILE_0,('GoDaddy HTTP Non-Terminating Response; Code: %s (%s)\n' % (put_response.status_code, put_response.reason)))
+			LogFileAddUntaggedMsg(LOG_FILE_0,("GoDaddy Request URL: \n%s\n" % full_url))
+			LogFileAddUntaggedMsg(LOG_FILE_0,("GoDaddy Response: \n%s\n" % put_response))
+			LogFileAddUntaggedMsg(LOG_FILE_0,("GoDaddy Full Response: \n%s\n" % put_response.content))
 	
 	return
 
