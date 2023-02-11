@@ -113,6 +113,9 @@ def email_update(body):
 	s.sendmail(paramsGoDaddy.sender, paramsGoDaddy.to, msg.as_string())
 	s.quit()
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Log file functions:
+
 # Initiate log file:
 def LogFileInit():
 	# This function can be called no matter what state the log file is in: It
@@ -503,6 +506,9 @@ def LogFileEndOp(LOG_FILE_0,LOG_FILE_FULL_PATH,LOG_FILE_CURATED_PATH,VID_TO_CURA
 	#VID_TO_CURATE = False
 	
 	return
+
+#/End Log file functions.
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # Call pif for public ip
 def GetPublicIP(LOG_FILE_0):
@@ -928,7 +934,6 @@ def DynDNSUpdateGoDaddy(LOG_FILE_0,paramsGoDaddy,public_ip=False):
 		LogFileAddURLCall(LOG_FILE_0,("GoDaddy.com JSON API Operation: %s" % full_url))
 		json_response = requests.get(full_url,headers=data)
 	elif (RESPONSE_FORMAT == "XML"):
-		
 		data = {
 			"Authorization": ("sso-key %s:%s" % (paramsGoDaddy.GODADDY_API_KEY,paramsGoDaddy.GODADDY_API_SECRET)),
 			"accept": "application/xml"
@@ -992,8 +997,8 @@ def DynDNSUpdateGoDaddy(LOG_FILE_0,paramsGoDaddy,public_ip=False):
 		# Review GoDaddy API response
 		print('Parsing XML response...')
 		xml = ET.fromstring(xml_response.content)
-		print('0 :')
-		print(xml_response.content)
+		#print('0 :')
+		#print(xml_response.content)
 		#<response><result><data>455.251.170.100</data><name>@</name><ttl>1800</ttl><type>A</type></result></response>
 		#Sample response:
 		#<response>
@@ -1013,35 +1018,37 @@ def DynDNSUpdateGoDaddy(LOG_FILE_0,paramsGoDaddy,public_ip=False):
 		#	</result>
 		#</response>
 		
-		print('1 :')
-		print(xml_response)
-		
-		print('4 :')
+		#print('4 :')
 		for result in xml.iter("result"):
-			#print (result.attrib["data"])
 			print (result.find('data').text)
-		
-		#xml = ET.parse(xml_response.content)
+			print (result.find('name').text)
+			print (result.find('ttl').text)
+			print (result.find('type').text)
+			GODADDY_CURRENT_IP = (result.find('data').text)
+			GODADDY_CURRENT_TTL = (result.find('ttl').text)
 	
-	
-	
-	
-	# Get reply code: (300 = Successful API operation)
-	for record in xml.iter('reply'):
-		namesilo_response_code = record.find('code').text
-		namesilo_response_details = record.find('detail').text
-	# Use int() function to format var as integer
-	if (int(namesilo_response_code) == 300):
-		LogFileAddOK(LOG_FILE_0,('NameSilo API operation: '+namesilo_response_code+' ('+namesilo_response_details+')')) # 300 = Successful API operation
-		# Use fnmatchcase for true/false response from fnmatch module. Use str() function for format status code as a string.
-	elif fnmatch.fnmatchcase(namesilo_response_code, '30?'):
-		LogFileAddOK(LOG_FILE_0,('NameSilo API operation: '+namesilo_response_code+' ('+namesilo_response_details+')')) # 300 = Successful API operation
+	UPDATE_RECORD = "False"
+	if ( GODADDY_CURRENT_IP != public_ip ):
+		UPDATE_RECORD = "True"
+		LogFileAddUpdate(LOG_FILE_0,('Public IP (%s) no longer matches GoDaddy %s domain IP (%s)' % (public_ip, paramsGoDaddy.GODADDY_DOMAIN, GODADDY_CURRENT_IP)))
 	else:
-		LogFileAddError(LOG_FILE_0,('NameSilo API error. Response code: '+namesilo_response_code+' ('+namesilo_response_details+')\n'))
-		LogFileAddUntaggedMsg(LOG_FILE_0,("Reference: \nhttps://www.namesilo.com/api_reference.php#dnsUpdateRecord\n"))
-		LogFileAddUntaggedMsg(LOG_FILE_0,("Request URL: \n%s\n" % RECORD_IP_ADDRESS_URL))
-		LogFileAddUntaggedMsg(LOG_FILE_0,("Response: \n%s\n" % new))
-		LogFileAddUntaggedMsg(LOG_FILE_0,("Full Response: \n%s\n\n" % new.content))
+		LogFileAddOK(LOG_FILE_0,('IP matches GoDaddy record: %s' % (GODADDY_CURRENT_IP)))
+	
+	if ( GODADDY_CURRENT_TTL != paramsGoDaddy.DNS_RECORD_TTL ):
+		UPDATE_RECORD = "True"
+		LogFileAddUpdate(LOG_FILE_0,('Set TTL value (%s) does not match the GoDaddy %s domain record TTL (%s)' % (paramsGoDaddy.DNS_RECORD_TTL, paramsGoDaddy.GODADDY_DOMAIN, GODADDY_CURRENT_TTL)))
+	else:
+		LogFileAddOK(LOG_FILE_0,('TTL matches: %s = %s' % (GODADDY_CURRENT_TTL, paramsGoDaddy.DNS_RECORD_TTL)))
+	
+	#--------------------------------------------------------------------------------
+	
+	# Update record via GoDaddy API:
+	
+	if ( UPDATE_RECORD == "True" ):
+		
+		
+		
+		
 	
 	return
 
