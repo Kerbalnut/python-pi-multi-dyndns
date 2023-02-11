@@ -855,12 +855,14 @@ def DynDNSUpdateGoDaddy(LOG_FILE_0,paramsGoDaddy,public_ip=False):
 	#import godaddy
 	
 	#command line arguments parsing
-	parser = argparse.ArgumentParser('A Python script to do updates to a GoDaddy DNS host A record')
-	parser.add_argument('-v', '--verbose', action='store_true', help="send emails on 'no ip update required'")
-	args = parser.parse_args()
+	#parser = argparse.ArgumentParser('A Python script to do updates to a GoDaddy DNS host A record')
+	#parser.add_argument('-v', '--verbose', action='store_true', help="send emails on 'no ip update required'")
+	#args = parser.parse_args()
 	
 	#start log file
 	#logging.basicConfig(filename=paramsGoDaddy.logfile, format='%(asctime)s %(message)s', level=logging.INFO)
+	
+	#--------------------------------------------------------------------------------
 	
 	#what is my public ip?
 	if (public_ip == False):
@@ -869,6 +871,9 @@ def DynDNSUpdateGoDaddy(LOG_FILE_0,paramsGoDaddy,public_ip=False):
 	#--------------------------------------------------------------------------------
 	
 	# API keys method:
+	
+	# Set as either "XML" or "JSON"
+	RESPONSE_FORMAT="XML"
 	
 	#https://developer.godaddy.com/doc/endpoint/domains#/v1/recordGet
 	ote_url = "https://api.ote-godaddy.com/"
@@ -905,74 +910,118 @@ def DynDNSUpdateGoDaddy(LOG_FILE_0,paramsGoDaddy,public_ip=False):
 	auth = ("%s:%s" % (paramsGoDaddy.GODADDY_API_KEY,paramsGoDaddy.GODADDY_API_SECRET))
 	#dnsdata=`curl -s -X GET -H "Authorization: sso-key ${gdapikey}" "https://api.godaddy.com/v1/domains/${mydomain}/records/A/${myhostname}"`
 	
+	#--------------------------------------------------------------------------------
+	
+	# Send API request; receive response:
+	
 	#-H 'accept: application/json' \
 	#-H 'Authorization: sso-key UzQxLikm_46KxDFnbjN7cQjmw6wocia:46L26ydpkwMaKZV6uVdDWe'
-	
-	data = {
-		"Authorization": ("sso-key %s:%s" % (paramsGoDaddy.GODADDY_API_KEY,paramsGoDaddy.GODADDY_API_SECRET)),
-		"accept": "application/json"
-	}
 	#"accept": "application/json"
 	#"accept": "application/xml"
 	#"accept": "text/xml"
-	LogFileAddURLCall(LOG_FILE_0,("GoDaddy.com JSON API Operation: %s" % full_url))
-	json_response = requests.get(full_url,headers=data)
 	
-	data = {
-		"Authorization": ("sso-key %s:%s" % (paramsGoDaddy.GODADDY_API_KEY,paramsGoDaddy.GODADDY_API_SECRET)),
-		"accept": "application/xml"
-	}
-	LogFileAddURLCall(LOG_FILE_0,("GoDaddy.com XML API Operation: %s" % full_url))
-	xml_response = requests.get(full_url,headers=data)
+	if (RESPONSE_FORMAT == "JSON"):
+		data = {
+			"Authorization": ("sso-key %s:%s" % (paramsGoDaddy.GODADDY_API_KEY,paramsGoDaddy.GODADDY_API_SECRET)),
+			"accept": "application/json"
+		}
+		LogFileAddURLCall(LOG_FILE_0,("GoDaddy.com JSON API Operation: %s" % full_url))
+		json_response = requests.get(full_url,headers=data)
+	elif (RESPONSE_FORMAT == "XML"):
+		
+		data = {
+			"Authorization": ("sso-key %s:%s" % (paramsGoDaddy.GODADDY_API_KEY,paramsGoDaddy.GODADDY_API_SECRET)),
+			"accept": "application/xml"
+		}
+		LogFileAddURLCall(LOG_FILE_0,("GoDaddy.com XML API Operation: %s" % full_url))
+		xml_response = requests.get(full_url,headers=data)
+	
+	#--------------------------------------------------------------------------------
 	
 	# Review HTTP response codes
 	#https://2.python-requests.org//en/master/api/#requests.Response
 	#https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
-	if (json_response.status_code == 200):
-		LogFileAddOK(LOG_FILE_0,('HTTP Response Success: %s %s' % (json_response.status_code, json_response.reason)))
-		#print('[OK]: HTTP Response Success: 200 OK')
-		# Use fnmatchcase for true/false response from fnmatch module. Use str() function for format status code as a string.
-		#elif fnmatch.fnmatchcase(str(json_response.status_code), '2??'):
-	elif (json_response.ok):
-		LogFileAddOK(LOG_FILE_0,('HTTP Response Successful; Code: %s (%s)' % (json_response.status_code, json_response.reason)))
-		LogFileAddUntaggedMsg(LOG_FILE_0,("Request URL: \n%s\n" % full_url))
-	else:
-		LogFileAddTrouble(LOG_FILE_0,('HTTP Non-Terminating Response; Code: %s (%s)\n' % (json_response.status_code, json_response.reason)))
-		LogFileAddUntaggedMsg(LOG_FILE_0,("Request URL: \n%s\n" % full_url))
-		LogFileAddUntaggedMsg(LOG_FILE_0,("Response: \n%s\n" % json_response))
-		LogFileAddUntaggedMsg(LOG_FILE_0,("Full Response: \n%s\n" % json_response.content))
+	if (RESPONSE_FORMAT == "JSON"):
+		if (json_response.status_code == 200):
+			LogFileAddOK(LOG_FILE_0,('HTTP Response Success: %s %s' % (json_response.status_code, json_response.reason)))
+			#print('[OK]: HTTP Response Success: 200 OK')
+			# Use fnmatchcase for true/false response from fnmatch module. Use str() function for format status code as a string.
+			#elif fnmatch.fnmatchcase(str(json_response.status_code), '2??'):
+		elif (json_response.ok):
+			LogFileAddOK(LOG_FILE_0,('HTTP Response Successful; Code: %s (%s)' % (json_response.status_code, json_response.reason)))
+			LogFileAddUntaggedMsg(LOG_FILE_0,("Request URL: \n%s\n" % full_url))
+		else:
+			LogFileAddTrouble(LOG_FILE_0,('HTTP Non-Terminating Response; Code: %s (%s)\n' % (json_response.status_code, json_response.reason)))
+			LogFileAddUntaggedMsg(LOG_FILE_0,("Request URL: \n%s\n" % full_url))
+			LogFileAddUntaggedMsg(LOG_FILE_0,("Response: \n%s\n" % json_response))
+			LogFileAddUntaggedMsg(LOG_FILE_0,("Full Response: \n%s\n" % json_response.content))
+	elif (RESPONSE_FORMAT == "XML"):
+		if (xml_response.status_code == 200):
+			LogFileAddOK(LOG_FILE_0,('HTTP Response Success: %s %s' % (xml_response.status_code, xml_response.reason)))
+			#print('[OK]: HTTP Response Success: 200 OK')
+			# Use fnmatchcase for true/false response from fnmatch module. Use str() function for format status code as a string.
+			#elif fnmatch.fnmatchcase(str(xml_response.status_code), '2??'):
+		elif (xml_response.ok):
+			LogFileAddOK(LOG_FILE_0,('HTTP Response Successful; Code: %s (%s)' % (xml_response.status_code, xml_response.reason)))
+			LogFileAddUntaggedMsg(LOG_FILE_0,("Request URL: \n%s\n" % full_url))
+		else:
+			LogFileAddTrouble(LOG_FILE_0,('HTTP Non-Terminating Response; Code: %s (%s)\n' % (xml_response.status_code, xml_response.reason)))
+			LogFileAddUntaggedMsg(LOG_FILE_0,("Request URL: \n%s\n" % full_url))
+			LogFileAddUntaggedMsg(LOG_FILE_0,("Response: \n%s\n" % xml_response))
+			LogFileAddUntaggedMsg(LOG_FILE_0,("Full Response: \n%s\n" % xml_response.content))
+		print('xml_response type: ')
+		print(type(xml_response))
 	
-	print('xml_response type: ')
-	print(type(xml_response))
+	#--------------------------------------------------------------------------------
 	
 	# Review GoDaddy API response
-	print('Parsing XML response...')
-	xml = ET.fromstring(xml_response.content)
-	print('0 :')
-	print(xml_response.content)
-	#<response><result><data>455.251.170.100</data><name>@</name><ttl>1800</ttl><type>A</type></result></response>
-	print('1 :')
-	print(xml_response)
 	
-	print('4 :')
-	for result in xml.iter("result"):
-		#print (result.attrib["data"])
-		print (result.find('data').text)
-	
-	#xml = ET.parse(xml_response.content)
-	
-	
-	# Review GoDaddy API response
-	print('Parsing JSON response...')
-	#json = ET.fromstring(json_response.content)
-	print(json.dumps((json_response.content), sort_keys=True, indent=4))
-	
-	print('Parsing JSON response...')
-	print(json.loads((json_response.content)))
-	
-	print('Parsing JSON response...')
-	print(json.JSONDecoder((json_response.content)))
-	
+	if (RESPONSE_FORMAT == "JSON"):
+		# Review GoDaddy API response
+		print('Parsing JSON response...')
+		#json = ET.fromstring(json_response.content)
+		print(json.dumps((json_response.content), sort_keys=True, indent=4))
+		
+		print('Parsing JSON response...')
+		print(json.loads((json_response.content)))
+		
+		print('Parsing JSON response...')
+		print(json.JSONDecoder((json_response.content)))
+		
+	elif (RESPONSE_FORMAT == "XML"):
+		# Review GoDaddy API response
+		print('Parsing XML response...')
+		xml = ET.fromstring(xml_response.content)
+		print('0 :')
+		print(xml_response.content)
+		#<response><result><data>455.251.170.100</data><name>@</name><ttl>1800</ttl><type>A</type></result></response>
+		#Sample response:
+		#<response>
+		#	<result>
+		#		<data>
+		#			455.251.170.100
+		#		</data>
+		#		<name>
+		#			@
+		#		</name>
+		#		<ttl>
+		#			1800
+		#		</ttl>
+		#		<type>
+		#			A
+		#		</type>
+		#	</result>
+		#</response>
+		
+		print('1 :')
+		print(xml_response)
+		
+		print('4 :')
+		for result in xml.iter("result"):
+			#print (result.attrib["data"])
+			print (result.find('data').text)
+		
+		#xml = ET.parse(xml_response.content)
 	
 	
 	
