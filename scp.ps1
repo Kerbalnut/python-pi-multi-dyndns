@@ -51,7 +51,7 @@ Write-Host "Store password to remote host securely in a encrypted var for later 
 If (!$cred) {$cred = Get-Credential -Message "Storing credentials securely in-memory for later scp file operations" -UserName $RemoteUsername}
 
 # Download params for later use:
-$LocalPath = "$LocalFolder" + "download"
+$DownloadLocalPath = "$LocalFolder" + "download"
 #$PathType = "File"
 $PathType = "Directory"
 
@@ -70,8 +70,8 @@ Write-Host "DOWNLOAD operations using Get-SCPItem:"
 
 # Download all DynDNS folder files
 
-If (!(Test-Path -Path $LocalPath)) {mkdir $LocalPath}
-Get-SCPItem -ComputerName $RemoteComputer -Credential $cred -Destination $LocalPath -Path $RemotePathDL -Port $Port -PathType $PathType
+If (!(Test-Path -Path $DownloadLocalPath)) {mkdir $DownloadLocalPath}
+Get-SCPItem -ComputerName $RemoteComputer -Credential $cred -Destination $DownloadLocalPath -Path $RemotePathDL -Port $Port -PathType $PathType
 
 #-----------------------------------------------------------------------------------------------------------------------
 
