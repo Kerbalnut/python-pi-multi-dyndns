@@ -3,11 +3,11 @@
 #https://developer.godaddy.com/
 
 # 1
-#GODADDY_API_KEY = '3mM44UcgmfkZpt_SLK1BVQC4N3XkEnWWBTGzR'
+#GODADDY_API_KEY = '4SzXitLcAEHw_1Sq8H21mgE51rdsbFaaQis'
 GODADDY_API_KEY = '4SzXitLcAEHw_1Sq8H21mgE51rdsbFaaQis'
 
 # 2
-#GODADDY_API_SECRET = 'fsYTuNMJX43Mom2KSbBC7'
+#GODADDY_API_SECRET = 'pwMeYph7n7BCdVf5sFos3S'
 GODADDY_API_SECRET = 'pwMeYph7n7BCdVf5sFos3S'
 
 # 3
