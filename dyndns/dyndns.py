@@ -13,8 +13,7 @@ from pygodaddy import GoDaddyClient
 # Import the email modules we'll need
 from email.mime.text import MIMEText
 
-#import separate config file(s) with sensitive data:
-
+# Import domain config file(s) with sensitive data:
 import params.GoDaddy as paramsGoDaddy
 import params.NameSilo as paramsNameSilo
 
@@ -36,27 +35,29 @@ import params.NameSilo as paramsNameSilo
 # ---------------------------------------------------------------------------------------------------------
 # Information & Description:
 
-# dyndns.py will run from a Raspberry Pi to update domain name A records (IPv4) hosted on NameSilo.com
+# dyndns.py is designed to run on a Raspberry Pi to update domain name A records (IPv4) hosted on a multitude of different domain registrars/providers.
 
 # Based on:
 # http://vivithemage.com/2018/09/17/namesilo-dns-update-via-python-script-and-cron-job-on-pfsense/
 
 # More setup details, notes, and information at:
-# DynDNS-NameSilo.txt
 # %UserProfile%\Documents\GitHub\python-pi-multi-dyndns\dyndns\setup.sh
+#https://github.com/Kerbalnut/python-pi-multi-dyndns
 
 # /Information & Description
 # ---------------------------------------------------------------------------------------------------------
 # Setup & Instructions:
 
 # To copy this script to Raspberry Pi via PuTTY:
-#pscp "%UserProfile%\Documents\GitHub\Python-DynDNS-NameSilo\dyndns\dyndns.py" pi@my.pi:/home/pi/dyndns/dyndns.py
+#pscp "%UserProfile%\Documents\GitHub\Python-DynDNS-NameSilo\dyndns\dyndns.py" pi@10.210.69.42:/home/pi/dyndns/dyndns.py
 
 # To run this script: 
+#python /home/pi/dyndns/dyndns.py
 #python2.7 /home/pi/dyndns/dyndns.py
+#python3 /home/pi/dyndns/dyndns.py
 
-# Import Module Dependences:
-# Must install module packages if you don't have them available for import:
+# Import Module Dependences: (troubleshooting)
+# Must install module packages if you don't have them available for import, if import causes any errors:
 #pip install requests
 #pip install pif
 #pip install pygodaddy
@@ -68,11 +69,11 @@ import params.NameSilo as paramsNameSilo
 #rm /home/pi/dyndns/dyndns.log
 
 # Make script executable:
+#cd ~
 #cd /home/pi/dyndns/
 #ls -l
 #chmod +x dyndns.py
 #ls -l
-
 
 # /Setup & Instructions
 # ---------------------------------------------------------------------------------------------------------
@@ -80,23 +81,24 @@ import params.NameSilo as paramsNameSilo
 
 # 1
 PATH_TO_PRODUCTION_PARAMS = './params/NameSilo.py'
-
 execfile(PATH_TO_PRODUCTION_PARAMS)
+# DEPRECATED: Use 'import params.NameSilo as paramsNameSilo' line at top of script instead.
 
 # 2
 GODADDY_PARAMS = './params/GoDaddy.py'
-
 execfile(GODADDY_PARAMS)
+# DEPRECATED: Use 'import params.GoDaddy as paramsGoDaddy' line at top of script instead.
 
 # 3
-FORCE_TESTING = False
-# Use True or False for values.
-# Will force the API calls for updating target DNS records, even if the already match our public IP.
+STRICT_CHECKING = False
+# Use True or False for values. (Default = False)
 
 # 4
-global VID_TO_CURATE
-VID_TO_CURATE = False
-# Do not change. Used for log file automation purposes only.
+FORCE_TESTING = False
+# Use True or False for values. (Default = False)
+# Will force all the API calls to update the target DNS records on EVERY RUN, even if they already match our public IP.
+# DO NOT leave this set as True for a production environment. This is ONLY for troubleshooting & developing new function API calls.
+# TO RUN A PROPER TEST: Manually change the DNS record on your domain provider's website to a 'wrong' IP value, then manually run this script with STRICT_CHECKING enabled. BUT DO NOT set this var to True to perform a regular test. If this script updates DNS records on first run, and does not on the second run, the test is complete and the STRICT_CHECKING var can be reverted to whatever value is preferred.
 
 # /Parameters
 # ---------------------------------------------------------------------------------------------------------
@@ -115,6 +117,10 @@ def email_update(body):
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Log file functions:
+
+global VID_TO_CURATE
+VID_TO_CURATE = False
+# Do not change. Used for log file automation purposes only.
 
 # Initiate log file:
 def LogFileInit():
@@ -182,19 +188,13 @@ def LogFileInit():
 	#print('Temporary log file path: '+LOG_FILE_TEMP)
 	
 	# Create log file if it does not exit
-	if (os.path.isfile(LOG_FILE_FULL_PATH)):
-		#print('Log file exists: '+LOG_FILE_NAME)
-		print('Appending results to log file: '+LOG_FILE_NAME)
-	else:
-		# Create a new log file 
+	if not (os.path.isfile(LOG_FILE_FULL_PATH)):
+		print('Creating new log file:')
 		LogFileCreateNewLog(LOG_FILE_FULL_PATH,FULL_SCRIPT_PATH,LOG_FILE_NAME);
 	
 	# Create curated log file if it does not exit
-	if (os.path.isfile(LOG_FILE_CURATED_PATH)):
-		#print('Log file exists: '+LOG_FILE_CURATED_NAME)
-		print('Appending results to log file: '+LOG_FILE_CURATED_NAME)
-	else:
-		# Create a new log file 
+	if not (os.path.isfile(LOG_FILE_CURATED_PATH)):
+		print('Creating new curated log file:')
 		LogFileCreateNewLog(LOG_FILE_CURATED_PATH,FULL_SCRIPT_PATH,LOG_FILE_CURATED_NAME);
 	
 	# In case TEMP log file got left over from failed run, process and clean it up:
@@ -276,10 +276,10 @@ def LogFileTestVid(LOG_FILE_0):
 	#--------------------------------------------------------------------------------
 	# string(s) to search in file
 	vitags = ["[TROUBLE]", "[ERROR]", "[UPDATE]"]
-	print('Testing log file for Very Important Data (VID): '+LOG_FILE_0)
-	print('Searching tags:')
-	for tag in vitags:
-		print(' - '+tag)
+	#print('Testing log file for Very Important Data (VID): '+LOG_FILE_0)
+	#print('Searching tags:')
+	#for tag in vitags:
+	#	print(' - '+tag)
 	strcontains = False
 	with open(LOG_FILE_0,'r') as fp:
 		# read all lines using readline()
