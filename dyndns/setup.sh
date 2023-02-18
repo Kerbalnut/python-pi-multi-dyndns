@@ -164,8 +164,11 @@
 
 # Parameters:
 
+# Set as name of user profile you want to install this project into
+MAIN_USER_NAME="pi"
+
 # Set as "True" or "False" string
-INSTALL_PYTHON3="False"
+INSTALL_PYTHON3="True"
 
 # --------------------------------------------------------------------------------------------------------
 
@@ -270,10 +273,10 @@ checkpkg()
 
 NEW_INSTALLED="False"
 echo "Installing APT packages:"
-#checkpkg APT "bc"
-#checkpkg APT "python2.7"
-#checkpkg APT "pip"
-#checkpkg APT "python-pip"
+checkpkg APT "bc"
+checkpkg APT "python2.7"
+checkpkg APT "pip"
+checkpkg APT "python-pip"
 if [ $INSTALL_PYTHON3 = "True" ]; then
 	checkpkg APT "python3"
 	checkpkg APT "python3.7"
@@ -534,7 +537,7 @@ hrule()
 }
 
 printf "\nTesting Dynamic DNS script:\npython $DYNDNS_PATH\n"
-read -p "Press ENTER key to continue... "
+#read -p "Press ENTER key to continue... "
 hrule
 python $DYNDNS_PATH
 hrule
@@ -543,7 +546,7 @@ printf "End of testing Dyn DNS python script.\n"
 printf "\nTesting log cleanup script:\n$LOGCLEAN_PATH\n"
 read -p "Press ENTER key to continue... "
 hrule
-$LOGCLEAN_PATH
+#$LOGCLEAN_PATH
 hrule
 printf "End of testing log cleanup shell script.\n"
 
@@ -662,27 +665,40 @@ removecronjob()
 
 addcronjob()
 {
-	#Example: addcronjob 0 0 1 */1 * /home/pi/dyndns/logcleanup.sh
+	#Example: addcronjob $MAIN_USER_NAME 0 0 1 */1 * /home/pi/dyndns/logcleanup.sh
+	CRONJOB_INPUT_NAME=$1
+	shift;
+	# Shift input position once, and all the rest is now a cron job line.
 	WET_HOT_CRON_LINE=$@
-	echo "Adding cron line:"
+	echo "Adding cron line: $CRONJOB_INPUT_NAME"
 	echo "$WET_HOT_CRON_LINE"
 	read -s -p "Press ENTER key to continue... "
-	(crontab -l 2>/dev/null; echo "$WET_HOT_CRON_LINE") | crontab -
+	#(crontab -l 2>/dev/null; echo "$WET_HOT_CRON_LINE") | crontab -
+	(crontab -u $CRONJOB_INPUT_NAME -l 2>/dev/null; echo "$WET_HOT_CRON_LINE") | crontab -
+	unset CRONJOB_INPUT_NAME
 }
 
 showcronjobs()
 {
 	#Example: showcronjobs
+	CRONJOB_INPUT_NAME=$1
 	USER_INPUT="No escape"
 	while [ "$USER_INPUT" != "y" ] && [ "$USER_INPUT" != "n" ]; do
 		printf "\nShow all current cron job(s)? [y/n]:"
 		read USER_INPUT
 	done
 	if [ "$USER_INPUT" = "y" ]; then
-		CRONJOBLIST=$(crontab -l)
+		if [ -v CRONJOB_INPUT_NAME ]; then
+			printf "crontab -u $CRONJOB_INPUT_NAME -l\n"
+			CRONJOBLIST=$(crontab -u $CRONJOB_INPUT_NAME -l)
+		else
+			printf "crontab -l\n"
+			CRONJOBLIST=$(crontab -l)
+		fi
 		printf "crontab -l\n"
 		printf "$CRONJOBLIST\n"
 	fi
+	unset CRONJOB_INPUT_NAME
 }
 
 cronfreqmenu()
@@ -706,7 +722,8 @@ minselecttxt()
 	#echo " 2 - Go Back"
 }
 
-showcronjobs
+#showcronjobs
+showcronjobs $MAIN_USER_NAME
 
 cronfreqmenu
 USER_INPUT=99
@@ -801,7 +818,7 @@ fi
 printf "Remove old job if it exists before adding new one:\n$DYNDNS_PATH\n"
 removecronjob $DYNDNS_PATH
 
-addcronjob "$CRON_STRING"
+addcronjob $MAIN_USER_NAME "$CRON_STRING"
 
 logcleanupfreqmenu()
 {
@@ -819,48 +836,60 @@ while ! [[ "$USER_INPUT" -ge 0 && "$USER_INPUT" -le 4 ]]; do
 	read -p "Choose option [0-4]: " USER_INPUT
 done
 
-if [ $USER_INPUT -eq 0 ]; then
-	CRON_SCHED="0 0 1,15 * *"
-	CRON_STRING="$CRON_SCHED $LOGCLEAN_PATH"
-elif [ $USER_INPUT -eq 1 ]; then
-	CRON_SCHED="0 0 1 * *"
-	CRON_STRING="$CRON_SCHED $LOGCLEAN_PATH"
-elif [ $USER_INPUT -eq 2 ]; then
-	CRON_SCHED="0 0 1 */2 *"
-	CRON_STRING="$CRON_SCHED $LOGCLEAN_PATH"
-elif [ $USER_INPUT -eq 3 ]; then
-	CRON_SCHED="0 0 1 */3 *"
-	CRON_STRING="$CRON_SCHED $LOGCLEAN_PATH"
-elif [ $USER_INPUT -eq 4 ]; then
-	echo "Enter custom cron string: (do not include file path)"
-	echo "m h dom mon dow   $LOGCLEAN_PATH"
-	echo "For example:"
-	echo "0 0 1,15 * *      (twice per month, on the 1st and 15th)"
-	echo "0 0 1 * *         (once a month, on the 1st at midnight)"
-	echo "0 0 1 */2 *       (once every 2 months, on the 1st at midnight)"
-	echo "0 0 1 */3 *       (once every 3 months, on the 1st at midnight)"
-	ACCEPTED_STR="No escape"
-	while [ $ACCEPTED_STR != "True" ]; do
-		read -p "Enter a valid cron schedule string: " CRON_SCHED
-		printf "\nAccept this value? $CRON_SCHED $LOGCLEAN_PATH\n\n"
-		read -p "Are you sure? [y/n]: " ACCEPTED_STR
-		if [ $ACCEPTED_STR = "y" ]; then
-			ACCEPTED_STR="True"
-			break
-		elif [ $ACCEPTED_STR = "n" ]; then
-			ACCEPTED_STR="False"
-			continue
-		fi
-	done
-	CRON_STRING="$CRON_SCHED $LOGCLEAN_PATH"
-fi
+# Switch block:
+case $USER_INPUT in
+	0)
+		CRON_SCHED="0 0 1,15 * *"
+		CRON_STRING="$CRON_SCHED $LOGCLEAN_PATH"
+		;;
+	1)
+		CRON_SCHED="0 0 1 * *"
+		CRON_STRING="$CRON_SCHED $LOGCLEAN_PATH"
+		;;
+	2)
+		CRON_SCHED="0 0 1 */2 *"
+		CRON_STRING="$CRON_SCHED $LOGCLEAN_PATH"
+		;;
+	3)
+		CRON_SCHED="0 0 1 */3 *"
+		CRON_STRING="$CRON_SCHED $LOGCLEAN_PATH"
+		;;
+	4)
+		echo "Enter custom cron string: (do not include file path)"
+		echo "m h dom mon dow   $LOGCLEAN_PATH"
+		echo "For example:"
+		echo "0 0 1,15 * *      (twice per month, on the 1st and 15th)"
+		echo "0 0 1 * *         (once a month, on the 1st at midnight)"
+		echo "0 0 1 */2 *       (once every 2 months, on the 1st at midnight)"
+		echo "0 0 1 */3 *       (once every 3 months, on the 1st at midnight)"
+		ACCEPTED_STR="No escape"
+		while [ $ACCEPTED_STR != "True" ]; do
+			read -p "Enter a valid cron schedule string: " CRON_SCHED
+			printf "\nAccept this value? $CRON_SCHED $LOGCLEAN_PATH\n\n"
+			read -p "Are you sure? [y/n]: " ACCEPTED_STR
+			if [ $ACCEPTED_STR = "y" ]; then
+				ACCEPTED_STR="True"
+				break
+			elif [ $ACCEPTED_STR = "n" ]; then
+				ACCEPTED_STR="False"
+				continue
+			fi
+		done
+		CRON_STRING="$CRON_SCHED $LOGCLEAN_PATH"
+		;;
+	*)
+		printf "Default option."
+		;;
+esac
+#/case $USER_INPUT
 
 printf "Remove old job if it exists before adding new one:\n$LOGCLEAN_PATH\n"
 removecronjob $LOGCLEAN_PATH
 
-addcronjob "$CRON_STRING"
+addcronjob $MAIN_USER_NAME "$CRON_STRING"
 
-showcronjobs
+#showcronjobs
+showcronjobs $MAIN_USER_NAME
 
 printf "\n7. End of setup script.\n"
 if [ -f /var/run/reboot-required ]; then
