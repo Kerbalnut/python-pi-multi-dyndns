@@ -19,8 +19,11 @@ It includes automated setup scripts, and a log cleanup script to keep log file s
 	- [Overview:](#overview)
 	- [Detailed Instructions:](#detailed-instructions)
 - [How to edit](#how-to-edit)
-	- [To contribue:](#to-contribue)
-- [How it works](#how-it-works)
+	- [Contributions:](#contributions)
+	- [How it works](#how-it-works)
+		- [Basic program flow of `dyndns.py`:](#basic-program-flow-of-dyndnspy)
+		- [URL Calls v1:](#url-calls-v1)
+		- [URL Calls v2:](#url-calls-v2)
 
 # Setup Instructions
 
@@ -32,7 +35,7 @@ It includes automated setup scripts, and a log cleanup script to keep log file s
 
 ## Detailed Instructions:
 
-1. Download this repo, via [the latest .zip file](https://github.com/Kerbalnut/python-pi-multi-dyndns/archive/refs/heads/main.zip) or by [tag](https://github.com/Kerbalnut/python-pi-multi-dyndns/tags)/[release](https://github.com/Kerbalnut/python-pi-multi-dyndns/releases) name.
+1. Download this repo via [the latest .zip file](https://github.com/Kerbalnut/python-pi-multi-dyndns/archive/refs/heads/main.zip) or by [tag](https://github.com/Kerbalnut/python-pi-multi-dyndns/tags)/[release](https://github.com/Kerbalnut/python-pi-multi-dyndns/releases) name, or [clone](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository#cloning-a-repository) it if you have git & tools installed and want to pull updates automatically.
 2. Configure appropriate files in the `dyndns/params` folder.
     - **Manually**
         1. For each domain registrar you want to configure, make a copy of the TEMPLATE file without the `_TEMPLATE` suffix. For example, `GoDaddy_TEMPLATE.py` should become `GoDaddy.py`
@@ -53,14 +56,14 @@ To customize & edit these scripts to your liking:
 - First [fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo) this repository on github, then [clone](https://docs.github.com/en/get-started/quickstart/fork-a-repo#cloning-your-forked-repository) it to your local machine. 
    - I personally use a combination of tools for working with git: **TortoiseGit**, **GitHub Desktop**, and **vscode**
    - For more info on using git itself: I *highly* recommend this tutorial by Joel Spolsky (creator of Stack Overflow) that helped me understand it immensely better very quickly: https://hginit.github.io/ (Yes, this is tutorial for Hg/Mercurial and not for git, however these two distributed version control systems (DVCSs) are so similar, there's software that can convert these two different repo types back-and-forth between each other. Many commands are even identical. And the TortoiseHg software comes with a GUI program called Workbench that allows you to easily visualize branching & merging. So ironically the best git tutorial I've found, is this one for hg.)
-- To adopt a similar dev environment, I used **vscode** (Visual Studio Code) as my main IDE tool to develop this project. All that's required is to open the folder `python-pi-multi-dyndns` in vscode, and it will automatically load the `.vscode` folder within, including settings unique to this project and extension recommendations. This will not affect any of your global preferred vscode settings.
+- **To adopt a similar dev environment,** I used **vscode** (Visual Studio Code) as my main IDE tool to develop this project. All that's required is to open the folder `python-pi-multi-dyndns` in vscode, and it will automatically load the `.vscode` folder within, including settings unique to this project and extension recommendations. This will not affect any of your global preferred vscode settings.
 - **To add functionality with other domain registrars/providers,** open `dyndns.py` in an editor such as vscode, copy one of the DynDNS python functions, and start editing it to match the API calls for their system.
   - Use the logging functions provided within the `dyndns.py` script to keep all log tags standardized. 
   - In the `params` folder, copy one one of the `_TEMPLATE.py` files with a name that matches the new domain provider. Update it with demo/sample values that match their format of the API keys. **Make sure** after creating the actual params `.py` file and populating with your real API keys, you add it to `.gitignore` instead of accidentially committing it to the repo! (Even if you do, just generate new API keys and invalidate the old ones.)
   - Don't forget to include a `import params.ExampleSite as paramsExampleSite` line at the top, and update the main script logic at the bottom of `dyndns.py` to use the new function.
 - **To update the logging functionality:** open `dyndns.py` in an editor such as vscode. All logging functions start with a **LogFile** -prefix. Start with reading the help text at the top of the **LogFileInit()** function, it is the master guiding script that controls & cleans-up everything. The official help text for using these functions is in the comments at the top of each as well, and all instructions for using them should be updated there.
 
-## To contribue:
+## Contributions:
 
 All contributions are welcome!
 
@@ -72,43 +75,28 @@ I don't get a lot of pull requests and don't check my github account religiously
 
 (In the `.vscode` folder, there's also extension recommendations like for "Markdown All in One" that are only for auto-updating the Table of Contents of the Readme file. If you're not updating `README.md`, it's not really necessary.)
 
-# How it works
+## How it works
 
-Basic program flow of `dyndns.py`:
+### Basic program flow of `dyndns.py`:
+
+<!-- https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/creating-diagrams -->
+<!-- https://mermaid.js.org/syntax/flowchart.html#graph -->
 
 ```mermaid
 graph TB;
-    id0("Start")
-    id1["Get current public IP"]
-    id2["Load all available param files"]
-    ida0("(Auto) Remove .pyc file(s) if older than .py")
-    ida1("(Auto) Compile/Import params .py file(s) into .pyc")
-    ida2["Delete uncompiled .py file(s)"]
+    id1["Load all available param files"]
+    id2["Get current public IP"]
     id3["Use nslookup to check IP on record for domain(s)"]
     id4(["Is STRICT_CHECKING enabled?"])
     id5["Use API call to also check record with registrar directly"]
     id6["If IPs do not match: send DNS record update request"]
-    id0-->id1;
     id1-->id2;
     id2-->id3;
-    id2--> one --> id2;
-    subgraph one ["Compile/Import .py param files"]
-        direction TB
-        ida0-->ida1;
-        ida1-->ida2;
-    end
     id3-->id4;
     id4-- Yes -->id5;
     id4-- No -->id6;
     id5-->id6;
 ```
-
-
-    id2--> one --> id2;
-    id2 --> one;
-    id2 <-- one;
-    id2--> "Compile Python files" --> id2;
-    id2--> one --> id2;
 
 Description of `dyndns.py` program logic:
 
@@ -125,7 +113,47 @@ A series of custom logging functions are included with the Python script specifi
 
 Logic for the API calls to the domain registrars is also functionalized, so modifying this script to add compatibility with more domain providers is basically as simple as copying one of these functions, and modifying it to the specifics for that API system.
 
+### URL Calls v1:
+```mermaid
+flowchart LR
+    id1["Raspberry Pi"]
+    id2["Router"]
+    id3[(Public DNS)]
+    id4([Domain provider])
+    id4a[HTTP GET]
+    id4b[HTTP PUT]
+	subgraph "Firewall"
+		direction LR
+    	id1<-->id2;
+	end
+    id2-- "nslookup" -->id3;
+    id3-- "response" -->id2;
+	subgraph "API"
+		direction LR
+    	id2<-- check record directly -->id4a;
+    	id2<-- update record -->id4b;
+    	id4a---id4;
+    	id4b---id4;
+	end
+	id3<-->id4;
+```
 
+### URL Calls v2:
+```mermaid
+flowchart LR
+    id1["Raspberry Pi"]
+    id2["Router"]
+    id3[(Public DNS)]
+    id4[Domain provider]
+	subgraph "Firewall"
+		direction LR
+    	id1<-->id2;
+	end
+    id2<-- "nslookup" -->id3;
+    	id2<-- HTTP GET -->id4;
+    	id2<-- HTTP PUT -->id4;
+	id4-->id3;
+```
 
 
 

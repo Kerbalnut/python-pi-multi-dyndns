@@ -13,6 +13,10 @@ from pygodaddy import GoDaddyClient
 # Import the email modules we'll need
 from email.mime.text import MIMEText
 
+from os import listdir
+from os.path import isfile, join
+#onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+
 # Import domain config file(s) with sensitive data:
 import params.GoDaddy as paramsGoDaddy
 import params.NameSilo as paramsNameSilo
@@ -90,15 +94,25 @@ execfile(GODADDY_PARAMS)
 # DEPRECATED: Use 'import params.GoDaddy as paramsGoDaddy' line at top of script instead.
 
 # 3
-STRICT_CHECKING = False
-# Use True or False for values. (Default = False)
+CLEAN_UNCOMPILED = True
+# Use True or False for values. (Default = True)
+# If enabled, after this script loads the files in the params folder, it will delete the uncompiled .py files if the compiled .pyc files exist.
+# If disabled, the .py files in params will be left alone.
+# Tip: This isn't exactly "good security" for hiding your API keys, because there's many tools out there that can decompile .pyc files. But at the very least this will clean-up any plaintext copies of it on your server, so why not? Python will automate re-compiling a new version of .pyc files if any .py files have a newer timestamp, so it's easy to do. And so if you're uploading this script to a server, I think there's very few scenarios where leaving this option on might become annoying.
 
 # 4
+STRICT_CHECKING = False
+# Use True or False for values. (Default = False)
+# If disabled, this will limit testing of your domain name's public IP on record to an nslookup command (a regular ol' DNS lookup), to limit the amount of API calls to your domain provider/registrar.
+# If enabled, every time this script runs it will make a HTTP GET API call to your domain provider to get the direct IP they have on record for your domain name.
+# Tip: These extra API calls are not "expensive" to make or for the server to complete, but are also completely unnecessary. So for a production deployment it's "kinder" to leave this off, but still very useful as an option for testing & dev.
+
+# 5
 FORCE_TESTING = False
 # Use True or False for values. (Default = False)
 # Will force all the API calls to update the target DNS records on EVERY RUN, even if they already match our public IP.
 # DO NOT leave this set as True for a production environment. This is ONLY for troubleshooting & developing new function API calls.
-# TO RUN A PROPER TEST: Manually change the DNS record on your domain provider's website to a 'wrong' IP value, then manually run this script with STRICT_CHECKING enabled. BUT DO NOT set this var to True to perform a regular test. If this script updates DNS records on first run, and does not on the second run, the test is complete and the STRICT_CHECKING var can be reverted to whatever value is preferred.
+# TO RUN A PRODUCTION TEST: Do not use this option! Instead, manually change the DNS record on your domain provider's website to a 'wrong' IP value, then manually run this script with STRICT_CHECKING enabled. BUT DO NOT set this var to True to perform a regular test. If this script updates the DNS records on first run, and does not on the second run, the test is complete and the STRICT_CHECKING var can be reverted to whatever value is preferred.
 
 # /Parameters
 # ---------------------------------------------------------------------------------------------------------
@@ -513,46 +527,39 @@ def LogFileEndOp(LOG_FILE_0,LOG_FILE_FULL_PATH,LOG_FILE_CURATED_PATH,VID_TO_CURA
 # Call pif for public ip
 def GetPublicIP(LOG_FILE_0):
 	# To call this function:
-	#public_ip = GetPublicIP(LOG_FILE_0)
+	#public_ip_pif = GetPublicIP(LOG_FILE_0)
+	# Requires the pif module to use the get_public_ip() function.
 	#--------------------------------------------------------------------------------
-	
 	import pif
 	
 	#what is my public ip?
-	public_ip = pif.get_public_ip()
+	public_ip_pif = pif.get_public_ip()
 	
-	msg = ("My public ip: {0}".format(public_ip))
+	msg = ("My public ip: {0}".format(public_ip_pif))
 	#logging.info(msg)
 	LogFileAddURLCall(LOG_FILE_0,msg)
 	
-	return public_ip
+	return public_ip_pif
 
 # Call ip.42.pl for public ip
 def GetPublicIPip42pl(LOG_FILE_0):
-	"Calls ip.42.pl to query our public ip address."
+	# "Calls the site ip.42.pl to query our public ip address."
 	# To call this function:
-	#GetPublicIPip42pl(LOG_FILE_0);
+	#public_ip_ip42, CURRENT_IP_ADDRESS_URL = GetPublicIPip42pl(LOG_FILE_0);
+	# Requires the urllib2 / urlopen module.
 	#--------------------------------------------------------------------------------
-	
-	# Doesn't work anymore:
-	#CURRENT_IP_ADDRESS_URL = 'http://whatismyip.akamai.com/'
-	#get current IP address from CURRENT_IP_ADDRESS_URL
-	#current = requests.get(CURRENT_IP_ADDRESS_URL).content
-	
-	# New methods:
 	# https://stackoverflow.com/questions/9481419/how-can-i-get-the-public-ip-using-python2-7
-	CURRENT_IP_ADDRESS_URL = 'http://ip.42.pl/raw'
+	
 	from urllib2 import urlopen
-	current = urlopen(CURRENT_IP_ADDRESS_URL).read()
-	print('Our Public IP = '+current)
-	print('From site = '+CURRENT_IP_ADDRESS_URL)
 	
-	#msg = ("%s Response: %s\n" % (CURRENT_IP_ADDRESS_URL, current))
-	LogFileAddURLCall(LOG_FILE_0,("%s Response: %s\n" % (CURRENT_IP_ADDRESS_URL, current)))
+	CURRENT_IP_ADDRESS_URL = 'http://ip.42.pl/raw'
+	public_ip_ip42 = urlopen(CURRENT_IP_ADDRESS_URL).read()
 	
-	print('Public IP address from '+CURRENT_IP_ADDRESS_URL+': %s' % current)
-	#print('Public IP address from %s: %s' % (CURRENT_IP_ADDRESS_URL, current))
-	return current, CURRENT_IP_ADDRESS_URL;
+	msg = ("%s Response: %s\n" % (CURRENT_IP_ADDRESS_URL, public_ip_ip42))
+	LogFileAddURLCall(LOG_FILE_0,msg)
+	
+	print('Public IP address from '+CURRENT_IP_ADDRESS_URL+': %s' % public_ip_ip42)
+	return public_ip_ip42, CURRENT_IP_ADDRESS_URL;
 
 # Call NameSilo.com API for our public ip and current IP on A record
 def GetPublicIPNameSilo(OUR_API_KEY,DOMAIN_NAME_TO_MAINTAIN):
@@ -982,8 +989,8 @@ def DynDNSUpdateGoDaddy(LOG_FILE_0,paramsGoDaddy,public_ip=False):
 			LogFileAddUntaggedMsg(LOG_FILE_0,("GoDaddy Request URL: \n%s\n" % full_url))
 			LogFileAddUntaggedMsg(LOG_FILE_0,("GoDaddy Response: \n%s\n" % xml_response))
 			LogFileAddUntaggedMsg(LOG_FILE_0,("GoDaddy Full Response: \n%s\n" % xml_response.content))
-		print('xml_response type: ')
-		print(type(xml_response))
+		#print('xml_response type: ')
+		#print(type(xml_response))
 	
 	#--------------------------------------------------------------------------------
 	
@@ -1028,10 +1035,10 @@ def DynDNSUpdateGoDaddy(LOG_FILE_0,paramsGoDaddy,public_ip=False):
 		
 		#print('4 :')
 		for result in xml.iter("result"):
-			print (result.find('data').text)
-			print (result.find('name').text)
-			print (result.find('ttl').text)
-			print (result.find('type').text)
+			#print (result.find('data').text)
+			#print (result.find('name').text)
+			#print (result.find('ttl').text)
+			#print (result.find('type').text)
 			GODADDY_CURRENT_IP = (result.find('data').text)
 			GODADDY_CURRENT_TTL = (result.find('ttl').text)
 	
@@ -1120,34 +1127,53 @@ def DynDNSUpdateGoDaddy(LOG_FILE_0,paramsGoDaddy,public_ip=False):
 # Main:
 
 #Index:
-# 1. Imports & set vars -----------------------------------------------------------------------------------
-# 2. Create log file if it doesn't exist ------------------------------------------------------------------
-# 3. 1st URL call: Get our Public IP ----------------------------------------------------------------------
-# 4. 2nd URL call: Get NameSilo's IP for our domain name --------------------------------------------------
-# 5. Examine & Compare Responses --------------------------------------------------------------------------
-# 6. 3rd (possible) URL call: Set NameSilo's IP for our domain name ---------------------------------------
-# 7. Check GoDaddy domain DNS record ----------------------------------------------------------------------
+# 1. Clean-up uncompiled .py files ------------------------------------------------------------------------
+# 2. Get current public IP --------------------------------------------------------------------------------
+# 3. Get IP on record with DNS ----------------------------------------------------------------------------
+# 4. Get IP on record with DNS (direct API call to domain provider) ---------------------------------------
+# 5. Compare if all details match -------------------------------------------------------------------------
+# 6. If any details do not match, send API request to update DNS record -----------------------------------
+# 6a. NameSilo.com ----------------------------------------------------------------------------------------
+# 6b. GoDaddy.com -----------------------------------------------------------------------------------------
 
-
-# 1. Imports & set vars -----------------------------------------------------------------------------------
-# ---------------------------------------------------------------------------------------------------------
-
-# 2. Create & setup log file if it doesn't exist ------------------------------------------------------------------
-# ---------------------------------------------------------------------------------------------------------
+# Set-up log file:
 
 LOG_FILE_0, LOG_FILE_FULL_PATH, LOG_FILE_CURATED_PATH, VID_TO_CURATE = LogFileInit()
 
-# 3. 1st URL call: Get our Public IP ----------------------------------------------------------------------
-# ---------------------------------------------------------------------------------------------------------
-print('\n1st URL call: Getting current public IP address...')
-
-public_ip = GetPublicIP(LOG_FILE_0)
-
-current, CURRENT_IP_ADDRESS_URL = GetPublicIPip42pl(LOG_FILE_0);
-
-# 3. 1st URL call: Get our Public IP ----------------------------------------------------------------------
+# 1. Clean-up uncompiled .py files ------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
 
+SUBFOLDER = "./params"
+
+from os import listdir
+from os.path import isfile, join
+
+#onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+
+#onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+
+
+
+
+
+# 2. Get current public IP --------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------
+
+print('\nGetting current public IP address...')
+
+public_ip_pif = GetPublicIP(LOG_FILE_0)
+
+public_ip_ip42, CURRENT_IP_ADDRESS_URL = GetPublicIPip42pl(LOG_FILE_0);
+
+# 3. Get IP on record with DNS ----------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------
+
+# First, collect all the domain names that need to be checked from our params variables:
+
+
+
+
+# Next, check the IP on record for each domain with a regular DNS lookup using nslookup:
 
 
 print('testing socket ....')
@@ -1162,39 +1188,47 @@ ipv4 = socket.gethostbyname(addr)
 print(ipv4)
 
 
-# 4. 2nd URL call: Get NameSilo's IP for our domain name --------------------------------------------------
+
+
+
+
+
+# 4. Get IP on record with DNS (direct API call to domain provider) ---------------------------------------
 # ---------------------------------------------------------------------------------------------------------
+
 print('\n2nd URL call: Sending get public IP API request to NameSilo.com...')
 
 current_namesilo, xml = GetPublicIPNameSilo(OUR_API_KEY,DOMAIN_NAME_TO_MAINTAIN);
 
-# 5. Examine & Compare Responses --------------------------------------------------------------------------
+# 5. Compare if all details match -------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
 
 # Check we're getting the same IP response from all sources
-if (current == current_namesilo):
+if (public_ip_ip42 == current_namesilo):
 	LogFileAddOK(LOG_FILE_0,(CURRENT_IP_ADDRESS_URL+' and NameSilo.com public IP responses match.'))
 else:
 	LogFileAddTrouble(LOG_FILE_0,(CURRENT_IP_ADDRESS_URL+' and NameSilo.com public IP responses do NOT match.'))
-	LogFileAddUntaggedMsg(LOG_FILE_0,('         '+current+'   '+CURRENT_IP_ADDRESS_URL))
+	LogFileAddUntaggedMsg(LOG_FILE_0,('         '+public_ip_ip42+'   '+CURRENT_IP_ADDRESS_URL))
 	LogFileAddUntaggedMsg(LOG_FILE_0,('         '+current_namesilo+'  NameSilo.com\n'))
 
-if (current == public_ip):
+if (public_ip_ip42 == public_ip_pif):
 	LogFileAddOK(LOG_FILE_0,(CURRENT_IP_ADDRESS_URL+' and pif public IP responses match.'))
 else:
 	LogFileAddTrouble(LOG_FILE_0,(CURRENT_IP_ADDRESS_URL+' and pif public IP responses do NOT match.'))
-	LogFileAddUntaggedMsg(LOG_FILE_0,('         '+current+'   '+CURRENT_IP_ADDRESS_URL))
-	LogFileAddUntaggedMsg(LOG_FILE_0,('         '+public_ip+'  pif\n'))
+	LogFileAddUntaggedMsg(LOG_FILE_0,('         '+public_ip_ip42+'   '+CURRENT_IP_ADDRESS_URL))
+	LogFileAddUntaggedMsg(LOG_FILE_0,('         '+public_ip_pif+'  pif\n'))
 
-if (public_ip == current_namesilo):
+if (public_ip_pif == current_namesilo):
 	LogFileAddOK(LOG_FILE_0,('pif and NameSilo.com public IP responses match.'))
 else:
 	LogFileAddTrouble(LOG_FILE_0,('pif and NameSilo.com public IP responses do NOT match.'))
-	LogFileAddUntaggedMsg(LOG_FILE_0,('         '+public_ip+'   pif'))
+	LogFileAddUntaggedMsg(LOG_FILE_0,('         '+public_ip_pif+'   pif'))
 	LogFileAddUntaggedMsg(LOG_FILE_0,('         '+current_namesilo+'  NameSilo.com\n'))
 
-# 6. 3rd (possible) URL call: Set NameSilo's IP for our domain name ---------------------------------------
+# 6. If any details do not match, send API request to update DNS record -----------------------------------
+# 6a. NameSilo.com ----------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
+
 print('\n3rd (possible) URL call: Sending API request(s) to NameSilo.com...')
 
 # Get extra info from the XML var returned in the NameSilo API call:
@@ -1205,6 +1239,11 @@ def NameSiloShortDomain():
 	LogFileAddUntaggedMsg(LOG_FILE_0,('NameSilo record: '+shortdomain_IPvalue))
 	DynDNSUpdateNameSilo(LOG_FILE_0,shortdomain_host,current_namesilo,shortdomain_record_id,OUR_API_KEY,DNS_RECORD_TTL)
 
+def NameSiloSubDomain():
+	LogFileAddUntaggedMsg(LOG_FILE_0,('Current IP:      '+current_namesilo))
+	LogFileAddUntaggedMsg(LOG_FILE_0,('NameSilo record: '+subdomain_IPvalue))
+	DynDNSUpdateNameSilo(LOG_FILE_0,shortdomain_host,current_namesilo,subdomain_record_id,OUR_API_KEY,DNS_RECORD_TTL,SUBDOMAIN_NAME)
+
 if (FORCE_TESTING == True):
 	LogFileAddUpdate(LOG_FILE_0,('FORCE TESTING: Forcing the API call to update DNS record. '+shortdomain_host))
 	NameSiloShortDomain()
@@ -1212,15 +1251,10 @@ else:
 	LogFileAddUntaggedMsg(LOG_FILE_0,('==> Checking '+shortdomain_host+' ...'))
 	if (shortdomain_IPvalue == current_namesilo):
 		LogFileAddOK(LOG_FILE_0,('Current IP address matches namesilo record. No need to update.'))
-		LogFileAddOK(LOG_FILE_0,(shortdomain_host+' = namesilo record: '+shortdomain_IPvalue+' = public IP (namesilo): '+current_namesilo+' = public IP ('+CURRENT_IP_ADDRESS_URL+'): '+current+'\n'))
+		LogFileAddOK(LOG_FILE_0,(shortdomain_host+' = namesilo record: '+shortdomain_IPvalue+' = public IP (namesilo): '+current_namesilo+' = public IP ('+CURRENT_IP_ADDRESS_URL+'): '+public_ip_ip42+'\n'))
 	else:
 		LogFileAddUpdate(LOG_FILE_0,('IP addresses do not match, generating URL to update.'))
 		NameSiloShortDomain()
-
-def NameSiloSubDomain():
-	LogFileAddUntaggedMsg(LOG_FILE_0,('Current IP:      '+current_namesilo))
-	LogFileAddUntaggedMsg(LOG_FILE_0,('NameSilo record: '+subdomain_IPvalue))
-	DynDNSUpdateNameSilo(LOG_FILE_0,shortdomain_host,current_namesilo,subdomain_record_id,OUR_API_KEY,DNS_RECORD_TTL,SUBDOMAIN_NAME)
 
 if (FORCE_TESTING == True):
 	LogFileAddUpdate(LOG_FILE_0,('FORCE TESTING: Forcing the API call to update DNS record. '+subdomain_host))
@@ -1229,16 +1263,17 @@ else:
 	LogFileAddUntaggedMsg(LOG_FILE_0,('==> Checking '+subdomain_host+' ...'))
 	if (subdomain_IPvalue == current_namesilo):
 		LogFileAddOK(LOG_FILE_0,('Current IP address matches namesilo record. No need to update.'))
-		LogFileAddOK(LOG_FILE_0,(subdomain_host+' = namesilo record: '+subdomain_IPvalue+' = public IP (namesilo): '+current_namesilo+' = public IP ('+CURRENT_IP_ADDRESS_URL+'): '+current+'\n'))
+		LogFileAddOK(LOG_FILE_0,(subdomain_host+' = namesilo record: '+subdomain_IPvalue+' = public IP (namesilo): '+current_namesilo+' = public IP ('+CURRENT_IP_ADDRESS_URL+'): '+public_ip_ip42+'\n'))
 	else:
 		LogFileAddUpdate(LOG_FILE_0,('IP addresses do not match, generating URL to update.'))
 		NameSiloSubDomain()
 
-# 7. Check GoDaddy domain DNS record ----------------------------------------------------------------------
+# 6b. GoDaddy.com -----------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
+
 print('\nCheck GoDaddy domain DNS record against current IP')
 
-DynDNSUpdateGoDaddy(LOG_FILE_0,paramsGoDaddy,public_ip)
+DynDNSUpdateGoDaddy(LOG_FILE_0,paramsGoDaddy,public_ip_pif)
 
 # /Main
 # ---------------------------------------------------------------------------------------------------------
