@@ -675,7 +675,7 @@ def GetPublicIPNameSilo(OUR_API_KEY,DOMAIN_NAME_TO_MAINTAIN):
 	return current_namesilo, xml
 
 # Get extra info from the xml object from NameSilo API call
-def GetExtraInfoNameSilo(xml):
+def GetExtraInfoNameSilo(xml,DOMAIN_NAME_TO_MAINTAIN,SUB_DOMAIN_TLD):
 	# To call this function:
 	#GetExtraInfoNameSilo(xml);
 	#--------------------------------------------------------------------------------
@@ -1212,7 +1212,7 @@ print(ipv4)
 
 print('\n2nd URL call: Sending get public IP API request to NameSilo.com...')
 
-current_namesilo, xml = GetPublicIPNameSilo(OUR_API_KEY,DOMAIN_NAME_TO_MAINTAIN);
+current_namesilo, xml = GetPublicIPNameSilo(paramsNameSilo.OUR_API_KEY,paramsNameSilo.DOMAIN_NAME_TO_MAINTAIN);
 
 # 5. Compare if all details match -------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
@@ -1246,17 +1246,17 @@ else:
 print('\n3rd (possible) URL call: Sending API request(s) to NameSilo.com...')
 
 # Get extra info from the XML var returned in the NameSilo API call:
-shortdomain_host, shortdomain_IPvalue, shortdomain_record_id, subdomain_host, subdomain_IPvalue, subdomain_record_id = GetExtraInfoNameSilo(xml)
+shortdomain_host, shortdomain_IPvalue, shortdomain_record_id, subdomain_host, subdomain_IPvalue, subdomain_record_id = GetExtraInfoNameSilo(xml,paramsNameSilo.DOMAIN_NAME_TO_MAINTAIN,paramsNameSilo.SUB_DOMAIN_TLD)
 
 def NameSiloShortDomain():
 	LogFileAddUntaggedMsg(LOG_FILE_0,('Current IP:      '+current_namesilo))
 	LogFileAddUntaggedMsg(LOG_FILE_0,('NameSilo record: '+shortdomain_IPvalue))
-	DynDNSUpdateNameSilo(LOG_FILE_0,shortdomain_host,current_namesilo,shortdomain_record_id,OUR_API_KEY,DNS_RECORD_TTL)
+	DynDNSUpdateNameSilo(LOG_FILE_0,shortdomain_host,current_namesilo,shortdomain_record_id,paramsNameSilo.OUR_API_KEY,paramsNameSilo.DNS_RECORD_TTL)
 
 def NameSiloSubDomain():
 	LogFileAddUntaggedMsg(LOG_FILE_0,('Current IP:      '+current_namesilo))
 	LogFileAddUntaggedMsg(LOG_FILE_0,('NameSilo record: '+subdomain_IPvalue))
-	DynDNSUpdateNameSilo(LOG_FILE_0,shortdomain_host,current_namesilo,subdomain_record_id,OUR_API_KEY,DNS_RECORD_TTL,SUBDOMAIN_NAME)
+	DynDNSUpdateNameSilo(LOG_FILE_0,shortdomain_host,current_namesilo,subdomain_record_id,paramsNameSilo.OUR_API_KEY,paramsNameSilo.DNS_RECORD_TTL,paramsNameSilo.SUBDOMAIN_NAME)
 
 if (FORCE_TESTING == True):
 	LogFileAddUpdate(LOG_FILE_0,('FORCE TESTING: Forcing the API call to update DNS record. '+shortdomain_host))
