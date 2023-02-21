@@ -182,6 +182,14 @@ def LogFileInit():
 	FULL_SCRIPT_PATH = __file__
 	#print('(Verbose) Local script path: "'+FULL_SCRIPT_PATH+'"')
 	
+	#For the directory of the script being run:
+	#import os
+	#os.path.dirname(os.path.abspath(__file__))
+	#
+	#Current working directory:
+	#import os
+	#os.path.abspath(os.getcwd())
+	
 	SEPARATE_PATH_EXTENTION = os.path.splitext(__file__)
 	#print('Log file name: '+str(SEPARATE_PATH_EXTENTION))
 	#print('Log file name: '+SEPARATE_PATH_EXTENTION[0])
@@ -1145,12 +1153,55 @@ LOG_FILE_0, LOG_FILE_FULL_PATH, LOG_FILE_CURATED_PATH, VID_TO_CURATE = LogFileIn
 
 SUBFOLDER = "./params"
 
+onlyfiles = [f for f in listdir(SUBFOLDER) if isfile(join(SUBFOLDER, f))]
+
+print(onlyfiles)
+#print(*onlyfiles, sep="\n")
+
+
+
+
+
+FULL_SCRIPT_PATH = __file__
+
+SUBFOLDER = "/params"
+
+#For the directory of the script being run:
+
+import os
+FULL_SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
+
+#If you mean the current working directory:
+
+CURRENT_DIR = os.path.abspath(os.getcwd())
+
+
+
 from os import listdir
 from os.path import isfile, join
 
 #onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
 
-#onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+print(FULL_SCRIPT_PATH)
+print(CURRENT_DIR)
+print(join(FULL_SCRIPT_PATH, SUBFOLDER))
+
+onlyfiles = [f for f in listdir(FULL_SCRIPT_PATH) if isfile(join(join(FULL_SCRIPT_PATH, SUBFOLDER), f))]
+
+print(onlyfiles)
+
+#print(onlyfiles, sep = "\n")
+
+
+
+import os
+
+files = os.listdir(SUBFOLDER)
+files = [f for f in files if os.path.isfile(SUBFOLDER+'/'+f)] #Filtering only the files.
+#print(*files, sep="\n")
+
+print(files)
+
 
 
 
