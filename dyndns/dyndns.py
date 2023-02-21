@@ -112,7 +112,7 @@ FORCE_TESTING = False
 # Use True or False for values. (Default = False)
 # Will force all the API calls to update the target DNS records on EVERY RUN, even if they already match our public IP.
 # DO NOT leave this set as True for a production environment. This is ONLY for troubleshooting & developing new function API calls.
-# TO RUN A PRODUCTION TEST: Do not use this option! Instead, manually change the DNS record on your domain provider's website to a 'wrong' IP value, then manually run this script with STRICT_CHECKING enabled. BUT DO NOT set this var to True to perform a regular test. If this script updates the DNS records on first run, and does not on the second run, the test is complete and the STRICT_CHECKING var can be reverted to whatever value is preferred.
+# TO RUN A PRODUCTION TEST: Do not use this option! Instead, manually change the DNS record on your domain provider's website to a 'wrong' IP value, then manually run this script with STRICT_CHECKING enabled, twice. BUT DO NOT set this var to True to perform a regular test. If this script updates the DNS records on first run, and does not on the second run, the test is complete and the STRICT_CHECKING var can be reverted to whatever value is preferred.
 
 # /Parameters
 # ---------------------------------------------------------------------------------------------------------
@@ -1154,9 +1154,9 @@ LOG_FILE_0, LOG_FILE_FULL_PATH, LOG_FILE_CURATED_PATH, VID_TO_CURATE = LogFileIn
 SUBFOLDER = "./params"
 
 PARAMSFILES = [f for f in listdir(SUBFOLDER) if isfile(join(SUBFOLDER, f))]
-SUBFOLDER = SUBFOLDER.replace('./','')
+SUB_FOLDER_NAME = SUBFOLDER.replace('./','')
 FULL_SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
-FULL_SUBFOLDER_PATH = join(FULL_SCRIPT_PATH, SUBFOLDER)
+FULL_SUBFOLDER_PATH = join(FULL_SCRIPT_PATH, SUB_FOLDER_NAME)
 
 if CLEAN_UNCOMPILED:
 	# First confirm a .pyc copy of each file exists.
@@ -1184,11 +1184,14 @@ public_ip_ip42, CURRENT_IP_ADDRESS_URL = GetPublicIPip42pl(LOG_FILE_0);
 
 # First, collect all the domain names that need to be checked from our params variables:
 
+# NameSilo
+NAMESILO_DOMAIN = paramsNameSilo.DOMAIN_NAME_TO_MAINTAIN.lower()
+NAMESILO_SUBDOMAIN = paramsNameSilo.DOMAIN_NAME_TO_MAINTAIN
 
-
+# GoDaddy
+GODADDY_DOMAIN = paramsGoDaddy.GODADDY_DOMAIN
 
 # Next, check the IP on record for each domain with a regular DNS lookup using nslookup:
-
 
 print('testing socket ....')
 addr = 'google.com'
@@ -1202,6 +1205,11 @@ ipv4 = socket.gethostbyname(addr)
 print(ipv4)
 
 
+
+NAMESILO_DOMAIN_IP = socket.gethostbyname(NAMESILO_DOMAIN)
+NAMESILO_SUBDOMAIN_IP = socket.gethostbyname(NAMESILO_SUBDOMAIN)
+
+GODADDY_DOMAIN = socket.gethostbyname(GODADDY_DOMAIN)
 
 
 
