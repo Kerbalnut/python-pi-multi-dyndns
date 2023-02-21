@@ -84,13 +84,13 @@ import params.NameSilo as paramsNameSilo
 # Parameters:
 
 # 1
-PATH_TO_PRODUCTION_PARAMS = './params/NameSilo.py'
-execfile(PATH_TO_PRODUCTION_PARAMS)
+#PATH_TO_PRODUCTION_PARAMS = './params/NameSilo.py'
+#execfile(PATH_TO_PRODUCTION_PARAMS)
 # DEPRECATED: Use 'import params.NameSilo as paramsNameSilo' line at top of script instead.
 
 # 2
-GODADDY_PARAMS = './params/GoDaddy.py'
-execfile(GODADDY_PARAMS)
+#GODADDY_PARAMS = './params/GoDaddy.py'
+#execfile(GODADDY_PARAMS)
 # DEPRECATED: Use 'import params.GoDaddy as paramsGoDaddy' line at top of script instead.
 
 # 3
@@ -1153,15 +1153,34 @@ LOG_FILE_0, LOG_FILE_FULL_PATH, LOG_FILE_CURATED_PATH, VID_TO_CURATE = LogFileIn
 
 SUBFOLDER = "./params"
 
-onlyfiles = [f for f in listdir(SUBFOLDER) if isfile(join(SUBFOLDER, f))]
+PARAMSFILES = [f for f in listdir(SUBFOLDER) if isfile(join(SUBFOLDER, f))]
 
-print(onlyfiles)
-#print(*onlyfiles, sep="\n")
+print(PARAMSFILES)
+
+print(SUBFOLDER)
+SUBFOLDER = "./params"
+SUBFOLDER = SUBFOLDER.replace('./','')
+print(SUBFOLDER)
 
 
 
+FULL_SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
+FULL_SUBFOLDER_PATH = join(FULL_SCRIPT_PATH, SUBFOLDER)
+print(join(FULL_SCRIPT_PATH, SUBFOLDER))
+print(FULL_SUBFOLDER_PATH)
 
-
+# First confirm a .pyc copy of each file exists.
+for filename in PARAMSFILES:
+	print(filename)
+	if '__init__' not in filename and '_TEMPLATE' not in filename:
+		if '.pyc' in filename:
+			print(".pyc file detected = "+filename)
+			PY_FILE = filename.replace('.pyc','.py')
+			# For each .pyc file, check if a corresponding .py file exists
+			for uncompfile in PARAMSFILES:
+				if (uncompfile == PY_FILE):
+					print("CLEAN_UNCOMPILED = Deleting "+uncompfile)
+					os.remove(join(FULL_SUBFOLDER_PATH, uncompfile))
 
 
 
