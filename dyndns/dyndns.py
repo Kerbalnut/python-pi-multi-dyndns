@@ -1186,53 +1186,41 @@ public_ip_ip42, CURRENT_IP_ADDRESS_URL = GetPublicIPip42pl(LOG_FILE_0);
 
 # NameSilo
 NAMESILO_DOMAIN = paramsNameSilo.DOMAIN_NAME_TO_MAINTAIN.lower()
-NAMESILO_SUBDOMAIN = paramsNameSilo.DOMAIN_NAME_TO_MAINTAIN
+NAMESILO_SUBDOMAIN = paramsNameSilo.SUB_DOMAIN_TLD
 
 # GoDaddy
 GODADDY_DOMAIN = paramsGoDaddy.GODADDY_DOMAIN
 
 # Next, check the IP on record for each domain with a regular DNS lookup using nslookup:
 
-print('testing socket ....')
-addr = 'google.com'
-print(addr)
-ipv4 = socket.gethostbyname(addr)
-print(ipv4)
-
-addr = 'yahoo.com'
-print(addr)
-ipv4 = socket.gethostbyname(addr)
-print(ipv4)
-
-
-
 NAMESILO_DOMAIN_IP = socket.gethostbyname(NAMESILO_DOMAIN)
 NAMESILO_SUBDOMAIN_IP = socket.gethostbyname(NAMESILO_SUBDOMAIN)
 
-GODADDY_DOMAIN = socket.gethostbyname(GODADDY_DOMAIN)
+GODADDY_DOMAIN_IP = socket.gethostbyname(GODADDY_DOMAIN)
 
+UPDATE_NAMESILO = False
+UPDATE_SUBD_NAMESILO = False
+UPDATE_GODADDY = False
 
+if UPDATE_NAMESILO:
+	print('We have FAILED................................')
 
-
+if (NAMESILO_DOMAIN_IP != public_ip_pif): UPDATE_NAMESILO = True
+if (NAMESILO_SUBDOMAIN_IP != public_ip_pif): UPDATE_SUBD_NAMESILO = True
+if (GODADDY_DOMAIN_IP != public_ip_pif): UPDATE_GODADDY = True
 
 # 4. Get IP on record with DNS (direct API call to domain provider) ---------------------------------------
 # ---------------------------------------------------------------------------------------------------------
 
-print('\n2nd URL call: Sending get public IP API request to NameSilo.com...')
-
-current_namesilo, xml = GetPublicIPNameSilo(paramsNameSilo.OUR_API_KEY,paramsNameSilo.DOMAIN_NAME_TO_MAINTAIN);
+if STRICT_CHECKING or UPDATE_NAMESILO or UPDATE_SUBD_NAMESILO:
+	print('\n2nd URL call: Sending get public IP API request to NameSilo.com...')
+	
+	current_namesilo, xml = GetPublicIPNameSilo(paramsNameSilo.OUR_API_KEY,paramsNameSilo.DOMAIN_NAME_TO_MAINTAIN);
 
 # 5. Compare if all details match -------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
 
-# Check we're getting the same IP response from all sources
-if (public_ip_ip42 == current_namesilo):
-	LogFileAddOK(LOG_FILE_0,(CURRENT_IP_ADDRESS_URL+' and NameSilo.com public IP responses match.'))
-else:
-	LogFileAddTrouble(LOG_FILE_0,(CURRENT_IP_ADDRESS_URL+' and NameSilo.com public IP responses do NOT match.'))
-	LogFileAddUntaggedMsg(LOG_FILE_0,('         '+public_ip_ip42+'   '+CURRENT_IP_ADDRESS_URL))
-	LogFileAddUntaggedMsg(LOG_FILE_0,('         '+current_namesilo+'  NameSilo.com\n'))
-
+# Check we're getting the same public IP from all sources
 if (public_ip_ip42 == public_ip_pif):
 	LogFileAddOK(LOG_FILE_0,(CURRENT_IP_ADDRESS_URL+' and pif public IP responses match.'))
 else:
@@ -1240,12 +1228,23 @@ else:
 	LogFileAddUntaggedMsg(LOG_FILE_0,('         '+public_ip_ip42+'   '+CURRENT_IP_ADDRESS_URL))
 	LogFileAddUntaggedMsg(LOG_FILE_0,('         '+public_ip_pif+'  pif\n'))
 
-if (public_ip_pif == current_namesilo):
-	LogFileAddOK(LOG_FILE_0,('pif and NameSilo.com public IP responses match.'))
-else:
-	LogFileAddTrouble(LOG_FILE_0,('pif and NameSilo.com public IP responses do NOT match.'))
-	LogFileAddUntaggedMsg(LOG_FILE_0,('         '+public_ip_pif+'   pif'))
-	LogFileAddUntaggedMsg(LOG_FILE_0,('         '+current_namesilo+'  NameSilo.com\n'))
+#if STRICT_CHECKING or UPDATE_NAMESILO or UPDATE_SUBD_NAMESILO:
+try:
+	current_namesilo
+except NameError:
+	if (public_ip_ip42 == current_namesilo):
+		LogFileAddOK(LOG_FILE_0,(CURRENT_IP_ADDRESS_URL+' and NameSilo.com public IP responses match.'))
+	else:
+		LogFileAddTrouble(LOG_FILE_0,(CURRENT_IP_ADDRESS_URL+' and NameSilo.com public IP responses do NOT match.'))
+		LogFileAddUntaggedMsg(LOG_FILE_0,('         '+public_ip_ip42+'   '+CURRENT_IP_ADDRESS_URL))
+		LogFileAddUntaggedMsg(LOG_FILE_0,('         '+current_namesilo+'  NameSilo.com\n'))
+	
+	if (public_ip_pif == current_namesilo):
+		LogFileAddOK(LOG_FILE_0,('pif and NameSilo.com public IP responses match.'))
+	else:
+		LogFileAddTrouble(LOG_FILE_0,('pif and NameSilo.com public IP responses do NOT match.'))
+		LogFileAddUntaggedMsg(LOG_FILE_0,('         '+public_ip_pif+'   pif'))
+		LogFileAddUntaggedMsg(LOG_FILE_0,('         '+current_namesilo+'  NameSilo.com\n'))
 
 # 6. If any details do not match, send API request to update DNS record -----------------------------------
 # 6a. NameSilo.com ----------------------------------------------------------------------------------------
@@ -1253,8 +1252,12 @@ else:
 
 print('\n3rd (possible) URL call: Sending API request(s) to NameSilo.com...')
 
-# Get extra info from the XML var returned in the NameSilo API call:
-shortdomain_host, shortdomain_IPvalue, shortdomain_record_id, subdomain_host, subdomain_IPvalue, subdomain_record_id = GetExtraInfoNameSilo(xml,paramsNameSilo.DOMAIN_NAME_TO_MAINTAIN,paramsNameSilo.SUB_DOMAIN_TLD)
+#if STRICT_CHECKING or UPDATE_NAMESILO or UPDATE_SUBD_NAMESILO:
+try:
+	xml
+except NameError:
+	# Get extra info from the XML var returned in the NameSilo API call:
+	shortdomain_host, shortdomain_IPvalue, shortdomain_record_id, subdomain_host, subdomain_IPvalue, subdomain_record_id = GetExtraInfoNameSilo(xml,paramsNameSilo.DOMAIN_NAME_TO_MAINTAIN,paramsNameSilo.SUB_DOMAIN_TLD)
 
 def NameSiloShortDomain():
 	LogFileAddUntaggedMsg(LOG_FILE_0,('Current IP:      '+current_namesilo))
@@ -1269,33 +1272,38 @@ def NameSiloSubDomain():
 if (FORCE_TESTING == True):
 	LogFileAddUpdate(LOG_FILE_0,('FORCE TESTING: Forcing the API call to update DNS record. '+shortdomain_host))
 	NameSiloShortDomain()
-else:
-	LogFileAddUntaggedMsg(LOG_FILE_0,('==> Checking '+shortdomain_host+' ...'))
-	if (shortdomain_IPvalue == current_namesilo):
-		LogFileAddOK(LOG_FILE_0,('Current IP address matches namesilo record. No need to update.'))
-		LogFileAddOK(LOG_FILE_0,(shortdomain_host+' = namesilo record: '+shortdomain_IPvalue+' = public IP (namesilo): '+current_namesilo+' = public IP ('+CURRENT_IP_ADDRESS_URL+'): '+public_ip_ip42+'\n'))
-	else:
-		LogFileAddUpdate(LOG_FILE_0,('IP addresses do not match, generating URL to update.'))
-		NameSiloShortDomain()
-
-if (FORCE_TESTING == True):
 	LogFileAddUpdate(LOG_FILE_0,('FORCE TESTING: Forcing the API call to update DNS record. '+subdomain_host))
 	NameSiloSubDomain()
 else:
-	LogFileAddUntaggedMsg(LOG_FILE_0,('==> Checking '+subdomain_host+' ...'))
-	if (subdomain_IPvalue == current_namesilo):
-		LogFileAddOK(LOG_FILE_0,('Current IP address matches namesilo record. No need to update.'))
-		LogFileAddOK(LOG_FILE_0,(subdomain_host+' = namesilo record: '+subdomain_IPvalue+' = public IP (namesilo): '+current_namesilo+' = public IP ('+CURRENT_IP_ADDRESS_URL+'): '+public_ip_ip42+'\n'))
-	else:
-		LogFileAddUpdate(LOG_FILE_0,('IP addresses do not match, generating URL to update.'))
-		NameSiloSubDomain()
+	#if STRICT_CHECKING or UPDATE_NAMESILO or UPDATE_SUBD_NAMESILO:
+	try:
+		xml
+	except NameError:
+		LogFileAddUntaggedMsg(LOG_FILE_0,('==> Checking '+shortdomain_host+' ...'))
+		if (shortdomain_IPvalue == current_namesilo):
+			LogFileAddOK(LOG_FILE_0,('Current IP address matches namesilo record. No need to update.'))
+			LogFileAddOK(LOG_FILE_0,(shortdomain_host+' = namesilo record: '+shortdomain_IPvalue+' = public IP (namesilo): '+current_namesilo+' = public IP ('+CURRENT_IP_ADDRESS_URL+'): '+public_ip_ip42+'\n'))
+		else:
+			LogFileAddUpdate(LOG_FILE_0,('IP addresses do not match, generating URL to update.'))
+			NameSiloShortDomain()
+		
+		LogFileAddUntaggedMsg(LOG_FILE_0,('==> Checking '+subdomain_host+' ...'))
+		if (subdomain_IPvalue == current_namesilo):
+			LogFileAddOK(LOG_FILE_0,('Current IP address matches namesilo record. No need to update.'))
+			LogFileAddOK(LOG_FILE_0,(subdomain_host+' = namesilo record: '+subdomain_IPvalue+' = public IP (namesilo): '+current_namesilo+' = public IP ('+CURRENT_IP_ADDRESS_URL+'): '+public_ip_ip42+'\n'))
+		else:
+			LogFileAddUpdate(LOG_FILE_0,('IP addresses do not match, generating URL to update.'))
+			NameSiloSubDomain()
 
 # 6b. GoDaddy.com -----------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
 
 print('\nCheck GoDaddy domain DNS record against current IP')
 
-DynDNSUpdateGoDaddy(LOG_FILE_0,paramsGoDaddy,public_ip_pif)
+if STRICT_CHECKING or UPDATE_GODADDY:
+	DynDNSUpdateGoDaddy(LOG_FILE_0,paramsGoDaddy,public_ip_pif)
+else:
+	LogFileAddOK(LOG_FILE_0,('Current IP address '+public_ip_pif+' matches '+paramsGoDaddy.GODADDY_DOMAIN+' GoDaddy record. No need to update.'))
 
 # /Main
 # ---------------------------------------------------------------------------------------------------------
