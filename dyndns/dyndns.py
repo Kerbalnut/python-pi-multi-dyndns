@@ -1055,20 +1055,23 @@ def DynDNSUpdateGoDaddy(LOG_FILE_0,paramsGoDaddy,public_ip=False):
 		UPDATE_RECORD = "True"
 		LogFileAddUpdate(LOG_FILE_0,('Public IP (%s) no longer matches GoDaddy %s domain IP (%s)' % (public_ip, paramsGoDaddy.GODADDY_DOMAIN, GODADDY_CURRENT_IP)))
 	else:
-		LogFileAddOK(LOG_FILE_0,('IP matches GoDaddy record: %s' % (GODADDY_CURRENT_IP)))
+		LogFileAddOK(LOG_FILE_0,('IP matches GoDaddy record: %s No need to update.' % (GODADDY_CURRENT_IP)))
 	
 	if ( ("%s" % GODADDY_CURRENT_TTL) != ("%s" % paramsGoDaddy.DNS_RECORD_TTL) ):
 		UPDATE_RECORD = "True"
 		LogFileAddUpdate(LOG_FILE_0,('Set TTL value (%s) does not match the GoDaddy %s domain record TTL (%s)' % (paramsGoDaddy.DNS_RECORD_TTL, paramsGoDaddy.GODADDY_DOMAIN, GODADDY_CURRENT_TTL)))
 	else:
-		LogFileAddOK(LOG_FILE_0,('TTL matches: %s = %s' % (GODADDY_CURRENT_TTL, paramsGoDaddy.DNS_RECORD_TTL)))
+		LogFileAddOK(LOG_FILE_0,('TTL matches: %s = %s No need to update.' % (GODADDY_CURRENT_TTL, paramsGoDaddy.DNS_RECORD_TTL)))
 	
 	#--------------------------------------------------------------------------------
 	
 	# Update record via GoDaddy API:
 	
 	#https://developer.godaddy.com/doc/endpoint/domains#/v1/recordReplaceTypeName
-	if ( UPDATE_RECORD == "True" ):
+	if ( UPDATE_RECORD == "True" ) or FORCE_TESTING:
+		
+		if FORCE_TESTING:
+			LogFileAddUpdate(LOG_FILE_0,('FORCE TESTING: Forcing the API call to update DNS record. '+paramsGoDaddy.GODADDY_DOMAIN))
 		
 		#curl -X 'PUT' \
 		#  'https://api.ote-godaddy.com/v1/domains/example.com/records/A/%40' \
@@ -1106,7 +1109,7 @@ def DynDNSUpdateGoDaddy(LOG_FILE_0,paramsGoDaddy,public_ip=False):
 			},
 		]
 		
-		LogFileAddURLCall(LOG_FILE_0,("GoDaddy.com PUT API call: %s" % full_url))
+		LogFileAddURLCall(LOG_FILE_0,("Sending GoDaddy.com PUT API call: %s" % full_url))
 		
 		put_response = requests.put(full_url, headers=headers_dat, json=json_data)
 		# Note: json_data will not be serialized by requests
@@ -1202,14 +1205,25 @@ UPDATE_NAMESILO = False
 UPDATE_SUBD_NAMESILO = False
 UPDATE_GODADDY = False
 
-if (NAMESILO_DOMAIN_IP != public_ip_pif): UPDATE_NAMESILO = True
-if (NAMESILO_SUBDOMAIN_IP != public_ip_pif): UPDATE_SUBD_NAMESILO = True
-if (GODADDY_DOMAIN_IP != public_ip_pif): UPDATE_GODADDY = True
+if (NAMESILO_DOMAIN_IP != public_ip_pif): 
+	UPDATE_NAMESILO = True
+else:
+	LogFileAddOK(LOG_FILE_0,('Current IP address '+NAMESILO_DOMAIN_IP+' matches '+NAMESILO_DOMAIN+' NameSilo record. No need to update.'))
+
+if (NAMESILO_SUBDOMAIN_IP != public_ip_pif): 
+	UPDATE_SUBD_NAMESILO = True
+else:
+	LogFileAddOK(LOG_FILE_0,('Current IP address '+NAMESILO_SUBDOMAIN_IP+' matches '+NAMESILO_SUBDOMAIN+' NameSilo record. No need to update.'))
+
+if (GODADDY_DOMAIN_IP != public_ip_pif): 
+	UPDATE_GODADDY = True
+else:
+	LogFileAddOK(LOG_FILE_0,('Current IP address '+public_ip_pif+' matches '+paramsGoDaddy.GODADDY_DOMAIN+' GoDaddy record. No need to update.'))
 
 # 4. Get IP on record with DNS (direct API call to domain provider) ---------------------------------------
 # ---------------------------------------------------------------------------------------------------------
 
-if STRICT_CHECKING or UPDATE_NAMESILO or UPDATE_SUBD_NAMESILO:
+if STRICT_CHECKING or UPDATE_NAMESILO or UPDATE_SUBD_NAMESILO or FORCE_TESTING:
 	print('\n2nd URL call: Sending get public IP API request to NameSilo.com...')
 	
 	current_namesilo, xml = GetPublicIPNameSilo(paramsNameSilo.OUR_API_KEY,paramsNameSilo.DOMAIN_NAME_TO_MAINTAIN);
@@ -1304,7 +1318,7 @@ else:
 
 print('\nCheck GoDaddy domain DNS record against current IP')
 
-if STRICT_CHECKING or UPDATE_GODADDY:
+if STRICT_CHECKING or UPDATE_GODADDY or FORCE_TESTING:
 	DynDNSUpdateGoDaddy(LOG_FILE_0,paramsGoDaddy,public_ip_pif)
 else:
 	LogFileAddOK(LOG_FILE_0,('Current IP address '+public_ip_pif+' matches '+paramsGoDaddy.GODADDY_DOMAIN+' GoDaddy record. No need to update.'))
@@ -1313,6 +1327,6 @@ else:
 # ---------------------------------------------------------------------------------------------------------
 # Footer:
 LogFileEndOp(LOG_FILE_0,LOG_FILE_FULL_PATH,LOG_FILE_CURATED_PATH,VID_TO_CURATE)
-print('\nEnd NameSilo dynamic-DNS script.')
+print('\nEnd dynamic-DNS script.')
 # /Footer
 # ---------------------------------------------------------------------------------------------------------
