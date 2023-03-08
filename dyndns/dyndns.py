@@ -1202,9 +1202,6 @@ UPDATE_NAMESILO = False
 UPDATE_SUBD_NAMESILO = False
 UPDATE_GODADDY = False
 
-if UPDATE_NAMESILO:
-	print('We have FAILED................................')
-
 if (NAMESILO_DOMAIN_IP != public_ip_pif): UPDATE_NAMESILO = True
 if (NAMESILO_SUBDOMAIN_IP != public_ip_pif): UPDATE_SUBD_NAMESILO = True
 if (GODADDY_DOMAIN_IP != public_ip_pif): UPDATE_GODADDY = True
@@ -1232,6 +1229,9 @@ else:
 try:
 	current_namesilo
 except NameError:
+	# Var is not defined
+	print('Skipping extra public IP checks.')
+else:
 	if (public_ip_ip42 == current_namesilo):
 		LogFileAddOK(LOG_FILE_0,(CURRENT_IP_ADDRESS_URL+' and NameSilo.com public IP responses match.'))
 	else:
@@ -1250,12 +1250,13 @@ except NameError:
 # 6a. NameSilo.com ----------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
 
-print('\n3rd (possible) URL call: Sending API request(s) to NameSilo.com...')
-
 #if STRICT_CHECKING or UPDATE_NAMESILO or UPDATE_SUBD_NAMESILO:
 try:
 	xml
 except NameError:
+	# Var is not defined
+	print('Skipping NameSilo data function.')
+else:
 	# Get extra info from the XML var returned in the NameSilo API call:
 	shortdomain_host, shortdomain_IPvalue, shortdomain_record_id, subdomain_host, subdomain_IPvalue, subdomain_record_id = GetExtraInfoNameSilo(xml,paramsNameSilo.DOMAIN_NAME_TO_MAINTAIN,paramsNameSilo.SUB_DOMAIN_TLD)
 
@@ -1279,6 +1280,9 @@ else:
 	try:
 		xml
 	except NameError:
+		# Var is not defined
+		print('Skipping NameSilo section.')
+	else:
 		LogFileAddUntaggedMsg(LOG_FILE_0,('==> Checking '+shortdomain_host+' ...'))
 		if (shortdomain_IPvalue == current_namesilo):
 			LogFileAddOK(LOG_FILE_0,('Current IP address matches namesilo record. No need to update.'))
