@@ -1162,6 +1162,7 @@ FULL_SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
 FULL_SUBFOLDER_PATH = join(FULL_SCRIPT_PATH, SUB_FOLDER_NAME)
 
 if CLEAN_UNCOMPILED:
+	print('\n1. Clean-up uncompiled .py files')
 	# First confirm a .pyc copy of each file exists.
 	for filename in PARAMSFILES:
 		if '__init__' not in filename and '_TEMPLATE' not in filename:
@@ -1172,11 +1173,13 @@ if CLEAN_UNCOMPILED:
 					if (uncompfile == PY_FILE):
 						print("CLEAN_UNCOMPILED = Deleting "+uncompfile)
 						os.remove(join(FULL_SUBFOLDER_PATH, uncompfile))
+else:
+	print('\n(Skipping step 1. Clean-up uncompiled .py files)')
 
 # 2. Get current public IP --------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
 
-print('\nGetting current public IP address...')
+print('\n2. Get current public IP')
 
 public_ip_pif = GetPublicIP(LOG_FILE_0)
 
@@ -1184,6 +1187,8 @@ public_ip_ip42, CURRENT_IP_ADDRESS_URL = GetPublicIPip42pl(LOG_FILE_0);
 
 # 3. Get IP on record with DNS ----------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
+
+print('\n3. Get IP on record with DNS')
 
 # First, collect all the domain names that need to be checked from our params variables:
 
@@ -1224,12 +1229,14 @@ else:
 # ---------------------------------------------------------------------------------------------------------
 
 if STRICT_CHECKING or UPDATE_NAMESILO or UPDATE_SUBD_NAMESILO or FORCE_TESTING:
-	print('\n2nd URL call: Sending get public IP API request to NameSilo.com...')
+	print('\n4. Sending API request to NameSilo.com for public IP and extra domain info...')
 	
 	current_namesilo, xml = GetPublicIPNameSilo(paramsNameSilo.OUR_API_KEY,paramsNameSilo.DOMAIN_NAME_TO_MAINTAIN);
 
 # 5. Compare if all details match -------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
+
+print('\n5. Compare if all details match')
 
 # Check we're getting the same public IP from all sources
 if (public_ip_ip42 == public_ip_pif):
@@ -1244,7 +1251,7 @@ try:
 	current_namesilo
 except NameError:
 	# Var is not defined
-	print('Skipping extra public IP checks.')
+	print('(Skipping NameSilo API call for extra public IP testing.)')
 else:
 	if (public_ip_ip42 == current_namesilo):
 		LogFileAddOK(LOG_FILE_0,(CURRENT_IP_ADDRESS_URL+' and NameSilo.com public IP responses match.'))
@@ -1264,12 +1271,18 @@ else:
 # 6a. NameSilo.com ----------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
 
+print('\n6. If any details do not match, send API request to update DNS record')
+print('6a. NameSilo.com')
+
 #if STRICT_CHECKING or UPDATE_NAMESILO or UPDATE_SUBD_NAMESILO:
 try:
 	xml
 except NameError:
 	# Var is not defined
-	print('Skipping NameSilo data function.')
+	if ( UPDATE_NAMESILO == False ) and ( UPDATE_SUBD_NAMESILO == False ):
+		LogFileAddOK(LOG_FILE_0,('Current IP address '+NAMESILO_DOMAIN_IP+' already matches '+NAMESILO_DOMAIN+' & '+NAMESILO_SUBDOMAIN+' NameSilo records. No need to update.'))
+	else:
+		print('Skipping NameSilo extra data function.')
 else:
 	# Get extra info from the XML var returned in the NameSilo API call:
 	shortdomain_host, shortdomain_IPvalue, shortdomain_record_id, subdomain_host, subdomain_IPvalue, subdomain_record_id = GetExtraInfoNameSilo(xml,paramsNameSilo.DOMAIN_NAME_TO_MAINTAIN,paramsNameSilo.SUB_DOMAIN_TLD)
@@ -1316,12 +1329,13 @@ else:
 # 6b. GoDaddy.com -----------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
 
-print('\nCheck GoDaddy domain DNS record against current IP')
+print('\n6. If any details do not match, send API request to update DNS record')
+print('6b. Check GoDaddy domain DNS record against current IP')
 
 if STRICT_CHECKING or UPDATE_GODADDY or FORCE_TESTING:
 	DynDNSUpdateGoDaddy(LOG_FILE_0,paramsGoDaddy,public_ip_pif)
 else:
-	LogFileAddOK(LOG_FILE_0,('Current IP address '+public_ip_pif+' matches '+paramsGoDaddy.GODADDY_DOMAIN+' GoDaddy record. No need to update.'))
+	LogFileAddOK(LOG_FILE_0,('Current IP address '+public_ip_pif+' already matches '+paramsGoDaddy.GODADDY_DOMAIN+' GoDaddy record. No need to update.'))
 
 # /Main
 # ---------------------------------------------------------------------------------------------------------
