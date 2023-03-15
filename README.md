@@ -1,6 +1,4 @@
 
-- X --- Work In Progress! --- X
-
 # python-pi-multi-dyndns
 
 A modular Python script for Dynamic DNS, designed to be uploaded to a Raspberry Pi server and work with many different domain registrars.
@@ -9,6 +7,7 @@ Currently supported:
 
 - NameSilo.com
 - GoDaddy.com
+- (Coming soon) aeserver.com
 
 It includes automated setup scripts, and a log cleanup script to keep log file sizes manageable.
 
@@ -24,6 +23,7 @@ It includes automated setup scripts, and a log cleanup script to keep log file s
     - [Basic program flow of `dyndns.py`:](#basic-program-flow-of-dyndnspy)
     - [URL Calls v1:](#url-calls-v1)
     - [URL Calls v2:](#url-calls-v2)
+    - [To Do:](#to-do)
 
 # Setup Instructions
 
@@ -61,9 +61,11 @@ To customize & edit these scripts to your liking:
     - I personally use a combination of tools for working with git: **TortoiseGit**, **GitHub Desktop**, and **vscode**
     - For more info on using git itself: I highly recommend this tutorial by Joel Spolsky (creator of Stack Overflow) that helped me understand it immensely better very quickly: https://hginit.github.io/ (Yes, this is tutorial for Hg/Mercurial and not for git, however these two distributed version control systems (DVCSs) are so similar, there's software that can convert these two different repo types back-and-forth between each other. Many commands are even identical. And the TortoiseHg software comes with a GUI program called Workbench that allows you to easily visualize branching & merging. So ironically the best git tutorial I've found, is this one for hg.)
 - **To adopt a similar dev environment,** I used **vscode** (Visual Studio Code) as my main IDE tool to develop this project. All that's required is to open the folder `python-pi-multi-dyndns` in vscode, and it will automatically load the `.vscode` folder within, including settings unique to this project and extension recommendations. This will not affect any of your global preferred vscode settings.
+    - **Note about EOL chars:** All files in this repo are being forced to use LF. In my environment, I'm using a Raspberry Pi as my DNS server, and uploading these scripts to it from a Windows machine. Now, git by default has an option turned on called `AutoCrLf` that will automatically change the EOL char of your files to match whatever OS you're using. E.g. I'm using Windows, so every file automatically gets loaded as CRLF, no matter how they were orginally commited. But when you upload these scripts to raspbian it will barf on the EOL characters not being LF, and all the IDEs/editors I'm using on Windows don't care. So, **.gitattributes** has been updated to force all files to load with LF. This might possibly affect other Windows files, like `scp.ps1` or `scp.bat`, so keep that in mind. (Just change them back to CRLF in editor of your choice if you get errors.)
 - **To add functionality with other domain registrars/providers,** open `dyndns.py` in an editor such as vscode, copy one of the DynDNS python functions, and start editing it to match the API calls for their system.
     - Use the logging functions provided within the `dyndns.py` script to keep all log tags standardized. 
-    - In the `params` folder, copy one one of the `_TEMPLATE.py` files with a name that matches the new domain provider. Update it with demo/sample values that match their format of the API keys. **Make sure** after creating the actual params `.py` file and populating with your real API keys, you add it to `.gitignore` instead of accidentially committing it to the repo! (Even if you do, just generate new API keys and invalidate the old ones.)
+    - In the `params` folder, copy one one of the `*_TEMPLATE.py` files with a name that matches the new domain provider. Update it with demo/sample values that match their format of their API keys.
+        - **Make sure** after creating the actual params `*.py` file and populating with your real API keys, you add it to `.gitignore` instead of accidentially committing it to the repo! (Even if you do, just generate new API keys and invalidate the old ones.)
     - Don't forget to include a `import params.ExampleSite as paramsExampleSite` line at the top, and update the main script logic at the bottom of `dyndns.py` to use the new function.
 - **To update the logging functionality:** open `dyndns.py` in an editor such as vscode. All logging functions start with a **LogFile** -prefix. Start with reading the help text at the top of the **LogFileInit()** function, it is the master guiding script that controls & cleans-up everything. The official help text for using these functions is in the comments at the top of each as well, and all instructions for using them should be updated there.
 
@@ -159,7 +161,13 @@ flowchart LR
     id4-->id3;
 ```
 
+### To Do:
 
+- [ ] NameSilo functions are still a complete mess after being adapted from static script into new function based format. They still have lots of junk and test code, but also are weirdly laid out.
+- [X] Load params modularly.
+- [ ] Add aeserver.com compatibility.
+- [ ] Test clean install & instructions.
+- [ ] Add GoDaddy JSON capability for testing and practice.
 
 
 

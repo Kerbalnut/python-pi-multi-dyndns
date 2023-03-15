@@ -560,8 +560,8 @@ def GetPublicIPip42pl(LOG_FILE_0):
 	
 	msg = ("%s Response: %s\n" % (CURRENT_IP_ADDRESS_URL, public_ip_ip42))
 	LogFileAddURLCall(LOG_FILE_0,msg)
+	#print('Public IP address from '+CURRENT_IP_ADDRESS_URL+': %s' % public_ip_ip42)
 	
-	print('Public IP address from '+CURRENT_IP_ADDRESS_URL+': %s' % public_ip_ip42)
 	return public_ip_ip42, CURRENT_IP_ADDRESS_URL;
 
 # Call NameSilo.com API for our public ip and current IP on A record
@@ -739,14 +739,6 @@ def GetExtraInfoNameSilo(xml,DOMAIN_NAME_TO_MAINTAIN,SUB_DOMAIN_TLD):
 	LogFileAddUntaggedMsg(LOG_FILE_0,('==> '+subdomain_host+' Current IP address on record with NameSilo: %s' % subdomain_IPvalue))
 	
 	return shortdomain_host, shortdomain_IPvalue, shortdomain_record_id, subdomain_host, subdomain_IPvalue, subdomain_record_id;
-
-# Call GoDaddy for public ip & DNS
-def GetPublicIPGoDaddy(api_key,secret_key,domain_name,subdomain=False):
-	# To call this function:
-	#GetPublicIPGoDaddy();
-	#--------------------------------------------------------------------------------
-	
-	return
 
 def DynDNSUpdateNameSilo(LOG_FILE_0,domain_host,IPvalue,record_id,API_KEY,DNS_RECORD_TTL,subdomainname=False):
 	# To call this function:
@@ -1148,6 +1140,12 @@ def DynDNSUpdateGoDaddy(LOG_FILE_0,paramsGoDaddy,public_ip=False):
 
 SUBFOLDER = "./params"
 
+if STRICT_CHECKING:
+	print('STRICT_CHECKING: Domain provider API call to check DNS record is correct will be made every time.')
+
+if FORCE_TESTING:
+	print('FORCE_TESTING: API call to update DNS record with domain provider will always be made, even if IP on record is already correct.')
+
 PARAMSFILES = [f for f in listdir(SUBFOLDER) if isfile(join(SUBFOLDER, f))]
 SUB_FOLDER_NAME = SUBFOLDER.replace('./','')
 FULL_SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -1162,6 +1160,7 @@ for filename in PARAMSFILES:
 		if 'NameSilo' in filename:
 			NAMESILO_ACTIVE = True
 			import params.NameSilo as paramsNameSilo
+		
 		if 'GoDaddy' in filename:
 			GODADDY_ACTIVE = True
 			import params.GoDaddy as paramsGoDaddy
@@ -1293,7 +1292,7 @@ if NAMESILO_ACTIVE:
 print('\n6. If any details do not match, send API request to update DNS record')
 
 if NAMESILO_ACTIVE:
-	print('6a. NameSilo.com')
+	print('\n6a. NameSilo.com')
 	
 	#if STRICT_CHECKING or UPDATE_NAMESILO or UPDATE_SUBD_NAMESILO:
 	try:
@@ -1352,7 +1351,7 @@ if NAMESILO_ACTIVE:
 # ---------------------------------------------------------------------------------------------------------
 
 if GODADDY_ACTIVE:
-	print('6b. Check GoDaddy domain DNS record against current IP')
+	print('\n6b. Check GoDaddy domain DNS record against current IP')
 	
 	if STRICT_CHECKING or UPDATE_GODADDY or FORCE_TESTING:
 		DynDNSUpdateGoDaddy(LOG_FILE_0,paramsGoDaddy,public_ip_pif)
