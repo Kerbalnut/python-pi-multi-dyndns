@@ -1,21 +1,30 @@
 #!/bin/bash
 
-####>>>!/bin/sh###
-####>>>!/bin/bash###
-####>>>!/usr/bin/env bash
+# Shell script for installing 'dyndns.py' Dynamic DNS updates Python script
 
 # --------------------------------------------------------------------------------------------------------
 
-# Shell script for installing 'dyndns.py' Dynamic DNS updates Python script
+# Simple instructions:
+# (Only after params file(s) have been created & setup, etc.)
+
+# 1. Make this script executable:
+#sudo chmod +x setup.sh
+
+# 2. Run this script:
+#sudo -i ./setup.sh
+#. ./setup.sh
+
+# --------------------------------------------------------------------------------------------------------
+
+# Full instructions:
 
 # Read all the instructions below first before executing this script.
 
-# Overview:
-# The Manual steps:
+# Overview: 
 # A) Manually edit param/scp script files:
 # B) Create 'dyndns' directory on the remote host:
 # C) Copy files from local machine into newly created directory, with scp/scripts:
-# D) Execute this script on remote host to automate the rest of setup, or run the remaining commands manually:
+# D) Run this script on remote host to automate the rest of setup, or run the remaining commands manually:
 # The Automatic steps: (this script will do these automatically)
 # - Install any required dependency packages (apt packages and python modules via pip)
 #    - (will not update any packages, only install any that are missing)
@@ -170,13 +179,32 @@ MAIN_USER_NAME="pi"
 # Set as "True" or "False" string
 INSTALL_PYTHON3="True"
 
+# Install log name:
+INSTALL_LOG="setup.log"
+
 # --------------------------------------------------------------------------------------------------------
+# Define functions
 
 addlog()
 {
 	TAG=$1
+	shift;
+	# Shift input position once, and all the rest is the log message.
+	MSG=$@
 	
+	# Install log name:
+	INSTALL_LOG=$INSTALL_LOG
 	
+	# Check if log file exists, create it if it doesn't
+	if [ ! -e "$INSTALL_LOG" ]; then
+		echo "Log file does not exsit, creating: $INSTALL_LOG"
+		DATETIMESTAMP=$(date -d @$(date -u +%s))
+		echo "Install log created: $DATETIMESTAMP" > $INSTALL_LOG
+		echo "=================================================" >> $INSTALL_LOG
+	fi
+	
+	# Append message to log:
+	echo "[$TAG]: $MSG" >> $INSTALL_LOG
 }
 
 loadcolors()
@@ -199,19 +227,38 @@ loadcolors
 
 # --------------------------------------------------------------------------------------------------------
 
+# Start new log file:
+
+DATETIMESTAMP=$(date -d @$(date -u +%s))
+addlog "NEWLOG" "-------------------------------------------------"
+addlog "TIMESTAMP" "Logged in as '$USER' starting new logging operation: $DATETIMESTAMP"
+
+# --------------------------------------------------------------------------------------------------------
+
 # Make sure Python is installed and packages are up-to-date:
 
 printf "\n1. Updating Raspbian.\n"
 
 printf "\nsudo apt-get update\n"
 #read -s -p "Press ENTER key to continue... "
-#sudo apt-get update
+USER_INPUT="No escape"
+while [ "$USER_INPUT" != "y" ] && [ "$USER_INPUT" != "n" ] && [ "$USER_INPUT" != "Y" ] && [ "$USER_INPUT" != "N" ]; do
+	read -p "Run command? [Y/N]: " USER_INPUT
+done
+
+if [ $USER_INPUT == "y" ] || [ $USER_INPUT == "Y" ]; then
+	addlog "UPDATE" "Updating apt-get sources: sudo apt-get update"
+	sudo apt-get update
+else
+	addlog "SKIPPED" "Command was skipped by user: sudo apt-get update"
+	printf "Skipping...\n"
+fi
 
 # Install Python, pip, and required modules:
 
 printf "\n2. Installing required packages.\n"
 
-# Function to check if apt or pip packages are installed and install them.
+# Define Function to check if apt or pip packages are installed and install them.
 PIP_PKGS=$(pip list)
 #printf "$PIP_PKGS\n"
 checkpkg()
@@ -223,7 +270,7 @@ checkpkg()
 	loadcolors
 	
 	# Error test to make sure either APT or PIP is selected
-	if [ $TYPE != "APT" ] && [ $TYPE != "PIP" ]; then
+	if [ $TYPE != "APT" ] && [ $TYPE != "PIP" ] && [ $TYPE != "PIP3" ]; then
 		#echo -e "${RED}ERROR${NOCOLOR}: Package type not selected as either APT or PIP"
 		printf "${RED}ERROR${NOCOLOR}: Package type not selected as either APT or PIP\n"
 		return
@@ -234,6 +281,9 @@ checkpkg()
 		#RESULTS=$(sudo apt list --installed | grep -i ^$PKGNAME/)
 		RESULTS=$(sudo apt list --installed 2> /dev/null | grep -i ^$PKGNAME/)
 	elif [ "$TYPE" = "PIP" ]; then
+		#RESULTS=$(pip list | grep -i ^$PKGNAME)
+		RESULTS=$(printf "$PIP_PKGS\n" | grep -i ^$PKGNAME)
+	elif [ "$TYPE" = "PIP3" ]; then
 		#RESULTS=$(pip list | grep -i ^$PKGNAME)
 		RESULTS=$(printf "$PIP_PKGS\n" | grep -i ^$PKGNAME)
 	fi
@@ -247,13 +297,22 @@ checkpkg()
 			printf "${WHITE}[${YELLOW}APT${WHITE}][${RED}$PKGNAME${WHITE}]${NOCOLOR} package is not installed\n"
 			printf "Installing $PKGNAME with apt...\n"
 			printf "sudo apt install $PKGNAME\n"
+			addlog "INSTALL" "Running install command: sudo apt install $PKGNAME"
 			#sudo apt install $PKGNAME
 		elif [ "$TYPE" = "PIP" ]; then
 			#echo -e "${WHITE}[${BLUE}PIP${WHITE}][${RED}$PKGNAME${WHITE}]${NOCOLOR} package is not installed"
 			printf "${WHITE}[${BLUE}PIP${WHITE}][${RED}$PKGNAME${WHITE}]${NOCOLOR} package is not installed\n"
 			printf "Installing $PKGNAME with pip...\n"
 			printf "sudo pip install $PKGNAME\n"
+			addlog "INSTALL" "Running install command: sudo pip install $PKGNAME"
 			#sudo pip install $PKGNAME
+		elif [ "$TYPE" = "PIP3" ]; then
+			#echo -e "${WHITE}[${BLUE}PIP${WHITE}][${RED}$PKGNAME${WHITE}]${NOCOLOR} package is not installed"
+			printf "${WHITE}[${GREEN}PIP3${WHITE}][${RED}$PKGNAME${WHITE}]${NOCOLOR} package is not installed\n"
+			printf "Installing $PKGNAME with pip...\n"
+			printf "sudo pip install $PKGNAME\n"
+			addlog "INSTALL" "Running install command: sudo python3 -m pip install $PKGNAME"
+			#sudo python3 -m pip install $PKGNAME
 		fi
 		return
 	else
@@ -261,9 +320,15 @@ checkpkg()
 		if [ "$TYPE" = "APT" ]; then
 			#echo -e "${WHITE}[${YELLOW}APT${WHITE}][${GREEN}Installed${WHITE}]${NOCOLOR}: $PKGNAME"
 			printf "${WHITE}[${YELLOW}APT${WHITE}][${GREEN}Installed${WHITE}]${NOCOLOR}: $PKGNAME\n"
+			addlog "SKIPPED" "apt package already installed: $PKGNAME"
 		elif [ "$TYPE" = "PIP" ]; then
 			#echo -e "${WHITE}[${BLUE}PIP${WHITE}][${GREEN}Installed${WHITE}]${NOCOLOR}: $PKGNAME"
 			printf "${WHITE}[${BLUE}PIP${WHITE}][${GREEN}Installed${WHITE}]${NOCOLOR}: $PKGNAME\n"
+			addlog "SKIPPED" "pip package already installed: $PKGNAME"
+		elif [ "$TYPE" = "PIP3" ]; then
+			#echo -e "${WHITE}[${BLUE}PIP${WHITE}][${GREEN}Installed${WHITE}]${NOCOLOR}: $PKGNAME"
+			printf "${WHITE}[${GREEN}PIP3${WHITE}][${GREEN}Installed${WHITE}]${NOCOLOR}: $PKGNAME\n"
+			addlog "SKIPPED" "pip (python3) package already installed: $PKGNAME"
 		fi
 		return
 	fi
@@ -288,6 +353,7 @@ if [ -f /var/run/reboot-required ] || [ $NEW_INSTALLED = "True" ]; then
 	if [ -f /var/run/reboot-required ]; then
 		#echo -e "${RED}Reboot required detected.${NOCOLOR}"
 		printf "${RED}Reboot required detected.${NOCOLOR}\n"
+		addlog "REBOOT" "Reboot required detected."
 	fi
 	if [ $NEW_INSTALLED = "True" ]; then
 		#echo -e "A restart is ${YELLOW}HIGHLY RECOMMENDED${NOCOLOR} after new (Python) software has been installed, and before installing any new pip (Python) packages up next."
@@ -302,7 +368,12 @@ if [ -f /var/run/reboot-required ] || [ $NEW_INSTALLED = "True" ]; then
 	done
 	
 	if [ "$USER_INPUT" = "y" ]; then
+		addlog "REBOOT" "Reboot operation approved by user: sudo reboot now"
+		DATETIMESTAMP=$(date -d @$(date -u +%s))
+		addlog "TIMESTAMP" "$DATETIMESTAMP"
 		sudo reboot now
+	else
+		addlog "SKIPPED" "Reboot reqest rejected by user."
 	fi
 fi
 
@@ -320,7 +391,11 @@ echo "Setting up Python:"
 echo "Installing pip packages:"
 checkpkg PIP "requests"
 checkpkg PIP "pif"
-checkpkg PIP "pygodaddy"
+#checkpkg PIP "pygodaddy" # No longer needed, I used API calls instead of this module.
+if [ $INSTALL_PYTHON3 = "True" ]; then
+	checkpkg PIP3 "requests"
+	checkpkg PIP3 "pif"
+fi
 
 # If you no longer need the python modules, you can remove them using:
 
@@ -447,10 +522,13 @@ checkpkg PIP "pygodaddy"
 
 printf "\n3. Set execution permissions for scripts to run.\n"
 
+addlog "PERMISSIONS" "Adding execution permission: sudo chmod +x dyndns.py"
 echo "sudo chmod +x dyndns.py"
 sudo chmod +x dyndns.py
+addlog "PERMISSIONS" "Adding execution permission: sudo chmod +x logcleanup.sh"
 echo "sudo chmod +x logcleanup.sh"
 sudo chmod +x logcleanup.sh
+addlog "PERMISSIONS" "Adding execution permission: sudo chmod +x ./lib/rand.sh"
 echo "sudo chmod +x ./lib/rand.sh"
 sudo chmod +x ./lib/rand.sh
 
@@ -506,6 +584,7 @@ else
 fi
 
 if [ $PY_FILE_EXISTS != "True" ] && [ $PYC_FILE_EXISTS != "True" ]; then
+	addlog "WARNING" "No configured 'params' files detected."
 	printf "\nWARNING: No configured parameter files detected! \nPlease make sure the $SEARCH_DIR/ directory contains \nat least one params .py script, without _TEMPLATE in the filename.\nTo set up a params file with your account details, make a copy of one of the _TEMPLATE.py files, but without the text \"_TEMPLATE\" in the new name. Edit the file to find more detailed instructions on how to set the variables with your account information.\n"
 	printf "\nThese are the only files currently in $SEARCH_DIR/:\n"
 	Listing=(`ls -1Q $SEARCH_DIR/`)
@@ -539,6 +618,7 @@ hrule()
 printf "\nTesting Dynamic DNS script:\npython $DYNDNS_PATH\n"
 #read -p "Press ENTER key to continue... "
 hrule
+addlog "TESTING" "Testing Dynamic DNS script execution: python $DYNDNS_PATH"
 python $DYNDNS_PATH
 hrule
 printf "End of testing Dyn DNS python script.\n"
@@ -546,6 +626,7 @@ printf "End of testing Dyn DNS python script.\n"
 printf "\nTesting log cleanup script:\n$LOGCLEAN_PATH\n"
 read -p "Press ENTER key to continue... "
 hrule
+addlog "TESTING" "Testing log cleanup script execution: $LOGCLEAN_PATH"
 #$LOGCLEAN_PATH
 hrule
 printf "End of testing log cleanup shell script.\n"
@@ -657,6 +738,7 @@ removecronjob()
 			read USER_INPUT
 		done
 		if [ "$USER_INPUT" = "y" ]; then
+			addlog "CRON" "Removing cron job line: $CRONYJOB"
 			#sed -i "/$USER_INPUT/d" filename
 			crontab -l | grep -v "$SCRIPT_NAME" | crontab -
 		fi
@@ -673,6 +755,7 @@ addcronjob()
 	echo "Adding cron line: $CRONJOB_INPUT_NAME"
 	echo "$WET_HOT_CRON_LINE"
 	read -s -p "Press ENTER key to continue... "
+	addlog "CRON" "Adding cron line: $CRONJOB_INPUT_NAME"
 	#(crontab -l 2>/dev/null; echo "$WET_HOT_CRON_LINE") | crontab -
 	(crontab -u $CRONJOB_INPUT_NAME -l 2>/dev/null; echo "$WET_HOT_CRON_LINE") | crontab -
 	unset CRONJOB_INPUT_NAME
@@ -682,9 +765,10 @@ showcronjobs()
 {
 	#Example: showcronjobs
 	CRONJOB_INPUT_NAME=$1
+	printf "\n"
 	USER_INPUT="No escape"
 	while [ "$USER_INPUT" != "y" ] && [ "$USER_INPUT" != "n" ]; do
-		printf "\nShow all current cron job(s)? [y/n]:"
+		printf "Show all current cron job(s)? [y/n]:"
 		read USER_INPUT
 	done
 	if [ "$USER_INPUT" = "y" ]; then
@@ -695,7 +779,6 @@ showcronjobs()
 			printf "crontab -l\n"
 			CRONJOBLIST=$(crontab -l)
 		fi
-		printf "crontab -l\n"
 		printf "$CRONJOBLIST\n"
 	fi
 	unset CRONJOB_INPUT_NAME
@@ -727,7 +810,8 @@ showcronjobs $MAIN_USER_NAME
 
 cronfreqmenu
 USER_INPUT=99
-while ! [[ "$USER_INPUT" -ge 0 && "$USER_INPUT" -le 6 ]]; do
+#until [[ $USER_INPUT -ge 0 ]] && [[ $USER_INPUT -le 6 ]] && [[ ! -z "$USER_INPUT" ]]; do
+until [[ $USER_INPUT -ge 0 ]] && [[ $USER_INPUT -le 6 ]] && [[ "$USER_INPUT" =~ ^[0-9]+$ ]]; do
 	read -p "Choose option [0-6]: " USER_INPUT
 done
 
@@ -735,8 +819,10 @@ if [ $USER_INPUT -ge 0 ] && [ $USER_INPUT -le 1 ]; then
 	MIN_INPUT=99
 	while ! [[ "$MIN_INPUT" -ge 0 && "$MIN_INPUT" -le 3 ]]; do
 		if [ $USER_INPUT -eq 0 ]; then
+			addlog "SELECTION" "User chose to have Dynamic DNS run Once per two hours."
 			printf "\nOnce per two hours selected.\n"
 		elif [ $USER_INPUT -eq 1 ]; then
+			addlog "SELECTION" "User chose to have Dynamic DNS run Once per hour."
 			printf "\nOnce per hour selected.\n"
 		fi
 		minselecttxt
@@ -778,20 +864,25 @@ if [ $USER_INPUT -ge 0 ] && [ $USER_INPUT -le 1 ]; then
 	fi
 	CRON_STRING="$CRON_SCHED python $DYNDNS_PATH"
 elif [ $USER_INPUT -eq 2 ]; then
+	addlog "SELECTION" "User chose to have Dynamic DNS run Twice per hour."
 	CRON_SCHED="0,30 * * * *"
 	CRON_STRING="$CRON_SCHED python $DYNDNS_PATH"
 elif [ $USER_INPUT -eq 3 ]; then
+	addlog "SELECTION" "User chose to have Dynamic DNS run Once every fifteen minutes."
 	CRON_SCHED="0,15,30,45 * * * *"
 	CRON_STRING="$CRON_SCHED python $DYNDNS_PATH"
 elif [ $USER_INPUT -eq 4 ]; then
+	addlog "SELECTION" "User chose to have Dynamic DNS run Once every ten minutes."
 	CRON_SCHED="0/10 * * * *"
 	#CRON_SCHED="0,10,20,30,40,50 * * * *"
 	CRON_STRING="$CRON_SCHED python $DYNDNS_PATH"
 elif [ $USER_INPUT -eq 5 ]; then
+	addlog "SELECTION" "User chose to have Dynamic DNS run Once every five minutes."
 	CRON_SCHED="0/5 * * * *"
 	#CRON_SCHED="0,5,10,15,20,25,30,35,45,50,55 * * * *"
 	CRON_STRING="$CRON_SCHED python $DYNDNS_PATH"
 elif [ $USER_INPUT -eq 6 ]; then
+	addlog "SELECTION" "User chose to enter a custom cron string for when to have Dynamic DNS run."
 	echo "Enter custom cron string: (do not include file path)"
 	echo "m h dom mon dow   $DYNDNS_PATH"
 	echo "For example:"
@@ -822,6 +913,7 @@ addcronjob $MAIN_USER_NAME "$CRON_STRING"
 
 logcleanupfreqmenu()
 {
+	printf "\n\nThe log cleanup script will save the last log file as _OLD or _LAST. And if a file already exists with that name, it will be deleted first. So the oldest data that will be retained is up to double how often the log cleanup script is run.\n"
 	printf "\n\nSelect how frequently the Log Cleanup script should run:\n"
 	echo " 0 - Once every two weeks (on the 1st and the 15th of every month)"
 	echo " 1 - Once per month (Recommended)"
@@ -832,29 +924,35 @@ logcleanupfreqmenu()
 
 logcleanupfreqmenu
 USER_INPUT=99
-while ! [[ "$USER_INPUT" -ge 0 && "$USER_INPUT" -le 4 ]]; do
+#until [[ $USER_INPUT -ge 0 ]] && [[ $USER_INPUT -le 4 ]] && [[ ! -z "$USER_INPUT" ]]; do
+until [[ $USER_INPUT -ge 0 ]] && [[ $USER_INPUT -le 4 ]] && [[ "$USER_INPUT" =~ ^[0-9]+$ ]]; do
 	read -p "Choose option [0-4]: " USER_INPUT
 done
 
 # Switch block:
 case $USER_INPUT in
 	0)
+		addlog "SELECTION" "User chose to have the log cleanup script run Once every two weeks (on the 1st and the 15th of every month)."
 		CRON_SCHED="0 0 1,15 * *"
 		CRON_STRING="$CRON_SCHED $LOGCLEAN_PATH"
 		;;
 	1)
+		addlog "SELECTION" "User chose to have the log cleanup script run Once per month."
 		CRON_SCHED="0 0 1 * *"
 		CRON_STRING="$CRON_SCHED $LOGCLEAN_PATH"
 		;;
 	2)
+		addlog "SELECTION" "User chose to have the log cleanup script run Once every 2 months."
 		CRON_SCHED="0 0 1 */2 *"
 		CRON_STRING="$CRON_SCHED $LOGCLEAN_PATH"
 		;;
 	3)
+		addlog "SELECTION" "User chose to have the log cleanup script run Once every 3 months."
 		CRON_SCHED="0 0 1 */3 *"
 		CRON_STRING="$CRON_SCHED $LOGCLEAN_PATH"
 		;;
 	4)
+		addlog "SELECTION" "User chose to enter a custom cron string for when to have the log cleanup script run."
 		echo "Enter custom cron string: (do not include file path)"
 		echo "m h dom mon dow   $LOGCLEAN_PATH"
 		echo "For example:"
@@ -892,9 +990,12 @@ addcronjob $MAIN_USER_NAME "$CRON_STRING"
 showcronjobs $MAIN_USER_NAME
 
 printf "\n7. End of setup script.\n"
+DATETIMESTAMP=$(date -d @$(date -u +%s))
+addlog "TIMESTAMP" "End of setup script reached: $DATETIMESTAMP"
 if [ -f /var/run/reboot-required ]; then
 	#echo -e "${RED}Reboot required detected.${NOCOLOR}"
 	printf "${RED}Reboot required detected.${NOCOLOR}\n"
+	addlog "REBOOT" "Reboot required detected."
 fi
 
 USER_INPUT="No escape"
@@ -904,7 +1005,12 @@ while [ "$USER_INPUT" != "y" ] && [ "$USER_INPUT" != "n" ]; do
 done
 
 if [ "$USER_INPUT" = "y" ]; then
+	addlog "REBOOT" "Reboot operation approved by user: sudo reboot now"
+	DATETIMESTAMP=$(date -d @$(date -u +%s))
+	addlog "TIMESTAMP" "$DATETIMESTAMP"
 	sudo reboot now
+else
+	addlog "SKIPPED" "Reboot reqest rejected by user."
 fi
 
 # --------------------------------------------------------------------------------------------------------
