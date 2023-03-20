@@ -1,4 +1,15 @@
 
+# Instructions to configure this file for your NameSilo account:
+
+# Step 1:
+# To generate your NameSilo API key:
+# Log in to NameSilo.com with your account, then visit the API manager page:
+#https://www.namesilo.com/account/api-manager
+
+# Step 2: Update vars below with YOUR personal details (The API keys you just generated, your domain name, TTL, etc.)
+
+# Step 3: Save this file as "NameSilo.py" (remove "_TEMPLATE" from the name)
+
 # 1
 # DOMAIN_NAME_TO_MAINTAIN = 'EXAMPLE.COM'
 DOMAIN_NAME_TO_MAINTAIN = 'EXAMPLE.COM'

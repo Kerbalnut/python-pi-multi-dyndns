@@ -173,14 +173,16 @@
 
 # Parameters:
 
-# Set as name of user profile you want to install this project into
-MAIN_USER_NAME="pi"
-
+# Install Python3:
 # Set as "True" or "False" string
-INSTALL_PYTHON3="True"
+# Or, comment-out completely to prompt user at run time.
+#INSTALL_PYTHON3="True"
 
 # Install log name:
-INSTALL_LOG="setup.log"
+#INSTALL_LOG="setup.log"
+#MYSCRIPTNAME=`basename "$0" .sh`
+MYSCRIPTNAME=`basename "$BASH_SOURCE" .sh`
+INSTALL_LOG="$MYSCRIPTNAME.log"
 
 # --------------------------------------------------------------------------------------------------------
 # Define functions
@@ -219,7 +221,12 @@ loadcolors()
 	#printf "I ${RED}love${NOCOLOR} Linux\n"
 	#printf "${ORANGE_BKG}Warning${NOCOLOR_BKG} There is a problem.\n"
 	#source ./lib/colors.sh
-	. ./lib/colors.sh 
+	if [ -e "./colors.sh" ]; then
+		. ./colors.sh
+	fi
+	if [ -e "./lib/colors.sh" ]; then
+		. ./lib/colors.sh
+	fi
 	loadcolors
 }
 loadcolors
@@ -230,7 +237,8 @@ loadcolors
 # Start new log file:
 
 DATETIMESTAMP=$(date -d @$(date -u +%s))
-addlog "NEWLOG" "-------------------------------------------------"
+HRULE_HYPHEN="-------------------------------------------------"
+addlog "NEWLOG" "$HRULE_HYPHEN"
 addlog "TIMESTAMP" "Logged in as '$USER' starting new logging operation: $DATETIMESTAMP"
 
 # --------------------------------------------------------------------------------------------------------
@@ -260,6 +268,11 @@ printf "\n2. Installing required packages.\n"
 
 # Define Function to check if apt or pip packages are installed and install them.
 PIP_PKGS=$(pip list)
+if [[ ! -z "$INSTALL_PYTHON3" ]]; then
+	if [ $INSTALL_PYTHON3 = "True" ]; then
+		PIP3_PKGS=$(pip3 list)
+	fi
+fi
 #printf "$PIP_PKGS\n"
 checkpkg()
 {
@@ -284,8 +297,7 @@ checkpkg()
 		#RESULTS=$(pip list | grep -i ^$PKGNAME)
 		RESULTS=$(printf "$PIP_PKGS\n" | grep -i ^$PKGNAME)
 	elif [ "$TYPE" = "PIP3" ]; then
-		#RESULTS=$(pip list | grep -i ^$PKGNAME)
-		RESULTS=$(printf "$PIP_PKGS\n" | grep -i ^$PKGNAME)
+		RESULTS=$(printf "$PIP3_PKGS\n" | grep -i ^$PKGNAME)
 	fi
 	
 	# If package is not installed, install it:
@@ -298,21 +310,24 @@ checkpkg()
 			printf "Installing $PKGNAME with apt...\n"
 			printf "sudo apt install $PKGNAME\n"
 			addlog "INSTALL" "Running install command: sudo apt install $PKGNAME"
-			#sudo apt install $PKGNAME
+			sudo apt install $PKGNAME
 		elif [ "$TYPE" = "PIP" ]; then
 			#echo -e "${WHITE}[${BLUE}PIP${WHITE}][${RED}$PKGNAME${WHITE}]${NOCOLOR} package is not installed"
 			printf "${WHITE}[${BLUE}PIP${WHITE}][${RED}$PKGNAME${WHITE}]${NOCOLOR} package is not installed\n"
 			printf "Installing $PKGNAME with pip...\n"
 			printf "sudo pip install $PKGNAME\n"
 			addlog "INSTALL" "Running install command: sudo pip install $PKGNAME"
-			#sudo pip install $PKGNAME
+			sudo pip install $PKGNAME
+			printf "sudo python -m pip install $PKGNAME\n"
+			addlog "INSTALL" "Running install command: sudo python -m pip install $PKGNAME"
+			sudo python -m pip install $PKGNAME
 		elif [ "$TYPE" = "PIP3" ]; then
 			#echo -e "${WHITE}[${BLUE}PIP${WHITE}][${RED}$PKGNAME${WHITE}]${NOCOLOR} package is not installed"
 			printf "${WHITE}[${GREEN}PIP3${WHITE}][${RED}$PKGNAME${WHITE}]${NOCOLOR} package is not installed\n"
-			printf "Installing $PKGNAME with pip...\n"
-			printf "sudo pip install $PKGNAME\n"
+			printf "Installing $PKGNAME with pip (python 3)...\n"
+			printf "sudo python3 -m pip install $PKGNAME\n"
 			addlog "INSTALL" "Running install command: sudo python3 -m pip install $PKGNAME"
-			#sudo python3 -m pip install $PKGNAME
+			sudo python3 -m pip install $PKGNAME
 		fi
 		return
 	else
@@ -340,9 +355,21 @@ NEW_INSTALLED="False"
 echo "Installing APT packages:"
 checkpkg APT "bc"
 checkpkg APT "python2.7"
-checkpkg APT "pip"
+# checkpkg APT "pip"
 checkpkg APT "python-pip"
+if [[ -z "$INSTALL_PYTHON3" ]]; then
+	unset USER_INPUT
+	until [ "$USER_INPUT" = "y" ] || [ "$USER_INPUT" = "n" ] || [ "$USER_INPUT" = "Y" ] || [ "$USER_INPUT" = "N" ]; do
+		read -p "Install python3-related packages as well? [Y/N]: " USER_INPUT
+	done
+	if [ $USER_INPUT == "y" ] || [ $USER_INPUT == "Y" ]; then
+		INSTALL_PYTHON3="True"
+	else
+		INSTALL_PYTHON3="False"
+	fi
+fi
 if [ $INSTALL_PYTHON3 = "True" ]; then
+	PIP3_PKGS=$(pip3 list)
 	checkpkg APT "python3"
 	checkpkg APT "python3.7"
 	checkpkg APT "python3-pip"
@@ -525,12 +552,18 @@ printf "\n3. Set execution permissions for scripts to run.\n"
 addlog "PERMISSIONS" "Adding execution permission: sudo chmod +x dyndns.py"
 echo "sudo chmod +x dyndns.py"
 sudo chmod +x dyndns.py
+
 addlog "PERMISSIONS" "Adding execution permission: sudo chmod +x logcleanup.sh"
 echo "sudo chmod +x logcleanup.sh"
 sudo chmod +x logcleanup.sh
+
 addlog "PERMISSIONS" "Adding execution permission: sudo chmod +x ./lib/rand.sh"
 echo "sudo chmod +x ./lib/rand.sh"
 sudo chmod +x ./lib/rand.sh
+
+addlog "PERMISSIONS" "Adding execution permission: sudo chmod +x ./lib/colors.sh"
+echo "sudo chmod +x ./lib/colors.sh"
+sudo chmod +x ./lib/colors.sh
 
 # --------------------------------------------------------------------------------------------------------
 
@@ -612,7 +645,7 @@ LOGCLEAN_PATH="$CUR_DIR/logcleanup.sh"
 
 hrule()
 {
-	printf "\n${YELLOW}====================${NOCOLOR}\n"
+	printf "\n${YELLOW}========================================${NOCOLOR}\n"
 }
 
 printf "\nTesting Dynamic DNS script:\npython $DYNDNS_PATH\n"
@@ -627,7 +660,7 @@ printf "\nTesting log cleanup script:\n$LOGCLEAN_PATH\n"
 read -p "Press ENTER key to continue... "
 hrule
 addlog "TESTING" "Testing log cleanup script execution: $LOGCLEAN_PATH"
-#$LOGCLEAN_PATH
+$LOGCLEAN_PATH
 hrule
 printf "End of testing log cleanup shell script.\n"
 
@@ -719,7 +752,12 @@ pickrandmin()
 {
 	# This function will pick a random minute value from 0-59.
 	#source ./lib/rand.sh
-	. ./lib/rand.sh 
+	if [ -e "./rand.sh" ]; then
+		. ./rand.sh
+	fi
+	if [ -e "./lib/rand.sh" ]; then
+		. ./lib/rand.sh
+	fi
 	pickrandommin
 }
 #pickrandmin
@@ -728,56 +766,104 @@ removecronjob()
 {
 	#Example: removecronjob dyndns.sh
 	#Example: removecronjob /home/pi/dyndns/dyndns.sh
+	#Example: removecronjob /home/pi/dyndns/dyndns.sh $USER
+	unset SCRIPT_NAME
+	unset CRONJOB_INPUT_NAME
 	SCRIPT_NAME=$1
-	CRONYJOB=$(crontab -l | grep $SCRIPT_NAME)
+	CRONJOB_INPUT_NAME=$2
+	if [[ -z "$CRONJOB_INPUT_NAME" ]]; then
+		CRONYJOB=$(crontab -l | grep $SCRIPT_NAME)
+	else
+		CRONYJOB=$(crontab -u $CRONJOB_INPUT_NAME -l | grep $SCRIPT_NAME)
+	fi
 	if [ "$CRONYJOB" != "" ]; then
 		printf "$CRONYJOB\n"
 		USER_INPUT="No escape"
-		while [ "$USER_INPUT" != "y" ] && [ "$USER_INPUT" != "n" ]; do
-			echo "Delete cron job(s)? [y/n]:"
+		while [ "$USER_INPUT" != "y" ] && [ "$USER_INPUT" != "n" ] && [ "$USER_INPUT" != "Y" ] && [ "$USER_INPUT" != "N" ]; do
+			if [[ -z "$CRONJOB_INPUT_NAME" ]]; then
+				echo "Delete cron job(s)? [y/n]:"
+			else
+				echo "Delete cron job(s) for user '$CRONJOB_INPUT_NAME'? [y/n]:"
+			fi
 			read USER_INPUT
 		done
-		if [ "$USER_INPUT" = "y" ]; then
-			addlog "CRON" "Removing cron job line: $CRONYJOB"
+		if [ "$USER_INPUT" = "y" ] || [ "$USER_INPUT" = "Y" ]; then
 			#sed -i "/$USER_INPUT/d" filename
-			crontab -l | grep -v "$SCRIPT_NAME" | crontab -
+			if [[ -z "$CRONJOB_INPUT_NAME" ]]; then
+				addlog "CRON" "Removing cron job line: $CRONYJOB"
+				addlog "CRON" "crontab -l | grep -v "$SCRIPT_NAME" | crontab -"
+				crontab -l | grep -v "$SCRIPT_NAME" | crontab -
+			else
+				addlog "CRON" "Removing cron job line for user '$CRONJOB_INPUT_NAME': $CRONYJOB"
+				addlog "CRON" "crontab -u $CRONJOB_INPUT_NAME -l | grep -v "$SCRIPT_NAME" | crontab -u $CRONJOB_INPUT_NAME -"
+				crontab -u $CRONJOB_INPUT_NAME -l | grep -v "$SCRIPT_NAME" | crontab -u $CRONJOB_INPUT_NAME -
+			fi
+		fi
+	else
+		if [[ -z "$CRONJOB_INPUT_NAME" ]]; then
+			echo "No cron job to remove found with script name: $SCRIPT_NAME"
+		else
+			echo "No cron job to remove found for user '$CRONJOB_INPUT_NAME' with script name: $SCRIPT_NAME"
 		fi
 	fi
+	unset SCRIPT_NAME
+	unset CRONJOB_INPUT_NAME
 }
 
 addcronjob()
 {
-	#Example: addcronjob $MAIN_USER_NAME 0 0 1 */1 * /home/pi/dyndns/logcleanup.sh
+	#Example: addcronjob $USER 0 0 1 */1 * /home/pi/dyndns/logcleanup.sh
+	unset CRONJOB_INPUT_NAME
+	unset WET_HOT_CRON_LINE
 	CRONJOB_INPUT_NAME=$1
 	shift;
 	# Shift input position once, and all the rest is now a cron job line.
 	WET_HOT_CRON_LINE=$@
-	echo "Adding cron line: $CRONJOB_INPUT_NAME"
+	if [[ -z "$CRONJOB_INPUT_NAME" ]]; then
+		addlog "CRON" "Adding cron line:"
+		echo "Adding cron line:"
+	else
+		addlog "CRON" "Adding cron line for user '$CRONJOB_INPUT_NAME':"
+		echo "Adding cron line for user '$CRONJOB_INPUT_NAME':"
+	fi
+	addlog "CRON" "$WET_HOT_CRON_LINE"
 	echo "$WET_HOT_CRON_LINE"
+	#ESC_PRINT_STRING="${WET_HOT_CRON_LINE//'*'/'\*'}"
+	ESC_PRINT_STRING="$WET_HOT_CRON_LINE"
 	read -s -p "Press ENTER key to continue... "
-	addlog "CRON" "Adding cron line: $CRONJOB_INPUT_NAME"
-	#(crontab -l 2>/dev/null; echo "$WET_HOT_CRON_LINE") | crontab -
-	(crontab -u $CRONJOB_INPUT_NAME -l 2>/dev/null; echo "$WET_HOT_CRON_LINE") | crontab -
+	if [[ -z "$CRONJOB_INPUT_NAME" ]]; then
+		addlog "CRON" "(crontab -l 2>/dev/null; echo \"$ESC_PRINT_STRING\") | crontab -"
+		(crontab -l 2>/dev/null; echo "$WET_HOT_CRON_LINE") | crontab -
+	else
+		addlog "CRON" "(crontab -u $CRONJOB_INPUT_NAME -l 2>/dev/null; echo \"$ESC_PRINT_STRING\") | crontab -u $CRONJOB_INPUT_NAME -"
+		(crontab -u $CRONJOB_INPUT_NAME -l 2>/dev/null; echo "$WET_HOT_CRON_LINE") | crontab -u $CRONJOB_INPUT_NAME -
+	fi
 	unset CRONJOB_INPUT_NAME
+	unset WET_HOT_CRON_LINE
 }
 
 showcronjobs()
 {
 	#Example: showcronjobs
+	unset CRONJOB_INPUT_NAME
 	CRONJOB_INPUT_NAME=$1
 	printf "\n"
 	USER_INPUT="No escape"
 	while [ "$USER_INPUT" != "y" ] && [ "$USER_INPUT" != "n" ]; do
-		printf "Show all current cron job(s)? [y/n]:"
+		if [[ -z "$CRONJOB_INPUT_NAME" ]]; then
+			printf "Show all current cron job(s)? [y/n]:"
+		else
+			printf "Show all current cron job(s) for user '$CRONJOB_INPUT_NAME'? [y/n]:"
+		fi
 		read USER_INPUT
 	done
 	if [ "$USER_INPUT" = "y" ]; then
-		if [ -v CRONJOB_INPUT_NAME ]; then
-			printf "crontab -u $CRONJOB_INPUT_NAME -l\n"
-			CRONJOBLIST=$(crontab -u $CRONJOB_INPUT_NAME -l)
-		else
+		if [[ -z "$CRONJOB_INPUT_NAME" ]]; then
 			printf "crontab -l\n"
 			CRONJOBLIST=$(crontab -l)
+		else
+			printf "crontab -u $CRONJOB_INPUT_NAME -l\n"
+			CRONJOBLIST=$(crontab -u $CRONJOB_INPUT_NAME -l)
 		fi
 		printf "$CRONJOBLIST\n"
 	fi
@@ -806,7 +892,7 @@ minselecttxt()
 }
 
 #showcronjobs
-showcronjobs $MAIN_USER_NAME
+showcronjobs $USER
 
 cronfreqmenu
 USER_INPUT=99
@@ -906,14 +992,15 @@ elif [ $USER_INPUT -eq 6 ]; then
 	CRON_STRING="$CRON_SCHED python $DYNDNS_PATH"
 fi
 
-printf "Remove old job if it exists before adding new one:\n$DYNDNS_PATH\n"
-removecronjob $DYNDNS_PATH
+printf "\nRemove old job if it exists before adding new one:\n$DYNDNS_PATH\n"
+#removecronjob $DYNDNS_PATH
+removecronjob $DYNDNS_PATH $USER
 
-addcronjob $MAIN_USER_NAME "$CRON_STRING"
+addcronjob $USER "$CRON_STRING"
 
 logcleanupfreqmenu()
 {
-	printf "\n\nThe log cleanup script will save the last log file as _OLD or _LAST. And if a file already exists with that name, it will be deleted first. So the oldest data that will be retained is up to double how often the log cleanup script is run.\n"
+	printf "\n\nTip: The log cleanup script will save the last log file as _OLD or _LAST. And if a file already exists with that name, it will be deleted first. So the oldest data that will be retained is up to double how often the log cleanup script is scheduled to run.\n"
 	printf "\n\nSelect how frequently the Log Cleanup script should run:\n"
 	echo " 0 - Once every two weeks (on the 1st and the 15th of every month)"
 	echo " 1 - Once per month (Recommended)"
@@ -981,13 +1068,14 @@ case $USER_INPUT in
 esac
 #/case $USER_INPUT
 
-printf "Remove old job if it exists before adding new one:\n$LOGCLEAN_PATH\n"
-removecronjob $LOGCLEAN_PATH
+printf "\nRemove old job if it exists before adding new one:\n$LOGCLEAN_PATH\n"
+#removecronjob $LOGCLEAN_PATH
+removecronjob $LOGCLEAN_PATH $USER
 
-addcronjob $MAIN_USER_NAME "$CRON_STRING"
+addcronjob $USER "$CRON_STRING"
 
 #showcronjobs
-showcronjobs $MAIN_USER_NAME
+showcronjobs $USER
 
 printf "\n7. End of setup script.\n"
 DATETIMESTAMP=$(date -d @$(date -u +%s))
@@ -1008,9 +1096,11 @@ if [ "$USER_INPUT" = "y" ]; then
 	addlog "REBOOT" "Reboot operation approved by user: sudo reboot now"
 	DATETIMESTAMP=$(date -d @$(date -u +%s))
 	addlog "TIMESTAMP" "$DATETIMESTAMP"
+	addlog "ENDLOG" "$HRULE_HYPHEN"
 	sudo reboot now
 else
 	addlog "SKIPPED" "Reboot reqest rejected by user."
+	addlog "ENDLOG" "$HRULE_HYPHEN"
 fi
 
 # --------------------------------------------------------------------------------------------------------

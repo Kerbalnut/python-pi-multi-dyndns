@@ -93,7 +93,8 @@
 CURRENT_LOGFILE_PATH="/home/pi/dyndns/dyndns.log"
 
 #ARCHIVE_LOGFILE_PATH="/home/pi/dyndns/dyndns-LastTwoWeeks.log"
-ARCHIVE_LOGFILE_PATH="/home/pi/dyndns/dyndns-LastMonth.log"
+#ARCHIVE_LOGFILE_PATH="/home/pi/dyndns/dyndns-LastMonth.log"
+ARCHIVE_LOGFILE_PATH="/home/pi/dyndns/dyndns_OLD.log"
 
 # /Parameters
 # --------------------------------------------------------------------------------------------------------

@@ -16,7 +16,12 @@ loadcolors()
 	#printf "I ${RED}love${NOCOLOR} Linux\n"
 	#printf "${ORANGE_BKG}Warning${NOCOLOR_BKG} There is a problem.\n"
 	#source ./colors.sh
-	. ./colors.sh 
+	if [ -e "./colors.sh" ]; then
+		. ./colors.sh
+	fi
+	if [ -e "./lib/colors.sh" ]; then
+		. ./lib/colors.sh
+	fi
 	loadcolors
 }
 loadcolors
