@@ -37,25 +37,3 @@ DNS_RECORD_TTL = 3600
 # Environment: 'PROD' or 'OTE'
 # (Tip: stick with Production API keys)
 GODADDY_ENV = 'PROD'
-
-# --------------------------------------------------------------
-# (WARNING: Vars below this line aren't being used.)
-
-# (Don't worry about updating these. I'm pretty sure they're not being used in the main script at all anymore. Consider them deprecated, about to be removed soon. I still have to clean up the NameSilo_TEMPLATE.py file too to make them all match, so this will all get fixed at the same time.)
-
-# the A record you want to update
-# The domain or subdomain you are pointing. Use '@' for your plain domain (e.g. coolexample.com). Don't input your domain name in this field (e.g. 'www', not 'www.coolexample.com')
-subdomainArecordName = '@'
-
-# the mail server to use for sending error, update notifications, etc.
-# note that at this time, SMTP authentication is not supported
-# if you need that, configure your local smtp server to forward
-# to gmail, or whereever, in authenticated mode.
-smtpserver = 'localhost'
-
-# the 'from' address for the notify email
-sender = 'DynDNS python script <noreply@example.com>'
-
-# where to send the notify email
-to = 'Joe User <joeuser@yourdomain.net>'
-
