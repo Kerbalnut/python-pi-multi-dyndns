@@ -7,11 +7,18 @@ import fnmatch
 #import ntpath
 import os.path
 import socket
+import csv
 
 import sys, argparse, logging, pif, smtplib, urllib
-from pygodaddy import GoDaddyClient
+#from termcolor import colored, cprint
+#from pygodaddy import GoDaddyClient
 # Import the email modules we'll need
 from email.mime.text import MIMEText
+
+#import lib.colors as colors
+#from lib import *
+from lib import colors as colorcode
+#import params.NameSilo as paramsNameSilo
 
 from os import listdir
 from os.path import isfile, join
@@ -23,16 +30,19 @@ from os.path import isfile, join
 # 3. Parameters:
 # 4. Functions:
 # 5. Main:
-#     1. Imports & set vars --------------------------------------------------------------------------------------
-#     2. Create log file if it doesn't exist ---------------------------------------------------------------------
-#     3. 1st URL call: Get our Public IP -------------------------------------------------------------------------
-#     4. 2nd URL call: Get NameSilo's IP for our domain name -----------------------------------------------------
-#     5. Examine & Compare Responses -----------------------------------------------------------------------------
-#     6. 3rd (possible) URL call: Set NameSilo's IP for our domain name ------------------------------------------
+# 5.0. Set up parameters ----------------------------------------------------------------------------------
+# 5.1. Clean-up uncompiled .py files ----------------------------------------------------------------------
+# 5.2. Get current public IP ------------------------------------------------------------------------------
+# 5.3. Get IP on record with DNS --------------------------------------------------------------------------
+# 5.4. Get IP on record with DNS (direct API call to domain provider) -------------------------------------
+# 5.5. Compare if all details match -----------------------------------------------------------------------
+# 5.6. If any details do not match, send API request to update DNS record ---------------------------------
+# 5.6a. NameSilo.com --------------------------------------------------------------------------------------
+# 5.6b. GoDaddy.com ---------------------------------------------------------------------------------------
 # 6. Footer:
 
 # ---------------------------------------------------------------------------------------------------------
-# Information & Description:
+# 1. Information & Description:
 
 # dyndns.py is designed to run on a Raspberry Pi to update domain name A records (IPv4) hosted on a multitude of different domain registrars/providers.
 
@@ -45,7 +55,7 @@ from os.path import isfile, join
 
 # /Information & Description
 # ---------------------------------------------------------------------------------------------------------
-# Setup & Instructions:
+# 2. Setup & Instructions:
 
 # To copy this script to Raspberry Pi via PuTTY:
 #pscp "%UserProfile%\Documents\GitHub\Python-DynDNS-NameSilo\dyndns\dyndns.py" pi@10.210.69.42:/home/pi/dyndns/dyndns.py
@@ -55,6 +65,7 @@ from os.path import isfile, join
 #python2.7 /home/pi/dyndns/dyndns.py
 #python3 /home/pi/dyndns/dyndns.py
 
+#     2a. Dependences:
 # Import Module Dependences: (troubleshooting)
 # Must install module packages if you don't have them available for import, if import causes any errors:
 #pip install requests
@@ -76,7 +87,7 @@ from os.path import isfile, join
 
 # /Setup & Instructions
 # ---------------------------------------------------------------------------------------------------------
-# Parameters:
+# 3. Parameters:
 
 # 1
 #PATH_TO_PRODUCTION_PARAMS = './params/NameSilo.py'
@@ -111,7 +122,7 @@ FORCE_TESTING = False
 
 # /Parameters
 # ---------------------------------------------------------------------------------------------------------
-# Functions:
+# 4. Functions:
 
 #email function
 def email_update(body):
@@ -1120,25 +1131,305 @@ def DynDNSUpdateGoDaddy(LOG_FILE_0,paramsGoDaddy,public_ip=False):
 	
 	return
 
+def DynDNSUpdateAeserver(LOG_FILE_0,paramsaeserver,public_ip=False):
+	# Source: https://github.com/johanreinalda/godaddy_dynamic_dns
+	# To call this function:
+	#DynDNSUpdateGoDaddy();
+	#--------------------------------------------------------------------------------
+	#!/usr/bin/python
+	#import sys, argparse, logging, pif, smtplib, urllib
+	#from pygodaddy import GoDaddyClient
+	# Import the email modules we'll need
+	#from email.mime.text import MIMEText
+	
+	#this contain the config file
+	#import godaddy
+	
+	#command line arguments parsing
+	#parser = argparse.ArgumentParser('A Python script to do updates to a GoDaddy DNS host A record')
+	#parser.add_argument('-v', '--verbose', action='store_true', help="send emails on 'no ip update required'")
+	#args = parser.parse_args()
+	
+	#start log file
+	#logging.basicConfig(filename=paramsGoDaddy.logfile, format='%(asctime)s %(message)s', level=logging.INFO)
+	
+	#--------------------------------------------------------------------------------
+	
+	#what is my public ip?
+	if (public_ip == False):
+		public_ip = GetPublicIP(LOG_FILE_0)
+	
+	#--------------------------------------------------------------------------------
+	
+	# API keys method:
+	
+	# Set as either "XML" or "JSON"
+	RESPONSE_FORMAT="XML"
+	
+	#https://developer.godaddy.com/doc/endpoint/domains#/v1/recordGet
+	ote_url = "https://api.ote-godaddy.com/"
+	prod_url = "https://api.godaddy.com/"
+	recordtype = 'A'
+	recordlimit = False
+	#recordlimit = 7
+	
+	#api_url = ote_url
+	#api_url = prod_url
+	# Environment: 'PROD' or 'OTE'
+	if (paramsGoDaddy.GODADDY_ENV == 'PROD'):
+		api_url = prod_url
+	elif (paramsGoDaddy.GODADDY_ENV == 'OTE'):
+		api_url = ote_url
+	else:
+		LogFileAddError(LOG_FILE_0,('Problem choosing paramsGoDaddy.py GODADDY_ENV variable, should be either PROD or OTE:'+paramsGoDaddy.GODADDY_ENV))
+		api_url = prod_url
+		LogFileAddError(LOG_FILE_0,('Defaulting to GoDaddy PROD API: '+api_url))
+	
+	#https://api.ote-godaddy.com/v1/domains/domain.com/records/A/%40?limit=7
+	#url_encoded = urllib.urlencode(paramsGoDaddy.GODADDY_SUBDOMAIN)
+	#url_encoded = urllib.quote(paramsGoDaddy.GODADDY_SUBDOMAIN)
+	
+	#https://www.w3schools.com/tags/ref_urlencode.asp
+	url_encoded = (paramsGoDaddy.GODADDY_SUBDOMAIN).replace('@','%40')
+	
+	if (recordlimit != False):
+		full_url = api_url+'v1/domains/'+paramsGoDaddy.GODADDY_DOMAIN+'/records/'+recordtype+'/'+url_encoded+'?limit='+str(recordlimit)
+	else:
+		full_url = api_url+'v1/domains/'+paramsGoDaddy.GODADDY_DOMAIN+'/records/'+recordtype+'/'+url_encoded
+	#/v1/domains/{domain}/records/{type}/{name}
+	#"https://api.godaddy.com/v1/domains/${mydomain}/records/A/${myhostname}"
+	godaddy_api_auth = ("%s:%s" % (paramsGoDaddy.GODADDY_API_KEY,paramsGoDaddy.GODADDY_API_SECRET))
+	#dnsdata=`curl -s -X GET -H "Authorization: sso-key ${gdapikey}" "https://api.godaddy.com/v1/domains/${mydomain}/records/A/${myhostname}"`
+	
+	#--------------------------------------------------------------------------------
+	
+	# Send API request; receive response:
+	
+	#-H 'accept: application/json' \
+	#-H 'Authorization: sso-key UzQxLikm_46KxDFnbjN7cQjmw6wocia:46L26ydpkwMaKZV6uVdDWe'
+	#"accept": "application/json"
+	#"accept": "application/xml"
+	#"accept": "text/xml"
+	
+	if (RESPONSE_FORMAT == "JSON"):
+		#data = {
+		#	"Authorization": ("sso-key %s:%s" % (paramsGoDaddy.GODADDY_API_KEY,paramsGoDaddy.GODADDY_API_SECRET)),
+		#	"accept": "application/json"
+		#}
+		data = {
+			"Authorization": ("sso-key %s" % (godaddy_api_auth)),
+			"accept": "application/json"
+		}
+		LogFileAddURLCall(LOG_FILE_0,("GoDaddy.com JSON API Operation: %s" % full_url))
+		json_response = requests.get(full_url,headers=data)
+	elif (RESPONSE_FORMAT == "XML"):
+		#data = {
+		#	"Authorization": ("sso-key %s:%s" % (paramsGoDaddy.GODADDY_API_KEY,paramsGoDaddy.GODADDY_API_SECRET)),
+		#	"accept": "application/xml"
+		#}
+		data = {
+			"Authorization": ("sso-key %s" % (godaddy_api_auth)),
+			"accept": "application/xml"
+		}
+		LogFileAddURLCall(LOG_FILE_0,("GoDaddy.com XML API Operation: %s" % full_url))
+		xml_response = requests.get(full_url,headers=data)
+	
+	#--------------------------------------------------------------------------------
+	
+	# Review HTTP response codes
+	#https://2.python-requests.org//en/master/api/#requests.Response
+	#https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
+	if (RESPONSE_FORMAT == "JSON"):
+		if (json_response.status_code == 200):
+			LogFileAddOK(LOG_FILE_0,('GoDaddy HTTP Response Success: %s %s' % (json_response.status_code, json_response.reason)))
+			#print('[OK]: HTTP Response Success: 200 OK')
+			# Use fnmatchcase for true/false response from fnmatch module. Use str() function for format status code as a string.
+			#elif fnmatch.fnmatchcase(str(json_response.status_code), '2??'):
+		elif (json_response.ok):
+			LogFileAddOK(LOG_FILE_0,('GoDaddy HTTP Response Successful; Code: %s (%s)' % (json_response.status_code, json_response.reason)))
+			LogFileAddUntaggedMsg(LOG_FILE_0,("GoDaddy Request URL: \n%s\n" % full_url))
+		else:
+			LogFileAddTrouble(LOG_FILE_0,('GoDaddy HTTP Non-Terminating Response; Code: %s (%s)\n' % (json_response.status_code, json_response.reason)))
+			LogFileAddUntaggedMsg(LOG_FILE_0,("GoDaddy Request URL: \n%s\n" % full_url))
+			LogFileAddUntaggedMsg(LOG_FILE_0,("GoDaddy Response: \n%s\n" % json_response))
+			LogFileAddUntaggedMsg(LOG_FILE_0,("GoDaddy Full Response: \n%s\n" % json_response.content))
+	elif (RESPONSE_FORMAT == "XML"):
+		if (xml_response.status_code == 200):
+			LogFileAddOK(LOG_FILE_0,('GoDaddy HTTP Response Success: %s %s' % (xml_response.status_code, xml_response.reason)))
+			#print('[OK]: HTTP Response Success: 200 OK')
+			# Use fnmatchcase for true/false response from fnmatch module. Use str() function for format status code as a string.
+			#elif fnmatch.fnmatchcase(str(xml_response.status_code), '2??'):
+		elif (xml_response.ok):
+			LogFileAddOK(LOG_FILE_0,('GoDaddy HTTP Response Successful; Code: %s (%s)' % (xml_response.status_code, xml_response.reason)))
+			LogFileAddUntaggedMsg(LOG_FILE_0,("GoDaddy Request URL: \n%s\n" % full_url))
+		else:
+			LogFileAddTrouble(LOG_FILE_0,('GoDaddy HTTP Non-Terminating Response; Code: %s (%s)\n' % (xml_response.status_code, xml_response.reason)))
+			LogFileAddUntaggedMsg(LOG_FILE_0,("GoDaddy Request URL: \n%s\n" % full_url))
+			LogFileAddUntaggedMsg(LOG_FILE_0,("GoDaddy Response: \n%s\n" % xml_response))
+			LogFileAddUntaggedMsg(LOG_FILE_0,("GoDaddy Full Response: \n%s\n" % xml_response.content))
+		#print('xml_response type: ')
+		#print(type(xml_response))
+	
+	#--------------------------------------------------------------------------------
+	
+	# Review GoDaddy API response
+	
+	if (RESPONSE_FORMAT == "JSON"):
+		# Review GoDaddy API response
+		print('Parsing JSON response...')
+		#json = ET.fromstring(json_response.content)
+		print(json.dumps((json_response.content), sort_keys=True, indent=4))
+		
+		print('Parsing JSON response...')
+		print(json.loads((json_response.content)))
+		
+		print('Parsing JSON response...')
+		print(json.JSONDecoder((json_response.content)))
+		
+	elif (RESPONSE_FORMAT == "XML"):
+		# Review GoDaddy API response
+		print('Parsing XML response...')
+		xml = ET.fromstring(xml_response.content)
+		#print('0 :')
+		#print(xml_response.content)
+		#<response><result><data>455.251.170.100</data><name>@</name><ttl>1800</ttl><type>A</type></result></response>
+		#Sample response:
+		#<response>
+		#	<result>
+		#		<data>
+		#			455.251.170.100
+		#		</data>
+		#		<name>
+		#			@
+		#		</name>
+		#		<ttl>
+		#			1800
+		#		</ttl>
+		#		<type>
+		#			A
+		#		</type>
+		#	</result>
+		#</response>
+		
+		#print('4 :')
+		for result in xml.iter("result"):
+			#print (result.find('data').text)
+			#print (result.find('name').text)
+			#print (result.find('ttl').text)
+			#print (result.find('type').text)
+			GODADDY_CURRENT_IP = (result.find('data').text)
+			GODADDY_CURRENT_TTL = (result.find('ttl').text)
+	
+	UPDATE_RECORD = "False"
+	if ( GODADDY_CURRENT_IP != public_ip ):
+		UPDATE_RECORD = "True"
+		LogFileAddUpdate(LOG_FILE_0,('Public IP (%s) no longer matches GoDaddy %s domain IP (%s)' % (public_ip, paramsGoDaddy.GODADDY_DOMAIN, GODADDY_CURRENT_IP)))
+	else:
+		LogFileAddOK(LOG_FILE_0,('IP matches GoDaddy record: %s No need to update.' % (GODADDY_CURRENT_IP)))
+	
+	if ( ("%s" % GODADDY_CURRENT_TTL) != ("%s" % paramsGoDaddy.DNS_RECORD_TTL) ):
+		UPDATE_RECORD = "True"
+		LogFileAddUpdate(LOG_FILE_0,('Set TTL value (%s) does not match the GoDaddy %s domain record TTL (%s)' % (paramsGoDaddy.DNS_RECORD_TTL, paramsGoDaddy.GODADDY_DOMAIN, GODADDY_CURRENT_TTL)))
+	else:
+		LogFileAddOK(LOG_FILE_0,('TTL matches: %s = %s No need to update.' % (GODADDY_CURRENT_TTL, paramsGoDaddy.DNS_RECORD_TTL)))
+	
+	#--------------------------------------------------------------------------------
+	
+	# Update record via GoDaddy API:
+	
+	#https://developer.godaddy.com/doc/endpoint/domains#/v1/recordReplaceTypeName
+	if ( UPDATE_RECORD == "True" ) or FORCE_TESTING:
+		
+		if FORCE_TESTING:
+			LogFileAddUpdate(LOG_FILE_0,('FORCE TESTING: Forcing the API call to update DNS record. '+paramsGoDaddy.GODADDY_DOMAIN))
+		
+		#curl -X 'PUT' \
+		#  'https://api.ote-godaddy.com/v1/domains/example.com/records/A/%40' \
+		#  -H 'accept: application/json' \
+		#  -H 'Content-Type: application/json' \
+		#  -H 'Authorization: sso-key UzQxLikm_46KxDFnbjN7cQjmw6wocia:46L26ydpkwMaKZV6uVdDWe' \
+		#  -d '[
+		#  {
+		#    "data": "string",
+		#    "port": 65535,
+		#    "priority": 0,
+		#    "protocol": "string",
+		#    "service": "string",
+		#    "ttl": 0,
+		#    "weight": 0
+		#  }
+		#]'
+		
+		headers_dat = {
+			'accept': 'application/json',
+			'Content-Type': 'application/json',
+			'Authorization': ('sso-key %s' % (godaddy_api_auth))
+		}
+		
+		#print(json.dumps(json_dat))
+		#print(json.dumps({"data": ("%s" % (public_ip))}))
+		#json_dat = json.dumps(json_dat)
+		
+		# Thanks to this site for finally helping me get the right requests.put() format working:
+		#https://curlconverter.com/
+		json_data = [
+			{
+				'data': ('%s' % (public_ip)),
+				'ttl': (paramsGoDaddy.DNS_RECORD_TTL),
+			},
+		]
+		
+		LogFileAddURLCall(LOG_FILE_0,("Sending GoDaddy.com PUT API call: %s" % full_url))
+		
+		put_response = requests.put(full_url, headers=headers_dat, json=json_data)
+		# Note: json_data will not be serialized by requests
+		# exactly as it was in the original request.
+		#data = '[\n  {\n    "data": "string"\n  }\n]'
+		#response = requests.put('https://api.ote-godaddy.com/v1/domains/rotten-eggs.com/records/A/%40', headers=headers, data=data)
+		
+		if (put_response.status_code == 200):
+			LogFileAddOK(LOG_FILE_0,('GoDaddy HTTP Response Success: %s %s' % (put_response.status_code, put_response.reason)))
+			#print('[OK]: HTTP Response Success: 200 OK')
+			# Use fnmatchcase for true/false response from fnmatch module. Use str() function for format status code as a string.
+			#elif fnmatch.fnmatchcase(str(put_response.status_code), '2??'):
+		elif (put_response.ok):
+			LogFileAddOK(LOG_FILE_0,('GoDaddy HTTP Response Successful; Code: %s (%s)' % (put_response.status_code, put_response.reason)))
+			LogFileAddUntaggedMsg(LOG_FILE_0,("GoDaddy Request URL: \n%s\n" % full_url))
+		else:
+			LogFileAddTrouble(LOG_FILE_0,('GoDaddy HTTP Non-Terminating Response; Code: %s (%s)\n' % (put_response.status_code, put_response.reason)))
+			LogFileAddUntaggedMsg(LOG_FILE_0,("GoDaddy Request URL: \n%s\n" % full_url))
+			LogFileAddUntaggedMsg(LOG_FILE_0,("GoDaddy Response: \n%s\n" % put_response))
+			LogFileAddUntaggedMsg(LOG_FILE_0,("GoDaddy Full Response: \n%s\n" % put_response.content))
+	
+	return
+
 # /Functions:
 # =========================================================================================================
-# Main:
+# 5. Main:
 
 #Index:
-# 0. Set up parameters ------------------------------------------------------------------------------------
-# 1. Clean-up uncompiled .py files ------------------------------------------------------------------------
-# 2. Get current public IP --------------------------------------------------------------------------------
-# 3. Get IP on record with DNS ----------------------------------------------------------------------------
-# 4. Get IP on record with DNS (direct API call to domain provider) ---------------------------------------
-# 5. Compare if all details match -------------------------------------------------------------------------
-# 6. If any details do not match, send API request to update DNS record -----------------------------------
-# 6a. NameSilo.com ----------------------------------------------------------------------------------------
-# 6b. GoDaddy.com -----------------------------------------------------------------------------------------
+# 5.0. Set up parameters ----------------------------------------------------------------------------------
+# 5.1. Clean-up uncompiled .py files ----------------------------------------------------------------------
+# 5.2. Get current public IP ------------------------------------------------------------------------------
+# 5.3. Get IP on record with DNS --------------------------------------------------------------------------
+# 5.4. Get IP on record with DNS (direct API call to domain provider) -------------------------------------
+# 5.5. Compare if all details match -----------------------------------------------------------------------
+# 5.6. If any details do not match, send API request to update DNS record ---------------------------------
+# 5.6a. NameSilo.com --------------------------------------------------------------------------------------
+# 5.6b. GoDaddy.com ---------------------------------------------------------------------------------------
 
-# 0. Set up parameters ------------------------------------------------------------------------------------
+# 5.0. Set up parameters ----------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
 
 SUBFOLDER = "./params"
+
+NAMESILO_CSV = "NameSilo.csv"
+GODADDY_CSV = "GoDaddy.csv"
+
+sys.stdout.write(colorcode.YELLOW)
+print('Currently using Python version:')
+print(sys.version)
+sys.stdout.write(colorcode.RESET)
 
 if STRICT_CHECKING:
 	print('STRICT_CHECKING: Domain provider API call to check DNS record is correct will be made every time.')
@@ -1151,10 +1442,12 @@ SUB_FOLDER_NAME = SUBFOLDER.replace('./','')
 FULL_SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
 FULL_SUBFOLDER_PATH = join(FULL_SCRIPT_PATH, SUB_FOLDER_NAME)
 
-NAMESILO_ACTIVE = False
-GODADDY_ACTIVE = False
+# Set-up log file:
+LOG_FILE_0, LOG_FILE_FULL_PATH, LOG_FILE_CURATED_PATH, VID_TO_CURATE = LogFileInit()
 
 # Import domain config file(s) with sensitive data:
+NAMESILO_ACTIVE = False
+GODADDY_ACTIVE = False
 for filename in PARAMSFILES:
 	if '_TEMPLATE' not in filename:
 		if 'NameSilo' in filename:
@@ -1165,10 +1458,29 @@ for filename in PARAMSFILES:
 			GODADDY_ACTIVE = True
 			import params.GoDaddy as paramsGoDaddy
 
-# Set-up log file:
-LOG_FILE_0, LOG_FILE_FULL_PATH, LOG_FILE_CURATED_PATH, VID_TO_CURATE = LogFileInit()
+FULL_CSV_NAMESILO_PATH = join(FULL_SUBFOLDER_PATH, NAMESILO_CSV)
+FULL_CSV_GODADDY_PATH = join(FULL_SUBFOLDER_PATH, GODADDY_CSV)
 
-# 1. Clean-up uncompiled .py files ------------------------------------------------------------------------
+if NAMESILO_ACTIVE:
+	if not os.path.isfile(FULL_CSV_NAMESILO_PATH):
+		sys.stdout.write(colorcode.RED)
+		print('WARNING: No NameSilo CSV file found. You must also add a '+NAMESILO_CSV+' file to make a full set of parameters.')
+		sys.stdout.write(colorcode.RESET)
+		NAMESILO_ACTIVE = False
+
+if GODADDY_ACTIVE:
+	if not os.path.isfile(FULL_CSV_GODADDY_PATH):
+		sys.stdout.write(colorcode.RED)
+		print('WARNING: No GoDaddy CSV file found. You must also add a '+GODADDY_CSV+' file to make a full set of parameters.')
+		sys.stdout.write(colorcode.RESET)
+		GODADDY_ACTIVE = False
+
+if not NAMESILO_ACTIVE and not GODADDY_ACTIVE:
+	sys.stdout.write(colorcode.RED)
+	print('WARNING: No domain parameters properly configured for this script!')
+	sys.stdout.write(colorcode.RESET)
+
+# 5.1. Clean-up uncompiled .py files ----------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
 
 if CLEAN_UNCOMPILED:
@@ -1186,7 +1498,7 @@ if CLEAN_UNCOMPILED:
 else:
 	print('\n(Skipping step 1. Clean-up uncompiled .py files)')
 
-# 2. Get current public IP --------------------------------------------------------------------------------
+# 5.2. Get current public IP ------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
 
 print('\n2. Get current public IP')
@@ -1195,7 +1507,7 @@ public_ip_pif = GetPublicIP(LOG_FILE_0)
 
 public_ip_ip42, CURRENT_IP_ADDRESS_URL = GetPublicIPip42pl(LOG_FILE_0);
 
-# 3. Get IP on record with DNS ----------------------------------------------------------------------------
+# 5.3. Get IP on record with DNS --------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
 
 print('\n3. Get IP on record with DNS')
@@ -1207,9 +1519,29 @@ if NAMESILO_ACTIVE:
 	NAMESILO_DOMAIN = paramsNameSilo.DOMAIN_NAME_TO_MAINTAIN.lower()
 	NAMESILO_SUBDOMAIN = paramsNameSilo.SUB_DOMAIN_TLD
 
+with open(FULL_CSV_GODADDY_PATH) as csv_file:
+	#csv_reader = csv.reader(csv_file, delimiter=',')
+	fieldnames = ['Subdomain','Domain_Name']
+	csv_reader = csv.DictReader(csv_file, fieldnames=fieldnames)
+	line_count = 0
+	for row in csv_reader:
+		if line_count == 0:
+			print("Column names are "+row['Subdomain']+","+row['Domain_Name'])
+			line_count += 1
+		else:
+			print("Row values are "+row['Subdomain']+","+row['Domain_Name'])
+			line_count += 1
+	print("Processed "+str(line_count)+" lines.")
+
 # GoDaddy
 if GODADDY_ACTIVE:
 	GODADDY_DOMAIN = paramsGoDaddy.GODADDY_DOMAIN
+	
+	with open(FULL_CSV_GODADDY_PATH) as csv_file:
+		#csv_reader = csv.reader(csv_file, delimiter=',')
+		fieldnames = ['Subdomain','Domain_Name']
+		GODADDY_CSV_READ = csv.DictReader(csv_file, fieldnames=fieldnames)
+		
 
 # Next, check the IP on record for each domain with a regular DNS lookup using nslookup:
 
@@ -1236,12 +1568,28 @@ if NAMESILO_ACTIVE:
 		LogFileAddOK(LOG_FILE_0,('Current IP address '+NAMESILO_SUBDOMAIN_IP+' matches '+NAMESILO_SUBDOMAIN+' NameSilo record. No need to update.'))
 
 if GODADDY_ACTIVE:
+	
+	with open(FULL_CSV_GODADDY_PATH) as csv_file:
+		#csv_reader = csv.reader(csv_file, delimiter=',')
+		fieldnames = ['Subdomain','Domain_Name']
+		GODADDY_CSV_READ = csv.DictReader(csv_file, fieldnames=fieldnames)
+		line_count = 0
+		for row in GODADDY_CSV_READ:
+			if line_count == 0:
+				print("Column names are "+row['Subdomain']+","+row['Domain_Name'])
+			else:
+				print("Row values are "+row['Subdomain']+","+row['Domain_Name'])
+				if row['Subdomain'] == "@":
+					search_domain = row['Domain_Name']
+			line_count += 1
+		print("Processed "+str(line_count)+" lines.")
+	
 	if (GODADDY_DOMAIN_IP != public_ip_pif): 
 		UPDATE_GODADDY = True
 	else:
 		LogFileAddOK(LOG_FILE_0,('Current IP address '+public_ip_pif+' matches '+paramsGoDaddy.GODADDY_DOMAIN+' GoDaddy record. No need to update.'))
 
-# 4. Get IP on record with DNS (direct API call to domain provider) ---------------------------------------
+# 5.4. Get IP on record with DNS (direct API call to domain provider) -------------------------------------
 # ---------------------------------------------------------------------------------------------------------
 
 if NAMESILO_ACTIVE:
@@ -1250,7 +1598,7 @@ if NAMESILO_ACTIVE:
 		
 		current_namesilo, xml = GetPublicIPNameSilo(paramsNameSilo.OUR_API_KEY,paramsNameSilo.DOMAIN_NAME_TO_MAINTAIN);
 
-# 5. Compare if all details match -------------------------------------------------------------------------
+# 5.5. Compare if all details match -----------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
 
 print('\n5. Compare if all details match')
@@ -1285,8 +1633,8 @@ if NAMESILO_ACTIVE:
 			LogFileAddUntaggedMsg(LOG_FILE_0,('         '+public_ip_pif+'   pif'))
 			LogFileAddUntaggedMsg(LOG_FILE_0,('         '+current_namesilo+'  NameSilo.com\n'))
 
-# 6. If any details do not match, send API request to update DNS record -----------------------------------
-# 6a. NameSilo.com ----------------------------------------------------------------------------------------
+# 5.6. If any details do not match, send API request to update DNS record ---------------------------------
+# 5.6a. NameSilo.com --------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
 
 print('\n6. If any details do not match, send API request to update DNS record')
@@ -1347,7 +1695,7 @@ if NAMESILO_ACTIVE:
 				LogFileAddUpdate(LOG_FILE_0,('IP addresses do not match, generating URL to update.'))
 				NameSiloSubDomain()
 
-# 6b. GoDaddy.com -----------------------------------------------------------------------------------------
+# 5.6b. GoDaddy.com ---------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
 
 if GODADDY_ACTIVE:
@@ -1360,7 +1708,7 @@ if GODADDY_ACTIVE:
 
 # /Main
 # ---------------------------------------------------------------------------------------------------------
-# Footer:
+# 6. Footer:
 LogFileEndOp(LOG_FILE_0,LOG_FILE_FULL_PATH,LOG_FILE_CURATED_PATH,VID_TO_CURATE)
 print('\nEnd dynamic-DNS script.')
 # /Footer
