@@ -111,7 +111,7 @@ Set-SCPItem -Destination $RemotePathUL -Path $LocalPath @RemoteParams
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-# Upload sensitive parameters folder:
+# Upload parameters folder:
 
 $LocalPath = Join-Path -Path $LocalSubFolder -ChildPath "params"
 Set-SCPItem -Destination $RemotePathDL -Path $LocalPath @RemoteParams

@@ -781,9 +781,9 @@ removecronjob()
 		USER_INPUT="No escape"
 		while [ "$USER_INPUT" != "y" ] && [ "$USER_INPUT" != "n" ] && [ "$USER_INPUT" != "Y" ] && [ "$USER_INPUT" != "N" ]; do
 			if [[ -z "$CRONJOB_INPUT_NAME" ]]; then
-				echo "Delete cron job(s)? [y/n]:"
+				echo "Delete cron job(s)? (Recommened Yes) [y/n]:"
 			else
-				echo "Delete cron job(s) for user '$CRONJOB_INPUT_NAME'? [y/n]:"
+				echo "Delete cron job(s) for user '$CRONJOB_INPUT_NAME'? (Recommened Yes) [y/n]:"
 			fi
 			read USER_INPUT
 		done
@@ -874,7 +874,7 @@ cronfreqmenu()
 {
 	printf "\nSelect how frequently the Dynamic DNS script should run:\n"
 	echo " 0 - Once every two hours"
-	echo " 1 - Once per hour (Recommended)"
+	echo " 1 - Once per hour"
 	echo " 2 - Twice per hour"
 	echo " 3 - Once every fifteen minutes"
 	echo " 4 - Once every ten minutes (Non standard! May not work with every cron.)"
@@ -912,7 +912,7 @@ if [ $USER_INPUT -ge 0 ] && [ $USER_INPUT -le 1 ]; then
 			printf "\nOnce per hour selected.\n"
 		fi
 		minselecttxt
-		printf " 0 - Random Minute Value Generator (Recommended)\n"
+		printf " 0 - Random Minute Value Generator\n"
 		printf " 1 - Enter a minute value 0-59\n"
 		MIN_GAMEOVER_INPUT=99
 		#if [ -v "$PICKEDMIN" ]; then
@@ -1003,7 +1003,7 @@ logcleanupfreqmenu()
 	printf "\n\nTip: The log cleanup script will save the last log file as _OLD or _LAST. And if a file already exists with that name, it will be deleted first. So the oldest data that will be retained is up to double how often the log cleanup script is scheduled to run.\n"
 	printf "\n\nSelect how frequently the Log Cleanup script should run:\n"
 	echo " 0 - Once every two weeks (on the 1st and the 15th of every month)"
-	echo " 1 - Once per month (Recommended)"
+	echo " 1 - Once per month"
 	echo " 2 - Once every 2 months"
 	echo " 3 - Once every 3 months"
 	echo " 4 - Enter custom cron tab string"
