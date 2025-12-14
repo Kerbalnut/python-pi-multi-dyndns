@@ -18,14 +18,14 @@ It includes automated setup scripts, and a log cleanup script to keep log file s
   - [Overview:](#overview)
   - [Detailed Instructions:](#detailed-instructions)
 - [How to edit](#how-to-edit)
-  - [Contributions:](#contributions)
-    - [Pull requests](#pull-requests)
   - [How it works](#how-it-works)
     - [Basic program flow of `dyndns.py`:](#basic-program-flow-of-dyndnspy)
     - [URL Calls v1:](#url-calls-v1)
     - [URL Calls v2:](#url-calls-v2)
     - [FAQ](#faq)
-    - [To Do:](#to-do)
+  - [Contributions:](#contributions)
+    - [Pull requests](#pull-requests)
+  - [To Do:](#to-do)
 
 # Setup Instructions
 
@@ -71,22 +71,6 @@ To customize & edit these scripts to your liking:
         - **Make sure** after creating the actual params `*.py` file and populating with your real API keys, you add it to `.gitignore` instead of accidentially committing it to the repo! (Even if you do, just generate new API keys and invalidate the old ones.)
     - Don't forget to include a `import params.ExampleSite as paramsExampleSite` line at the top, and update the main script logic at the bottom of `dyndns.py` to use the new function.
 - **To update the logging functionality:** open `dyndns.py` in an editor such as vscode. All logging functions start with a **LogFile** -prefix. Start with reading the help text at the top of the **LogFileInit()** function, it is the master guiding script that controls & cleans-up everything. The official help text for using these functions is in the comments at the top of each as well, and all instructions for using them should be updated there.
-
-## Contributions:
-
-All contributions are welcome!
-
-To let me know about any problems you run into, feel free to open a [GitHub Issue](https://github.com/Kerbalnut/python-pi-multi-dyndns/issues).
-
-### Pull requests
-
-I don't get a lot of pull requests and don't check my github account religiously for them, so it may take some weeks or longer for a response. But do not worry, it is not being ignored!
-
-1. Create a new [fork](https://docs.github.com/en/get-started/quickstart/contributing-to-projects#forking-a-repository) of this repo on your account.
-2. Commit some changes to the new fork.
-3. Create a [Pull Request](https://docs.github.com/en/get-started/quickstart/contributing-to-projects#making-a-pull-request) for your commits be pulled into this repo.
-
-(In the `.vscode` folder, there's also extension recommendations like for "Markdown All in One" that are only for auto-updating the Table of Contents of the Readme file. If you're not updating `README.md`, it's not really necessary.)
 
 ## How it works
 
@@ -172,14 +156,35 @@ flowchart LR
 
 - **If this is a python project, why is there so much shell code?** - Most of the excess shell code you see in the breakdown comes from a mini-game script called `rand.sh` in the `lib` folder. This mini-game is just that - a completely unnecessary game that only gives you one final ouput: a randomly-picked integer between 0-59. Literally a one-liner could replace it. But this is a game, so it includes graphics and a hidden progression system. I have very little experience with shell code, so I have been using this project as a way to practice and get better at it, and when I discovered the RANDOM variable I realized it was powerful enough to make simple games with. So, rand.sh became a side project within this project that allowed me to explore different ways to play with randomness. If you want to avoid it, you'll know which options to pick when you're running `setup.sh`. The setup script should even technically still run fine if you just delete `rand.sh` completely (but I haven't tested this yet!).
 
-### To Do:
+## Contributions:
+
+All contributions are welcome!
+
+To let me know about any problems you run into, feel free to open a [GitHub Issue](https://github.com/Kerbalnut/python-pi-multi-dyndns/issues).
+
+### Pull requests
+
+I don't get a lot of pull requests and don't check my github account religiously for them, so it may take some weeks or longer for a response. But do not worry, it is not being ignored!
+
+1. Create a new [fork](https://docs.github.com/en/get-started/quickstart/contributing-to-projects#forking-a-repository) of this repo on your account.
+2. Commit some changes to the new fork.
+3. Create a [Pull Request](https://docs.github.com/en/get-started/quickstart/contributing-to-projects#making-a-pull-request) for your commits be pulled into this repo.
+
+(In the `.vscode` folder, there's also extension recommendations like for "Markdown All in One" that are only for auto-updating the Table of Contents of the Readme file. If you're not updating `README.md`, it's not really necessary.)
+
+## To Do:
 
 - [ ] NameSilo functions are still a complete mess after being adapted from static script into new function based format. They still have lots of junk and test code, but also have a weird layout.
 - [X] Load params modularly.
+
+- [ ] Add SMS message functionality
+- [ ] Add checking domain expiration date
+
 - [ ] Add aeserver.com compatibility.
-- [ ] Test clean install & instructions.
-- [ ] Add GoDaddy JSON capability for testing and practice.
 - [ ] Standardize param files var names.
+- [ ] Move domain & subdomain param values to CSV files for updating multiple domains on a single provider.
+- [X] Test clean install & instructions.
+- [ ] Add GoDaddy JSON capability for testing and practice.
 - [ ] Update and test `logcleanup.sh` to clean up _CURATED and stop using static paths
 - [ ] Test with python3
 - [ ] Test with python2.7 and python3
@@ -190,11 +195,10 @@ flowchart LR
 - [ ] Test running `setup.sh` with/without sudo
 - [ ] ~~Make `setup.sh` prompt user to confirm username before running.~~
 - [X] Remove `setup.sh` references to hard-coded username 'pi', replace with `$USER` var.
+- [ ] Simplify README
 
 
-
-
-
+ 
 
 
 
